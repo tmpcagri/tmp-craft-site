@@ -1,0 +1,72 @@
+{
+  "navbar": {
+    "logoText": "TMP Craft"
+  },
+  "infoCards": [
+    {
+      "title": "Hakkımızda",
+      "body": "TMP Craft, fikirden ürüne zanaatla inşa eden bir dijital yapım stüdyosudur.",
+      "span": "sm:col-span-2 sm:row-span-2",
+      "imageUrl": "",
+      "linkUrl": "#"
+    },
+    {
+      "title": "Hizmetlerimiz",
+      "body": "Web tasarımı, marka kimliği ve dijital ürün geliştirme.",
+      "span": "",
+      "imageUrl": "",
+      "linkUrl": "#"
+    },
+    {
+      "title": "İletişim",
+      "body": "Bir projeniz mi var? Bize ulaşın, birlikte konuşalım.",
+      "span": "",
+      "imageUrl": "",
+      "linkUrl": "#"
+    },
+    {
+      "title": "Öne Çıkan Proje",
+      "body": "Yakında burada — ilk vaka çalışmamızı hazırlıyoruz.",
+      "span": "sm:col-span-2",
+      "imageUrl": "",
+      "linkUrl": "#"
+    },
+    {
+      "title": "Topluluk",
+      "body": "Sosyal medyada bizi takip edin, gelişmeleri kaçırmayın.",
+      "span": "",
+      "imageUrl": "",
+      "linkUrl": "#"
+    }
+  ],
+  "footerLinks": [
+    {
+      "label": "Hakkımızda",
+      "href": "#"
+    },
+    {
+      "label": "İletişim",
+      "href": "#"
+    },
+    {
+      "label": "Destek ve Yardım",
+      "href": "#"
+    },
+    {
+      "label": "SSS",
+      "href": "#"
+    },
+    {
+      "label": "Gizlilik Politikası",
+      "href": "#"
+    },
+    {
+      "label": "KVKK",
+      "href": "#"
+    },
+    {
+      "label": "Telif Hakkı",
+      "href": "#"
+    }
+  ]
+}

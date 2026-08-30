@@ -1,9 +1,17 @@
+import Link from "next/link";
+import { getSiteContent } from "./lib/content";
 import Navbar from "./navbar";
 
 export default function NotFound() {
+  const content = getSiteContent();
+
   return (
     <div className="relative flex min-h-screen w-full items-center overflow-hidden bg-black px-8 sm:px-20">
-      <Navbar className="text-white" />
+      <Navbar
+        className="text-white"
+        logoText={content.navbar.logoText}
+        navLinks={content.footerLinks}
+      />
 
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -right-16 top-1/2 h-[560px] w-[560px] -translate-y-1/2 rotate-12">
@@ -33,12 +41,12 @@ export default function NotFound() {
           Aradığın sayfa kaldırılmış ya da hiç var olmamış olabilir. Merak
           etme, TMP Craft&apos;ın geri kalanı yerinde duruyor.
         </p>
-        <a
+        <Link
           href="/"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 font-sans text-sm font-semibold text-black transition hover:bg-emerald-300"
         >
           Ana sayfaya dön
-        </a>
+        </Link>
       </div>
     </div>
   );

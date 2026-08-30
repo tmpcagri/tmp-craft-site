@@ -1,0 +1,41 @@
+[
+  {
+    "id": "USR-1F2A3B",
+    "username": "cagri",
+    "avatarUrl": "",
+    "provider": "Google",
+    "device": "Chrome · Windows 11",
+    "joinedAt": "2026-08-20T10:15:00.000Z",
+    "lastActivity": {
+      "at": "2026-08-30T09:40:00.000Z",
+      "change": "Bilgi kartlarını güncelledi"
+    },
+    "permissions": ["cards", "links"]
+  },
+  {
+    "id": "USR-7C9D2E",
+    "username": "elif.moderator",
+    "avatarUrl": "",
+    "provider": "Microsoft",
+    "device": "Edge · Windows 11",
+    "joinedAt": "2026-08-25T14:05:00.000Z",
+    "lastActivity": {
+      "at": "2026-08-29T18:22:00.000Z",
+      "change": "Footer linklerini düzenledi"
+    },
+    "permissions": ["links"]
+  },
+  {
+    "id": "USR-4A8F61",
+    "username": "kaan.icerik",
+    "avatarUrl": "",
+    "provider": "Google",
+    "device": "Safari · macOS",
+    "joinedAt": "2026-08-27T09:00:00.000Z",
+    "lastActivity": {
+      "at": "2026-08-27T09:30:00.000Z",
+      "change": "Hesap oluşturuldu, henüz düzenleme yapmadı"
+    },
+    "permissions": []
+  }
+]

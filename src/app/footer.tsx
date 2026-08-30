@@ -1,4 +1,4 @@
-import { navLinks } from "./nav-links";
+import type { NavLink } from "./lib/content";
 
 function YouTubeIcon() {
   return (
@@ -58,13 +58,19 @@ const socials = [
   { label: "Instagram", href: "#", Icon: InstagramIcon },
 ];
 
-export default function Footer() {
+export default function Footer({
+  logoText,
+  links,
+}: {
+  logoText: string;
+  links: NavLink[];
+}) {
   return (
     <footer className="relative z-10 w-full border-t border-black/10 bg-white/30 px-6 py-10 backdrop-blur-xl dark:border-white/10 dark:bg-black/30 sm:px-10">
       <div className="mx-auto flex max-w-5xl flex-col gap-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <p className="font-sans text-lg font-bold tracking-tight text-black dark:text-white">
-            TMP Craft
+            {logoText}
           </p>
           <div className="flex items-center gap-4 text-black/60 dark:text-white/60">
             {socials.map(({ label, href, Icon }) => (
@@ -81,7 +87,7 @@ export default function Footer() {
         </div>
 
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-black/60 dark:text-white/60">
-          {navLinks.map(({ label, href }) => (
+          {links.map(({ label, href }) => (
             <a
               key={label}
               href={href}
