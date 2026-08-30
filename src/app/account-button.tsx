@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import EditProfileModal from "./edit-profile-modal";
 import { signInWithAzure, signInWithGoogle, signOut } from "./lib/auth-client";
+import { createClient } from "./lib/supabase/client";
 import { GoogleIcon, MicrosoftIcon } from "./provider-icons";
 
 export default function AccountButton({
@@ -12,7 +14,26 @@ export default function AccountButton({
   name?: string | null;
 }) {
   const [open, setOpen] = useState(false);
-  const isSignedIn = Boolean(avatarUrl && name);
+  const [editing, setEditing] = useState(false);
+  const [displayName, setDisplayName] = useState(name ?? null);
+  const isSignedIn = Boolean(name);
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    const supabase = createClient();
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+      if (data?.username) setDisplayName(data.username);
+    })();
+  }, [isSignedIn]);
 
   return (
     <div className="relative">
@@ -48,7 +69,7 @@ export default function AccountButton({
           )}
         </span>
         <span className="whitespace-nowrap">
-          {isSignedIn ? name : "Giriş Yapın"}
+          {isSignedIn ? displayName : "Giriş Yapın"}
         </span>
       </button>
 
@@ -58,22 +79,45 @@ export default function AccountButton({
             <div className="flex flex-col gap-3 p-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
-                  {avatarUrl && (
+                  {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- external Google/Microsoft avatar URL
                     <img
                       src={avatarUrl}
                       alt={name ?? "Hesap"}
                       className="h-full w-full object-cover"
                     />
+                  ) : (
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
                   )}
                 </span>
                 <div>
                   <p className="font-sans text-sm font-semibold text-black dark:text-white">
-                    {name}
+                    {displayName}
                   </p>
                   <p className="text-xs opacity-50">Oturum açık</p>
                 </div>
               </div>
+              <button
+                onClick={() => {
+                  setEditing(true);
+                  setOpen(false);
+                }}
+                className="rounded-full border border-black/10 py-2.5 text-sm font-medium text-black transition hover:bg-black/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
+              >
+                Profili Düzenle
+              </button>
               <button
                 onClick={() => signOut()}
                 className="rounded-full border border-black/10 py-2.5 text-sm font-medium text-black transition hover:bg-black/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
@@ -110,6 +154,13 @@ export default function AccountButton({
             </div>
           )}
         </div>
+      )}
+
+      {editing && (
+        <EditProfileModal
+          onClose={() => setEditing(false)}
+          onSaved={(newUsername) => setDisplayName(newUsername)}
+        />
       )}
     </div>
   );

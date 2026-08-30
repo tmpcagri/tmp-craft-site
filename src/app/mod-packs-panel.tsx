@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 const modPacks = [
@@ -59,7 +60,7 @@ export default function ModPacksPanel({
     <div
       className={`relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-800 to-zinc-950 shadow-xl ${className}`}
     >
-      <a
+      <Link
         href="/mod-paketleri"
         className="flex aspect-[4/1] shrink-0 items-center justify-between px-5 text-white transition hover:bg-white/5"
       >
@@ -69,7 +70,7 @@ export default function ModPacksPanel({
         <span className="whitespace-nowrap font-sans text-xs opacity-70 sm:text-sm">
           Tümünü Gör →
         </span>
-      </a>
+      </Link>
 
       <div
         ref={trackRef}
@@ -84,7 +85,7 @@ export default function ModPacksPanel({
         }}
       >
         {track.map((pack, i) => (
-          <a
+          <Link
             key={`${pack.name}-${i}`}
             href={`/mod-paketleri/${pack.name.toLowerCase().replace(/\s+/g, "-")}`}
             className="flex w-28 shrink-0 flex-col overflow-hidden rounded-xl shadow-lg transition hover:scale-[1.03]"
@@ -97,7 +98,7 @@ export default function ModPacksPanel({
                 {pack.name}
               </span>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

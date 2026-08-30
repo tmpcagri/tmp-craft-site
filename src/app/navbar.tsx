@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { NavLink } from "./lib/content";
 import MenuToggle from "./menu-toggle";
+import SearchBar from "./search-bar";
 
 export default function Navbar({
   className = "",
@@ -24,27 +25,7 @@ export default function Navbar({
           {logoText}
         </Link>
       </div>
-      <button
-        type="button"
-        aria-label="Ara"
-        className="justify-self-center flex w-72 items-center gap-3 rounded-full border border-current/20 px-5 py-3 text-base transition-all duration-300 hover:bg-current/10 hover:shadow-[0_0_30px_-4px_currentColor]"
-      >
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="shrink-0 opacity-70"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <span className="opacity-60">Ara...</span>
-      </button>
+      <SearchBar />
       <div />
     </nav>
   );

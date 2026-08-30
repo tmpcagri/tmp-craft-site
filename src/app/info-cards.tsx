@@ -2,6 +2,10 @@ import Link from "next/link";
 import type { InfoCard } from "./lib/content";
 import ScrollReveal from "./scroll-reveal";
 
+function isSafeLink(url: string): boolean {
+  return url.startsWith("/") || /^https?:\/\//.test(url);
+}
+
 export default function InfoCards({ cards }: { cards: InfoCard[] }) {
   if (cards.length === 0) return null;
 
@@ -28,7 +32,7 @@ export default function InfoCards({ cards }: { cards: InfoCard[] }) {
             <p className="mt-3 font-sans text-sm text-black/60 dark:text-white/60">
               {card.body}
             </p>
-            {card.linkUrl && card.linkUrl !== "#" && (
+            {card.linkUrl && isSafeLink(card.linkUrl) && (
               <Link
                 href={card.linkUrl}
                 className="mt-4 inline-flex w-fit items-center gap-1 font-sans text-sm font-semibold text-black underline underline-offset-4 dark:text-white"
