@@ -1,0 +1,69 @@
+import BackButton from "../back-button";
+import Footer from "../footer";
+import { getCurrentUser } from "../lib/auth";
+import { getSiteContent } from "../lib/content";
+import { guides } from "../lib/guides";
+import Navbar from "../navbar";
+import ProjelerFilters from "./projeler-filters";
+
+export default async function ProjelerPage() {
+  const content = getSiteContent();
+  const user = await getCurrentUser();
+
+  const buildCount = guides.filter((g) => g.kind === "Build").length;
+  const farmCount = guides.filter((g) => g.kind === "Farm").length;
+
+  return (
+    <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
+      <Navbar
+        className="text-black dark:text-white"
+        logoText={content.navbar.logoText}
+        navLinks={content.footerLinks}
+        user={user}
+      />
+
+      <div className="relative flex-1 px-6 pb-24 pt-32 sm:px-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 -top-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 top-40 h-72 w-72 rounded-full bg-orange-400/15 blur-3xl"
+        />
+
+        <BackButton />
+
+        <div className="relative">
+          <span className="inline-flex items-center rounded-full bg-amber-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-[0.2em] text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
+            PROJELER
+          </span>
+          <h1 className="mt-4 font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
+            Build ve Farm Rehberi
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-black/60 dark:text-white/60 sm:text-base">
+            Coğrafya mühendisliği, yerleşim mantığı ve verim hesabıyla
+            hazırlanmış rehberler. Sadece build, sadece farm ya da ikisi bir
+            arada — sen seç.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-black/50 dark:text-white/50">
+            <span className="rounded-full bg-black/5 px-3 py-1 dark:bg-white/10">
+              {guides.length} rehber
+            </span>
+            <span className="rounded-full bg-black/5 px-3 py-1 dark:bg-white/10">
+              {buildCount} Build
+            </span>
+            <span className="rounded-full bg-black/5 px-3 py-1 dark:bg-white/10">
+              {farmCount} Farm
+            </span>
+          </div>
+        </div>
+
+        <ProjelerFilters />
+      </div>
+
+      <Footer logoText={content.navbar.logoText} links={content.footerLinks} />
+    </div>
+  );
+}

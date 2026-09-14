@@ -118,6 +118,13 @@ Hepsi kod tarafında tamamlandı:
       Editor'de çalıştırıldı (bkz. dosyanın başındaki not)
 - [ ] `supabase/migrations/0002_minecraft_profile.sql` da çalıştırıldı
       (0001'den sonra)
+- [ ] `supabase/migrations/0003_profile_edit_fields.sql`,
+      `0004_messages.sql` ve **`0005_username_unique.sql`** de sırayla
+      çalıştırıldı — özellikle 0005 önemli: `handle_new_user`'ı, ilk
+      girişte username çakışmasını (unique constraint) otomatik sayısal
+      sonek ekleyerek çözecek şekilde günceller. Bu migration'lar
+      çalıştırılmadan ilk gerçek OAuth girişini test etmeyin, yoksa eski
+      (çakışma korumasız) trigger devreye girer.
 - [ ] Microsoft ile giriş test edildi, `profiles` tablosunda
       `minecraft_username`/`minecraft_uuid` doldu (Minecraft hesabı olan
       bir Microsoft hesabıyla test edilmeli)

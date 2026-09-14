@@ -2,15 +2,46 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { InfoCard, NavLink, SiteContent } from "@/app/lib/content";
+import type {
+  CreatorPlatform,
+  CreatorTier,
+  InfoCard,
+  NavLink,
+  SiteContent,
+} from "@/app/lib/content";
 import type { ModeratorSession, ModeratorTab } from "@/app/lib/permissions";
-import HillsBackground from "../hills-background";
+import Logo from "../logo";
+import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
+import ToplulukPanel from "./topluluk-panel";
 
 const allTabs: { id: ModeratorTab; label: string }[] = [
   { id: "cards", label: "Bilgi Kartları" },
   { id: "links", label: "Footer / Menü Linkleri" },
+  { id: "creators", label: "Yayıncılar" },
+  { id: "articles", label: "Topluluk" },
 ];
+
+const cardSizeOptions: { label: string; value: string }[] = [
+  { label: "Küçük", value: "" },
+  { label: "Orta (geniş)", value: "sm:col-span-2" },
+  { label: "Büyük (geniş + uzun)", value: "sm:col-span-2 sm:row-span-2" },
+];
+
+const platformOptions: CreatorPlatform[] = ["YouTube", "Twitch", "TikTok"];
+const tierOptions: { label: string; value: CreatorTier }[] = [
+  { label: "Premium (ödemeli öne çıkarma)", value: "premium" },
+  { label: "Diğer Yayıncılar", value: "standard" },
+  { label: "Yeni Başlayanlar", value: "newcomer" },
+];
+
+function moveItem<T>(list: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= list.length) return list;
+  const next = [...list];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
 
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
@@ -19,40 +50,72 @@ export default function AdminPage() {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [status, setStatus] = useState<string>("");
   const [activeTab, setActiveTab] = useState<ModeratorTab | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     fetch("/api/content")
-      .then((res) => res.json())
-      .then(setContent);
+      .then((res) => {
+        if (!res.ok) throw new Error("content fetch failed");
+        return res.json();
+      })
+      .then(setContent)
+      .catch(() => setLoadError(true));
   }, []);
 
   useEffect(() => {
     fetch("/api/session")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("session fetch failed");
+        return res.json();
+      })
       .then((session: ModeratorSession) => {
         setModerator(session);
         setActiveTab(
           allTabs.find((tab) => session?.permissions.includes(tab.id))?.id ??
             null,
         );
-      });
+      })
+      .catch(() => setLoadError(true));
   }, []);
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#f5f5f5] font-sans text-[#0a0a0a]">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p>Sayfa yüklenemedi, bağlantı sorunu olabilir.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-[18px] border border-[#e5e5e5] bg-white px-5 py-2 text-sm font-medium transition hover:bg-[#f5f5f5]"
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!content || moderator === undefined) {
     return (
-      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden font-sans text-black dark:text-white">
-        <HillsBackground />
-        <p className="relative z-10">Yükleniyor...</p>
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#f5f5f5] font-sans text-[#0a0a0a]">
+        <p>Yükleniyor...</p>
       </div>
     );
   }
 
   if (!moderator) {
     return (
-      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden font-sans text-black dark:text-white">
-        <HillsBackground />
-        <p className="relative z-10">
-          Bu sayfayı görüntülemek için giriş yapmalısın.
+      <ModeratorAuthGate
+        message="Bu sayfayı görüntülemek için giriş yapmalısın."
+        redirectTo="/admin"
+      />
+    );
+  }
+
+  if (moderator.permissions.length === 0) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#f5f5f5] font-sans text-[#0a0a0a]">
+        <p className="text-2xl font-bold uppercase tracking-wide text-[#e7000b]">
+          Yetkiniz Bulunmamaktadır
         </p>
       </div>
     );
@@ -119,61 +182,108 @@ export default function AdminPage() {
     });
   };
 
+  const updateCreator = (
+    index: number,
+    patch: Partial<SiteContent["recommendedCreators"][number]>,
+  ) => {
+    const recommendedCreators = [...content.recommendedCreators];
+    recommendedCreators[index] = { ...recommendedCreators[index], ...patch };
+    setContent({ ...content, recommendedCreators });
+  };
+
+  const removeCreator = (index: number) => {
+    setContent({
+      ...content,
+      recommendedCreators: content.recommendedCreators.filter(
+        (_, i) => i !== index,
+      ),
+    });
+  };
+
+  const moveCreator = (index: number, direction: -1 | 1) => {
+    setContent({
+      ...content,
+      recommendedCreators: moveItem(
+        content.recommendedCreators,
+        index,
+        index + direction,
+      ),
+    });
+  };
+
+  const addCreator = () => {
+    setContent({
+      ...content,
+      recommendedCreators: [
+        ...content.recommendedCreators,
+        {
+          name: "Yeni Yayıncı",
+          platform: "YouTube",
+          note: "Kısa açıklama",
+          tier: "standard",
+        },
+      ],
+    });
+  };
+
+  // shadcn/ui referans stili -- "clinical blueprint on frosted paper":
+  // monokrom (canvas #f5f5f5 / paper #fff / ink #0a0a0a), 18px pill
+  // radius interaktif öğelerde, 24px konteynerlerde, tek renkli vurgu
+  // (#e7000b) sadece yıkıcı aksiyonlarda (Sil). Deneme amaçlı sadece bu
+  // panelde -- sitenin geri kalanı kendi renkli/koyu-açık temasında
+  // kalıyor, bu yüzden dark: varyantı yok, tema kasıtlı olarak sabit.
   const inputClass =
-    "rounded-xl border border-black/10 bg-white/50 px-3 py-2 text-black outline-none backdrop-blur-sm transition focus:border-black/30 dark:border-white/10 dark:bg-black/30 dark:text-white dark:focus:border-white/30";
+    "rounded-[18px] border-none bg-[#f5f5f5] px-3 py-2 text-[#0a0a0a] outline-none transition focus:ring-1 focus:ring-[#e5e5e5]";
 
   const cardClass =
-    "flex flex-col gap-4 rounded-3xl border border-black/10 bg-white/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-black/40";
+    "flex flex-col gap-4 rounded-[24px] border border-[#e5e5e5] bg-white p-5 shadow-[0_0_0_1px_rgba(23,23,23,0.05),0_1px_3px_rgba(0,0,0,0.1),0_1px_2px_-1px_rgba(0,0,0,0.1)]";
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden font-sans text-black dark:text-white">
-      <HillsBackground />
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] font-sans text-[#0a0a0a]">
       <Watermark text={`${moderator.username} · ${moderator.id}`} />
 
-      <header className="relative z-10 flex items-center justify-between px-6 py-6 sm:px-10">
-        <div>
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            {content.navbar.logoText}{" "}
-            <span className="font-normal opacity-50">Moderatör Paneli</span>
+      {/* Sol sidebar -- logo üstte, sekmeler dikey liste, hesap/kaydet
+          alanı en altta. */}
+      <div className="flex min-h-screen w-full flex-col sm:flex-row">
+        <aside className="flex w-full shrink-0 flex-col gap-6 border-b border-[#e5e5e5] bg-[#fafafa] px-6 py-6 sm:w-64 sm:min-h-screen sm:gap-0 sm:border-b-0 sm:border-r sm:px-5">
+          <Link href="/" className="flex items-center gap-3">
+            <Logo compact />
           </Link>
-          <p className="mt-1 text-xs opacity-40">
-            {moderator.username} · {moderator.id}
+          <p className="-mt-4 hidden text-xs font-normal text-[#737373] sm:block">
+            Moderatör Paneli
           </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {status && <p className="text-sm opacity-70">{status}</p>}
-          <button
-            onClick={save}
-            className="rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
-          >
-            Kaydet
-          </button>
-        </div>
-      </header>
 
-      <main className="relative z-10 mx-auto flex max-w-3xl flex-col gap-6 px-6 pb-24 sm:px-10">
-        {tabs.length === 0 && (
-          <p className="text-sm opacity-70">
-            Hesabınıza henüz hiçbir bölüm için düzenleme yetkisi verilmemiş.
-          </p>
-        )}
+          <nav className="flex flex-row gap-1 overflow-x-auto sm:mt-8 sm:flex-col sm:overflow-visible">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`shrink-0 rounded-[18px] px-4 py-2.5 text-left text-sm font-medium transition ${
+                  activeTab === tab.id
+                    ? "bg-[#0a0a0a] text-[#fafafa]"
+                    : "text-[#0a0a0a]/70 hover:bg-black/5"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
 
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
+          <div className="flex flex-col gap-3 border-t border-[#e5e5e5] pt-5 sm:mt-auto">
+            <p className="truncate text-xs text-[#737373]">
+              {moderator.username} · {moderator.id}
+            </p>
+            {status && <p className="text-xs text-[#737373]">{status}</p>}
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-                activeTab === tab.id
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "border border-black/10 bg-white/40 text-black backdrop-blur-sm hover:bg-white/70 dark:border-white/10 dark:bg-black/30 dark:text-white dark:hover:bg-black/50"
-              }`}
+              onClick={save}
+              className="rounded-[18px] bg-[#0a0a0a] px-5 py-2.5 text-sm font-medium text-[#fafafa] transition hover:bg-[#171717]"
             >
-              {tab.label}
+              Kaydet
             </button>
-          ))}
-        </div>
+          </div>
+        </aside>
 
+        <main className="flex min-w-0 flex-1 flex-col gap-6 px-6 py-8 pb-24 sm:px-10">
         {activeTab === "cards" && (
           <section className={cardClass}>
             <div className="flex items-center justify-between">
@@ -218,15 +328,20 @@ export default function AdminPage() {
                   className={`${inputClass} text-sm`}
                 />
                 <div className="flex items-center gap-2">
-                  <input
+                  <select
                     value={card.span}
                     onChange={(e) => updateCard(i, { span: e.target.value })}
-                    placeholder="Grid genişliği (örn. sm:col-span-2)"
                     className={`${inputClass} flex-1 text-xs`}
-                  />
+                  >
+                    {cardSizeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     onClick={() => removeCard(i)}
-                    className="text-sm text-red-500 hover:opacity-70"
+                    className="text-sm text-[#e7000b] hover:opacity-70"
                   >
                     Sil
                   </button>
@@ -263,7 +378,7 @@ export default function AdminPage() {
                 />
                 <button
                   onClick={() => removeLink(i)}
-                  className="text-sm text-red-500 hover:opacity-70"
+                  className="text-sm text-[#e7000b] hover:opacity-70"
                 >
                   Sil
                 </button>
@@ -271,7 +386,149 @@ export default function AdminPage() {
             ))}
           </section>
         )}
-      </main>
+
+        {activeTab === "links" && (
+          <section className={cardClass}>
+            <h2 className="text-xl font-bold">İletişim Bilgileri</h2>
+            <p className="-mt-2 text-xs opacity-60">
+              İletişim sayfasındaki WhatsApp ve e-posta düğmelerinde
+              kullanılır. Boş bırakılırsa o düğme gösterilmez.
+            </p>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+                WhatsApp Numarası (ülke koduyla, örn. 905551234567)
+              </label>
+              <input
+                value={content.contact.whatsapp}
+                onChange={(e) =>
+                  setContent({
+                    ...content,
+                    contact: { ...content.contact, whatsapp: e.target.value },
+                  })
+                }
+                placeholder="905551234567"
+                className={`${inputClass} text-sm`}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+                E-posta Adresi
+              </label>
+              <input
+                value={content.contact.email}
+                onChange={(e) =>
+                  setContent({
+                    ...content,
+                    contact: { ...content.contact, email: e.target.value },
+                  })
+                }
+                placeholder="destek@cagrimedya.com"
+                className={`${inputClass} text-sm`}
+              />
+            </div>
+          </section>
+        )}
+
+        {activeTab === "creators" && (
+          <section className={cardClass}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">
+                Sevebileceğin Yayıncılar (Topluluk sayfası)
+              </h2>
+              <button
+                onClick={addCreator}
+                className="text-sm underline underline-offset-4 opacity-70 hover:opacity-100"
+              >
+                + Yayıncı ekle
+              </button>
+            </div>
+            <p className="-mt-2 text-xs opacity-60">
+              Sıra önemli: her katmanın (Premium / Diğer / Yeni Başlayanlar)
+              kendi içindeki sıralaması bu listedeki sıraya göre belirlenir.
+            </p>
+            {content.recommendedCreators.map((creator, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-white/30 p-4 dark:border-white/10 dark:bg-black/20"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    value={creator.name}
+                    onChange={(e) =>
+                      updateCreator(i, { name: e.target.value })
+                    }
+                    placeholder="Kullanıcı adı"
+                    className={`${inputClass} flex-1 font-semibold`}
+                  />
+                  <select
+                    value={creator.platform}
+                    onChange={(e) =>
+                      updateCreator(i, {
+                        platform: e.target.value as CreatorPlatform,
+                      })
+                    }
+                    className={`${inputClass} text-sm`}
+                  >
+                    {platformOptions.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <input
+                  value={creator.note}
+                  onChange={(e) => updateCreator(i, { note: e.target.value })}
+                  placeholder="Kısa açıklama"
+                  className={`${inputClass} text-sm`}
+                />
+                <div className="flex items-center justify-between">
+                  <select
+                    value={creator.tier}
+                    onChange={(e) =>
+                      updateCreator(i, {
+                        tier: e.target.value as CreatorTier,
+                      })
+                    }
+                    className={`${inputClass} text-sm`}
+                  >
+                    {tierOptions.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => moveCreator(i, -1)}
+                      disabled={i === 0}
+                      className="text-sm opacity-70 hover:opacity-100 disabled:opacity-20"
+                    >
+                      ↑ Yukarı
+                    </button>
+                    <button
+                      onClick={() => moveCreator(i, 1)}
+                      disabled={i === content.recommendedCreators.length - 1}
+                      className="text-sm opacity-70 hover:opacity-100 disabled:opacity-20"
+                    >
+                      ↓ Aşağı
+                    </button>
+                    <button
+                      onClick={() => removeCreator(i)}
+                      className="text-sm text-[#e7000b] hover:opacity-70"
+                    >
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {activeTab === "articles" && <ToplulukPanel />}
+        </main>
+      </div>
     </div>
   );
 }

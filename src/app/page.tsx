@@ -1,37 +1,224 @@
+import Link from "next/link";
+import { AtmosphereBackground, AtmosphereSection } from "./atmosphere";
 import BackgroundTexture from "./background-texture";
 import CommunitySlider from "./community-slider";
 import Footer from "./footer";
 import HeroSlider from "./hero-slider";
 import HillsBackground from "./hills-background";
-import InfoCards from "./info-cards";
 import { getCurrentUser } from "./lib/auth";
 import { getSiteContent } from "./lib/content";
+import { trends } from "./lib/trends";
+import {
+  CommunityFeedColumn,
+  AvatarBubbles,
+  feedColumnA,
+  feedColumnB,
+} from "./community-feed";
+import IcerikSliderPanel from "./icerik-slider-panel";
+import ModPaketleriSliderPanel from "./mod-paketleri-slider-panel";
 import Navbar from "./navbar";
-import SecondarySlider from "./secondary-slider";
-import TopRightControls from "./top-right-controls";
+import NewsTicker, { type TickerItem } from "./news-ticker";
+import ServerSpotlight, { type ServerCard } from "./server-spotlight";
+
+const FALLBACK_ANNOUNCEMENTS: TickerItem[] = [
+  { label: "TMP Craft'a hoş geldin — indir, keşfet, paylaş.", href: "/", tag: "Duyuru" },
+  { label: "Topluluk kuralları güncellendi.", href: "/kurallar", tag: "Duyuru" },
+  { label: "Yeni sezon yakında başlıyor.", href: "/topluluk", tag: "Duyuru" },
+];
+
+// Sunucu adı + anlık oyuncu sayısı -- üstteki karma şeritte ve "Şu an
+// gündemde" bandında kullanılıyor.
+const SERVER_HIGHLIGHTS: TickerItem[] = [
+  { label: "TMP Anaakım — 42/100 oyuncu", href: "/sunucular", tag: "Sunucu" },
+  { label: "TMP SkyBlock — 76/150 oyuncu", href: "/sunucular", tag: "Sunucu" },
+  { label: "TMP Faction — 33/80 oyuncu", href: "/sunucular", tag: "Sunucu" },
+  { label: "TMP Modlu — 21/50 oyuncu", href: "/sunucular", tag: "Sunucu" },
+];
+
+// Sunucular kartındaki büyük "spotlight" döngüsü için -- sunucular tek
+// tek, reklam panosu gibi sırayla gösteriliyor.
+const SERVER_CARDS: ServerCard[] = [
+  { name: "TMP Anaakım", players: "42/100", fill: 42 },
+  { name: "TMP SkyBlock", players: "76/150", fill: 51 },
+  { name: "TMP Faction", players: "33/80", fill: 41 },
+  { name: "TMP Modlu", players: "21/50", fill: 42 },
+  { name: "TMP Creative", players: "18/60", fill: 30 },
+  { name: "TMP Event", players: "54/64", fill: 84 },
+  { name: "TMP KitPvP", players: "29/40", fill: 73 },
+  { name: "TMP Prison", players: "37/70", fill: 53 },
+  { name: "TMP OneBlock", players: "45/80", fill: 56 },
+];
 
 export default async function Home() {
   const content = getSiteContent();
   const user = await getCurrentUser();
 
+  const announcements: TickerItem[] =
+    content.infoCards.length > 0
+      ? content.infoCards.map((card) => ({
+          label: card.title,
+          href: card.linkUrl || "/",
+          tag: "Duyuru",
+        }))
+      : FALLBACK_ANNOUNCEMENTS;
+
+  const trendItems: TickerItem[] = trends.slice(0, 6).map((trend) => ({
+    label: `#${trend.topic}`,
+    href: `/topluluk/etiket/${encodeURIComponent(trend.topic)}`,
+    tag: trend.category,
+  }));
+
+  // Sitenin en üstü, en sürekli görünen bölgesi -- sadece duyuru değil,
+  // gündem ve sunucu bilgisiyle karışık, hep hareket eden tek bir şerit.
+  const topTickerItems: TickerItem[] = [
+    announcements[0],
+    trendItems[0],
+    SERVER_HIGHLIGHTS[0],
+    ...announcements.slice(1),
+    trendItems[1],
+    SERVER_HIGHLIGHTS[1],
+  ].filter(Boolean);
+
+  // Büyük Topluluk kartının içinde akan, o anki olaylar/gündem.
+  const toplulukEvents: TickerItem[] = [
+    { label: "Yeni sezon başladı!", href: "/topluluk", tag: "Duyuru" },
+    { label: "Tasarım yarışması sürüyor", href: "/topluluk", tag: "Etkinlik" },
+    { label: "#YusufTE'nin speedrun taktiği", href: "/topluluk", tag: "Gündem" },
+  ];
+
+  // İkinci katman şeridi -- gündem ve sunucu bilgisi tek bir akışta
+  // karışık, üstteki "Canlı" şeridiyle aynı ince/az göze batan dille.
+  const secondLayerItems: TickerItem[] = trendItems.flatMap((trend, i) =>
+    SERVER_HIGHLIGHTS[i] ? [trend, SERVER_HIGHLIGHTS[i]] : [trend],
+  );
+
   return (
     <div className="relative w-full">
+      <AtmosphereBackground />
       <HillsBackground />
       <BackgroundTexture />
       <Navbar
         className="text-black dark:text-white"
         logoText={content.navbar.logoText}
         navLinks={content.footerLinks}
+        user={user}
       />
-      <TopRightControls user={user} />
 
-      <section className="relative z-10 flex w-full items-center justify-center pb-4 pt-24">
+      {/* CNN tarzı "son dakika" şeridi: koyu/kırmızı, göz alıcı rozet +
+          yanıp sönen nokta, arkası hafif blur. Sadece duyuru değil --
+          sitenin en sürekli görünen yeri olduğu için gündem/sunucu
+          bilgisiyle karışık, hep hareket eden tek bir akış. */}
+      <div className="relative z-10 w-full border-b border-black/10 bg-white/80 py-2 pt-20 text-black backdrop-blur-xl dark:border-red-900/40 dark:bg-black/70 dark:text-white">
+        <div className="mx-auto flex w-[calc(100%-2rem)] items-center gap-3 sm:w-[calc(100%-5rem)]">
+          <span className="ml-2 flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide sm:ml-16">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            Canlı
+          </span>
+          <NewsTicker items={topTickerItems} className="flex-1" />
+        </div>
+      </div>
+
+      <section className="relative z-10 flex w-full items-center justify-center pb-10 pt-4">
         <HeroSlider />
       </section>
 
-      <SecondarySlider />
-      <InfoCards cards={content.infoCards} />
       <CommunitySlider />
+
+      {/* İkinci katmanın açılış şeridi -- üstteki "Canlı" şeridiyle aynı
+          ince/az göze batan dille, gündem + sunucu tek bir akışta birleşik.
+          Kutu/kart gibi ayrı bir yer hissi vermiyor, sadece akıp geçen bir
+          bilgi katmanı. Üst/alttaki bölümlerle sıkışık durmaması için
+          etrafında biraz boşluk var. */}
+      <div className="relative z-10 my-6 w-full border-y border-black/10 bg-black/5 py-4 dark:border-white/10 dark:bg-white/5">
+        <div className="mx-auto flex w-[calc(100%-2rem)] items-center gap-3 text-black sm:w-[calc(100%-5rem)] dark:text-white">
+          <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
+            Şu an
+          </span>
+          <NewsTicker items={secondLayerItems} className="flex-1" />
+        </div>
+      </div>
+
+      {/* Hero'daki büyük+küçük mozaik mantığının aynısı, burada Topluluk
+          (büyük) ve Sunucular (tek, birleşik kart) için tekrarlanıyor.
+          Altında da aynı flagship kart stili (Build-Farm/Eğitimler ile
+          birebir) Mod Paketleri ve Yayıncılar için. */}
+      <AtmosphereSection
+        theme="topluluk"
+        className="relative z-10 flex w-full items-center justify-center pb-16 pt-6"
+      >
+        <div className="flex w-[calc(100%-2rem)] flex-col gap-3 sm:w-[calc(100%-5rem)]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.6fr_1fr]">
+            <Link
+              href="/topluluk"
+              className="group relative flex h-80 flex-col items-start justify-end gap-2 overflow-hidden rounded-3xl p-6 shadow-2xl sm:h-[32rem] sm:p-8"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- static brand background asset */}
+              <img
+                src="/topluluk-bg.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/25" />
+              <AvatarBubbles className="inset-0" />
+              <CommunityFeedColumn
+                posts={feedColumnA}
+                speed={0.28}
+                className="absolute left-5 top-5 hidden h-40 w-36 sm:block sm:h-48 sm:w-44"
+              />
+              <CommunityFeedColumn
+                posts={feedColumnB}
+                speed={0.35}
+                className="absolute right-5 top-24 hidden h-40 w-36 sm:block sm:h-56 sm:w-48"
+              />
+              <span className="relative z-10 w-fit rounded-full bg-fuchsia-500/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-fuchsia-300">
+                Topluluk
+              </span>
+              <h2 className="relative z-10 font-sans text-2xl font-bold text-white sm:text-4xl">
+                Topluluk&apos;ta Neler Oluyor
+              </h2>
+              <p className="relative z-10 max-w-md font-sans text-sm text-white/80 sm:text-base">
+                2.400+ üye, 180+ açık konu — gündemi kaçırma.
+              </p>
+              <div className="relative z-10 mt-2 w-full border-t border-white/20 pt-2">
+                <NewsTicker items={toplulukEvents} linked={false} />
+              </div>
+            </Link>
+
+            <Link
+              href="/sunucular"
+              className="group relative flex h-80 flex-col overflow-hidden rounded-2xl p-5 shadow-lg sm:h-[32rem]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element -- static brand background asset */}
+              <img
+                src="/sunucular-bg.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-red-950/85 via-red-900/55 to-red-800/25" />
+
+              <ServerSpotlight
+                items={SERVER_CARDS}
+                className="relative z-10 min-h-0 flex-1"
+              />
+
+              <div className="relative z-10 mt-3 flex shrink-0 items-baseline gap-2">
+                <h3 className="font-sans text-lg font-bold text-white sm:text-xl">
+                  Sunucular
+                </h3>
+                <span className="font-sans text-xs text-white/70 sm:text-sm">
+                  {SERVER_CARDS.length} sunucu
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <ModPaketleriSliderPanel className="h-72" />
+            <IcerikSliderPanel className="h-72" />
+          </div>
+        </div>
+      </AtmosphereSection>
+
       <Footer logoText={content.navbar.logoText} links={content.footerLinks} />
     </div>
   );

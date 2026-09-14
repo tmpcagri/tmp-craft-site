@@ -10,6 +10,8 @@ export type ManagedUser = {
   joinedAt: string;
   lastActivity: { at: string; change: string };
   permissions: ModeratorTab[];
+  bannedUntil: string | null;
+  banReason: string | null;
 };
 
 // Backed by the `profiles` table (see supabase/migrations). Row Level
@@ -21,7 +23,7 @@ export async function getUsers(): Promise<ManagedUser[]> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, username, avatar_url, provider, device, joined_at, last_activity_at, last_activity_change, permissions",
+      "id, username, avatar_url, provider, device, joined_at, last_activity_at, last_activity_change, permissions, banned_until, ban_reason",
     )
     .order("joined_at", { ascending: true });
 
@@ -39,6 +41,8 @@ export async function getUsers(): Promise<ManagedUser[]> {
       change: row.last_activity_change ?? "",
     },
     permissions: (row.permissions ?? []) as ModeratorTab[],
+    bannedUntil: row.banned_until,
+    banReason: row.ban_reason,
   }));
 }
 

@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import type { ManagedUser } from "@/app/lib/users";
 import type { ModeratorSession, ModeratorTab } from "@/app/lib/permissions";
 import HillsBackground from "../hills-background";
+import Logo from "../logo";
+import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 
 const permissionTabs: { id: ModeratorTab; label: string }[] = [
   { id: "cards", label: "Bilgi Kartları" },
   { id: "links", label: "Footer / Menü Linkleri" },
+  { id: "creators", label: "Önerilen Yayıncılar" },
+  { id: "articles", label: "Topluluk Makaleleri" },
 ];
 
 function formatDateTime(iso: string): string {
@@ -28,14 +32,27 @@ function initials(username: string): string {
 
 function formatProvider(provider: string): string {
   if (provider === "google") return "Google";
-  if (provider === "azure") return "Microsoft";
   return provider;
+}
+
+const banDurationOptions: { value: string; label: string }[] = [
+  { value: "1", label: "1 gün" },
+  { value: "7", label: "7 gün" },
+  { value: "30", label: "30 gün" },
+  { value: "permanent", label: "Süresiz" },
+];
+
+function isBanned(user: ManagedUser): boolean {
+  return !!user.bannedUntil && new Date(user.bannedUntil) > new Date();
 }
 
 export default function YonetimPage() {
   const [owner, setOwner] = useState<ModeratorSession | undefined>(undefined);
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
   const [status, setStatus] = useState("");
+  const [banDurations, setBanDurations] = useState<Record<string, string>>({});
+  const [banReasons, setBanReasons] = useState<Record<string, string>>({});
+  const [actionStatus, setActionStatus] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch("/api/users")
@@ -60,10 +77,19 @@ export default function YonetimPage() {
 
   if (!owner) {
     return (
+      <ModeratorAuthGate
+        message="Bu sayfayı görüntülemek için giriş yapmalısın."
+        redirectTo="/yonetim"
+      />
+    );
+  }
+
+  if (!owner.isOwner) {
+    return (
       <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden font-sans text-black dark:text-white">
         <HillsBackground />
-        <p className="relative z-10">
-          Bu sayfayı görüntülemek için giriş yapmalısın.
+        <p className="relative z-10 text-2xl font-bold uppercase tracking-wide text-red-500">
+          Yetkiniz Bulunmamaktadır
         </p>
       </div>
     );
@@ -94,6 +120,74 @@ export default function YonetimPage() {
     );
   };
 
+  const ban = async (userId: string) => {
+    const duration = banDurations[userId] ?? "7";
+    const days = duration === "permanent" ? null : Number(duration);
+    const reason = banReasons[userId]?.trim() || undefined;
+
+    setActionStatus({ ...actionStatus, [userId]: "İşleniyor..." });
+    const res = await fetch(`/api/users/${userId}/ban`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ days, reason }),
+    });
+
+    if (res.ok) {
+      const data = (await res.json()) as { bannedUntil: string };
+      setUsers(
+        users.map((u) =>
+          u.id === userId
+            ? { ...u, bannedUntil: data.bannedUntil, banReason: reason ?? null }
+            : u,
+        ),
+      );
+      setActionStatus({ ...actionStatus, [userId]: "Yasaklandı ✓" });
+    } else {
+      setActionStatus({ ...actionStatus, [userId]: "Hata oluştu" });
+    }
+  };
+
+  const unban = async (userId: string) => {
+    setActionStatus({ ...actionStatus, [userId]: "İşleniyor..." });
+    const res = await fetch(`/api/users/${userId}/ban`, { method: "DELETE" });
+
+    if (res.ok) {
+      setUsers(
+        users.map((u) =>
+          u.id === userId ? { ...u, bannedUntil: null, banReason: null } : u,
+        ),
+      );
+      setActionStatus({ ...actionStatus, [userId]: "Yasak kaldırıldı ✓" });
+    } else {
+      setActionStatus({ ...actionStatus, [userId]: "Hata oluştu" });
+    }
+  };
+
+  const deleteUser = async (userId: string, username: string) => {
+    if (
+      !window.confirm(
+        `${username} kalıcı olarak silinsin mi? Bu işlem geri alınamaz.`,
+      )
+    ) {
+      return;
+    }
+
+    setActionStatus({ ...actionStatus, [userId]: "Siliniyor..." });
+    const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
+
+    if (res.ok) {
+      setUsers(users.filter((u) => u.id !== userId));
+    } else {
+      const data = (await res.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      setActionStatus({
+        ...actionStatus,
+        [userId]: data?.error ?? "Hata oluştu",
+      });
+    }
+  };
+
   const cardClass =
     "flex flex-col gap-4 rounded-3xl border border-black/10 bg-white/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-black/40";
 
@@ -104,9 +198,10 @@ export default function YonetimPage() {
 
       <header className="relative z-10 flex items-center justify-between px-6 py-6 sm:px-10">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            TMP Craft <span className="font-normal opacity-50">Yönetim</span>
-          </h1>
+          <div className="flex items-center gap-3">
+            <Logo compact />
+            <span className="font-sans text-sm opacity-50">Yönetim</span>
+          </div>
           <p className="mt-1 text-xs opacity-40">
             {owner.username} · {owner.id}
           </p>
@@ -132,6 +227,7 @@ export default function YonetimPage() {
                   <img
                     src={user.avatarUrl}
                     alt={user.username}
+                    referrerPolicy="no-referrer"
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -188,6 +284,82 @@ export default function YonetimPage() {
                 })}
               </div>
             </div>
+
+            {user.id !== owner.id && (
+              <div className="flex flex-col gap-2 border-t border-black/10 pt-4 dark:border-white/10">
+                <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
+                  Moderasyon
+                </p>
+
+                {isBanned(user) ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500">
+                      Yasaklı — bitiş:{" "}
+                      {new Date(user.bannedUntil!).getUTCFullYear() >= 9999
+                        ? "süresiz"
+                        : formatDateTime(user.bannedUntil!)}
+                      {user.banReason ? ` — ${user.banReason}` : ""}
+                    </span>
+                    <button
+                      onClick={() => unban(user.id)}
+                      className="rounded-full border border-black/10 px-4 py-1.5 text-xs font-semibold transition hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/10"
+                    >
+                      Yasağı Kaldır
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={banDurations[user.id] ?? "7"}
+                      onChange={(e) =>
+                        setBanDurations({
+                          ...banDurations,
+                          [user.id]: e.target.value,
+                        })
+                      }
+                      className="rounded-full border border-black/10 bg-white/40 px-3 py-1.5 text-xs dark:border-white/10 dark:bg-black/30"
+                    >
+                      {banDurationOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      value={banReasons[user.id] ?? ""}
+                      onChange={(e) =>
+                        setBanReasons({
+                          ...banReasons,
+                          [user.id]: e.target.value,
+                        })
+                      }
+                      placeholder="Sebep (opsiyonel)"
+                      className="min-w-0 flex-1 rounded-full border border-black/10 bg-white/40 px-3 py-1.5 text-xs dark:border-white/10 dark:bg-black/30"
+                    />
+                    <button
+                      onClick={() => ban(user.id)}
+                      className="rounded-full bg-red-500 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-red-600"
+                    >
+                      Yasakla
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => deleteUser(user.id, user.username)}
+                    className="text-xs font-semibold text-red-500 underline underline-offset-4 hover:opacity-70"
+                  >
+                    Kullanıcıyı kalıcı olarak sil
+                  </button>
+                  {actionStatus[user.id] && (
+                    <span className="text-xs opacity-60">
+                      {actionStatus[user.id]}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </main>

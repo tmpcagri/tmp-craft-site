@@ -140,6 +140,7 @@ export default function HillsBackground() {
     if (!canvas) return;
 
     const renderer = new THREE.WebGLRenderer({ antialias: false, canvas });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -165,8 +166,6 @@ export default function HillsBackground() {
     scene.add(mesh);
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);

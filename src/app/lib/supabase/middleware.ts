@@ -25,7 +25,21 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user && request.nextUrl.pathname !== "/yasakli") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("banned_until")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.banned_until && new Date(profile.banned_until) > new Date()) {
+      return NextResponse.redirect(new URL("/yasakli", request.url));
+    }
+  }
 
   return supabaseResponse;
 }

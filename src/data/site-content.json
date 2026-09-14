@@ -2,71 +2,151 @@
   "navbar": {
     "logoText": "TMP Craft"
   },
-  "infoCards": [
-    {
-      "title": "Hakkımızda",
-      "body": "TMP Craft, fikirden ürüne zanaatla inşa eden bir dijital yapım stüdyosudur.",
-      "span": "sm:col-span-2 sm:row-span-2",
-      "imageUrl": "",
-      "linkUrl": "#"
-    },
-    {
-      "title": "Hizmetlerimiz",
-      "body": "Web tasarımı, marka kimliği ve dijital ürün geliştirme.",
-      "span": "",
-      "imageUrl": "",
-      "linkUrl": "#"
-    },
-    {
-      "title": "İletişim",
-      "body": "Bir projeniz mi var? Bize ulaşın, birlikte konuşalım.",
-      "span": "",
-      "imageUrl": "",
-      "linkUrl": "#"
-    },
-    {
-      "title": "Öne Çıkan Proje",
-      "body": "Yakında burada — ilk vaka çalışmamızı hazırlıyoruz.",
-      "span": "sm:col-span-2",
-      "imageUrl": "",
-      "linkUrl": "#"
-    },
-    {
-      "title": "Topluluk",
-      "body": "Sosyal medyada bizi takip edin, gelişmeleri kaçırmayın.",
-      "span": "",
-      "imageUrl": "",
-      "linkUrl": "#"
-    }
-  ],
+  "contact": {
+    "whatsapp": "",
+    "email": "destek.tmpcraft@gmail.com"
+  },
+  "infoCards": [],
   "footerLinks": [
     {
+      "label": "Mod Paketleri",
+      "href": "/mod-paketleri"
+    },
+    {
+      "label": "Projeler",
+      "href": "/projeler"
+    },
+    {
+      "label": "Sunucular",
+      "href": "/sunucular"
+    },
+    {
+      "label": "Eğitimler",
+      "href": "/egitimler"
+    },
+    {
+      "label": "Topluluk",
+      "href": "/topluluk"
+    },
+    {
       "label": "Hakkımızda",
-      "href": "#"
+      "href": "/hakkimizda"
+    },
+    {
+      "label": "Özellikler",
+      "href": "/ozellikler"
+    },
+    {
+      "label": "Sosyal Medya",
+      "href": "/sosyal-medya"
     },
     {
       "label": "İletişim",
-      "href": "#"
+      "href": "/iletisim"
     },
     {
       "label": "Destek ve Yardım",
-      "href": "#"
+      "href": "/destek"
     },
     {
       "label": "SSS",
-      "href": "#"
+      "href": "/sss"
+    },
+    {
+      "label": "Topluluk Kuralları",
+      "href": "/kurallar"
     },
     {
       "label": "Gizlilik Politikası",
-      "href": "#"
+      "href": "/gizlilik-politikasi"
     },
     {
       "label": "KVKK",
-      "href": "#"
+      "href": "/kvkk"
     },
     {
       "label": "Telif Hakkı",
-      "href": "#"
+      "href": "/telif-hakki"
+    }
+  ],
+  "recommendedCreators": [
+    {
+      "name": "redstonecu42",
+      "platform": "Twitch",
+      "note": "Canlı redstone atölyeleri",
+      "tier": "premium"
+    },
+    {
+      "name": "TMPCraft",
+      "platform": "YouTube",
+      "note": "Haftalık build rehberleri",
+      "tier": "premium"
+    },
+    {
+      "name": "modrehberi",
+      "platform": "YouTube",
+      "note": "Mod inceleme ve rehberler",
+      "tier": "premium"
+    },
+    {
+      "name": "pixelkral",
+      "platform": "TikTok",
+      "note": "Kısa build ipuçları",
+      "tier": "premium"
+    },
+    {
+      "name": "buildmaster",
+      "platform": "YouTube",
+      "note": "Coğrafya temelli mega yapılar",
+      "tier": "standard"
+    },
+    {
+      "name": "yardımcı_ayse",
+      "platform": "Twitch",
+      "note": "Yeni başlayanlara canlı destek",
+      "tier": "standard"
+    },
+    {
+      "name": "golgeavcisi",
+      "platform": "YouTube",
+      "note": "Gizli tapınak ve define avları",
+      "tier": "standard"
+    },
+    {
+      "name": "envanterci",
+      "platform": "TikTok",
+      "note": "Envanter yönetimi ipuçları",
+      "tier": "standard"
+    },
+    {
+      "name": "kristal_insa",
+      "platform": "YouTube",
+      "note": "Kristal temalı dekoratif build'ler",
+      "tier": "standard"
+    },
+    {
+      "name": "redtasci",
+      "platform": "Twitch",
+      "note": "Redstone bulmacaları çözüyor",
+      "tier": "standard"
+    },
+    {
+      "name": "tasyurek",
+      "platform": "YouTube",
+      "note": "İlk build'ini yeni paylaştı",
+      "tier": "newcomer"
+    },
+    {
+      "name": "sihirlitoz",
+      "platform": "TikTok",
+      "note": "Yeni katıldı, resource pack deniyor",
+      "tier": "newcomer"
+    },
+    {
+      "name": "orman_bekcisi",
+      "platform": "Twitch",
+      "note": "İlk canlı yayınına hazırlanıyor",
+      "tier": "newcomer"
     }
   ]
 }

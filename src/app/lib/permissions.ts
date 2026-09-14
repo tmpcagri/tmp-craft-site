@@ -1,14 +1,15 @@
 import { createClient } from "./supabase/server";
 
-export type ModeratorTab = "cards" | "links";
+export type ModeratorTab = "cards" | "links" | "creators" | "articles";
 
 export type ModeratorSession = {
   username: string;
   id: string;
   permissions: ModeratorTab[];
+  isOwner: boolean;
 } | null;
 
-const ALL_TABS: ModeratorTab[] = ["cards", "links"];
+const ALL_TABS: ModeratorTab[] = ["cards", "links", "creators", "articles"];
 
 // Reads the logged-in user's moderator session from their `profiles` row.
 // Returns null when signed out, or when signed in but no profile row
@@ -37,5 +38,6 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
     permissions: profile.is_owner
       ? ALL_TABS
       : ((profile.permissions ?? []) as ModeratorTab[]),
+    isOwner: profile.is_owner,
   };
 }

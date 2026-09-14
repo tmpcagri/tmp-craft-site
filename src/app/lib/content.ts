@@ -16,12 +16,29 @@ export type NavLink = {
   href: string;
 };
 
+export type CreatorPlatform = "YouTube" | "Twitch" | "TikTok";
+export type CreatorTier = "premium" | "standard" | "newcomer";
+
+export type RecommendedCreator = {
+  name: string;
+  platform: CreatorPlatform;
+  note: string;
+  tier: CreatorTier;
+};
+
+export type ContactInfo = {
+  whatsapp: string;
+  email: string;
+};
+
 export type SiteContent = {
   navbar: {
     logoText: string;
   };
   infoCards: InfoCard[];
   footerLinks: NavLink[];
+  recommendedCreators: RecommendedCreator[];
+  contact: ContactInfo;
 };
 
 export function getSiteContent(): SiteContent {

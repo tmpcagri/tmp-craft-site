@@ -6,8 +6,8 @@ export type CurrentUser = {
 } | null;
 
 // Reads the signed-in user from the Supabase session cookie (server-side
-// only — uses next/headers). Google/Microsoft OAuth populate user_metadata
-// with the provider's profile name + avatar.
+// only — uses next/headers). Google OAuth populates user_metadata with the
+// provider's profile name + avatar.
 export async function getCurrentUser(): Promise<CurrentUser> {
   const supabase = await createClient();
   const {

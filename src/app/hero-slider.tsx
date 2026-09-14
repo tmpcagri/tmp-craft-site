@@ -1,96 +1,104 @@
-"use client";
+import Link from "next/link";
+import Logo, { InlineLogo } from "./logo";
 
-import { useEffect, useState } from "react";
-import ModPacksPanel from "./mod-packs-panel";
+// Önceden burada otomatik dönen tek-mesajlı bir carousel vardı (4 slayt,
+// 4.5sn'de bir geçiş). Carousel'lar üzerine yapılan bağımsız araştırma
+// (Nielsen Norman Group, Erik Runyon'ın etkileşim verileri) net: kullanıcıların
+// ~%99'u hiçbir slaytla etkileşime girmiyor, tıklayanların da ~%89'u SADECE
+// ilk slayta tıklıyor -- yani "aynı anda tek mesaj" tasarımı pratikte
+// "genelde sadece ilk mesaj görülüyor" anlamına geliyor. F-pattern göz
+// tarama araştırması da en "sıcak" bölgenin sol-üst olduğunu, sağa/aşağı
+// gittikçe soğuduğunu gösteriyor. Bu yüzden 4 mesajın hepsi artık AYNI ANDA,
+// statik bir mozaikte gösteriliyor -- en önemlisi (marka girişi) sol üstte
+// büyük, diğer üçü sağda daha küçük ve gerçek sayfalara tıklanabilir.
+const featured = {
+  id: "hosgeldin",
+  title: (
+    <>
+      <InlineLogo />
+      &apos;a Hoş Geldin
+    </>
+  ),
+  body: "Mod, modpack, sunucu ve topluluk — Minecraft dünyanın tek adresi.",
+  image: "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/logo.16.png",
+  href: "/sosyal-medya",
+};
 
-const featuredSlides = [
+const secondary = [
   {
-    title: "Fikirden Ürüne",
-    body: "Markanızı zanaatla hayata geçiriyoruz.",
-    gradient: "from-orange-400 via-pink-500 to-purple-600",
+    id: "modlarini-bul",
+    title: "Modlarını Bul",
+    body: "Yüzlerce mod, sürüm ve loader'a göre filtrelenmiş.",
+    image: "/modlarini-bul-bg.png",
+    href: "/mod-paketleri",
   },
   {
-    title: "Web Tasarımı",
-    body: "Modern, hızlı ve etkileyici dijital deneyimler.",
-    gradient: "from-blue-400 via-indigo-500 to-purple-600",
+    id: "toplulukla-bulus",
+    title: "Toplulukla Buluş",
+    body: "Sorularını sor, projelerini paylaş.",
+    image: "/toplulukla-bulus-bg.png",
+    href: "/topluluk",
   },
   {
-    title: "Marka Kimliği",
-    body: "Unutulmaz bir marka kimliği inşa ediyoruz.",
-    gradient: "from-emerald-400 via-teal-500 to-cyan-600",
+    id: "kendi-dunyani-kur",
+    title: "Kendi Dünyanı Kur",
+    body: "Build rehberleri ve ilham verici projeler.",
+    image: "/kendi-dunyani-kur-bg.png",
+    href: "/projeler",
   },
 ];
 
-const sideCard = {
-  title: "Son Projeler",
-  body: "Yakında burada.",
-  gradient: "from-cyan-400 to-blue-500",
-};
-
-const sideCardClassName =
-  "relative col-span-3 h-40 overflow-hidden rounded-3xl shadow-xl sm:col-span-1 sm:h-auto";
-
 export default function HeroSlider() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % featuredSlides.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <div className="grid w-[calc(100%-2rem)] grid-cols-3 gap-4 sm:h-[75vh] sm:w-[calc(100%-5rem)] sm:grid-rows-2">
-      <div className="relative col-span-3 h-[60vh] overflow-hidden rounded-3xl shadow-2xl sm:col-span-2 sm:row-span-2 sm:h-auto">
-        {featuredSlides.map((slide, i) => (
-          <div
-            key={slide.title}
-            className={`absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-br ${slide.gradient} px-6 text-center transition-opacity duration-1000 ${
-              i === index ? "opacity-100" : "opacity-0"
-            }`}
+    <div className="grid h-auto w-[calc(100%-2rem)] grid-cols-1 gap-3 sm:h-[52vh] sm:w-[calc(100%-5rem)] sm:grid-cols-[1.6fr_1fr]">
+      <Link
+        href={featured.href}
+        className="group relative flex h-56 flex-col items-start justify-end gap-2 overflow-hidden rounded-3xl p-6 shadow-2xl sm:h-full sm:p-10"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- Cloudflare R2-hosted brand image */}
+        <img
+          src={featured.image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
+        <h1 className="relative font-sans text-3xl font-bold text-white sm:text-5xl">
+          {featured.title}
+        </h1>
+        <p className="relative max-w-md font-sans text-sm text-white/80 sm:text-lg">
+          {featured.body}
+        </p>
+
+        <div className="absolute bottom-4 right-4 hidden flex-col items-end whitespace-nowrap text-white sm:flex">
+          <Logo compact />
+          <span className="mt-1 font-sans text-xs text-white/70">
+            Minecraft mod, sunucu ve topluluk merkezi
+          </span>
+        </div>
+      </Link>
+
+      <div className="grid grid-cols-1 gap-3 sm:h-full sm:grid-rows-3">
+        {secondary.map((slide) => (
+          <Link
+            key={slide.id}
+            href={slide.href}
+            className="group relative flex h-28 flex-col items-start justify-end gap-1 overflow-hidden rounded-2xl p-4 shadow-lg sm:h-full"
           >
-            <h2 className="font-sans text-3xl font-bold text-white sm:text-5xl">
+            {/* eslint-disable-next-line @next/next/no-img-element -- Cloudflare R2-hosted brand image */}
+            <img
+              src={slide.image}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20" />
+            <h2 className="relative font-sans text-base font-bold text-white sm:text-lg">
               {slide.title}
             </h2>
-            <p className="max-w-md font-sans text-white/80">{slide.body}</p>
-          </div>
+            <p className="relative font-sans text-xs text-white/75 sm:text-sm">
+              {slide.body}
+            </p>
+          </Link>
         ))}
-
-        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
-          {featuredSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Slayt ${i + 1}`}
-              className={`h-2 rounded-full transition-all ${
-                i === index ? "w-6 bg-white" : "w-2 bg-white/40"
-              }`}
-            />
-          ))}
-        </div>
-
-        <div className="absolute bottom-6 left-[55%] hidden flex-col items-start whitespace-nowrap sm:flex">
-          <span className="font-sans text-lg font-bold text-white">
-            TMP Craft
-          </span>
-          <span className="font-sans text-xs text-white/70">
-            Fikirden ürüne, zanaatla inşa eden dijital yapım stüdyosu
-          </span>
-        </div>
-      </div>
-
-      <ModPacksPanel className={sideCardClassName} />
-
-      <div
-        className={`flex flex-col justify-end bg-gradient-to-br p-6 ${sideCardClassName} ${sideCard.gradient}`}
-      >
-        <h3 className="font-sans text-xl font-bold text-white">
-          {sideCard.title}
-        </h3>
-        <p className="mt-1 font-sans text-sm text-white/80">
-          {sideCard.body}
-        </p>
       </div>
     </div>
   );

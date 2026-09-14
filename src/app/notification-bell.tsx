@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useOutsideClick } from "./lib/use-outside-click";
 
 type Notification = { title: string; body: string };
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications] = useState<Notification[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(containerRef, () => setOpen(false), open);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -41,7 +45,7 @@ export default function NotificationBell() {
             Bildirimler
           </h3>
           {notifications.length === 0 ? (
-            <p className="text-sm text-black/50 dark:text-white/50">
+            <p className="text-sm text-black/60 dark:text-white/60">
               Bildirim yok
             </p>
           ) : (
