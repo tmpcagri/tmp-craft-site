@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ModeratorSession } from "@/app/lib/permissions";
 import { MODERATOR_MENU, pruneMenu, resolveMenuLevels } from "@/app/lib/moderator-menu";
@@ -135,13 +134,6 @@ export default function AdminPage() {
           />
 
           <PendingGrantsCard onAccepted={loadSession} />
-
-          <Link
-            href="/"
-            className="text-xs text-black/60 underline underline-offset-4 hover:text-black dark:text-white/60 dark:hover:text-white"
-          >
-            ← Siteye dön
-          </Link>
         </div>
 
         <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
