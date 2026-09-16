@@ -52,7 +52,7 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, is_owner, permissions, birth_date, avatar_url")
+    .select("username, is_owner, permissions, birth_date, avatar_url, role_label")
     .eq("id", user.id)
     .single();
 
@@ -63,13 +63,7 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
     id: user.id,
     avatarUrl: profile.avatar_url ?? "",
     birthDate: profile.birth_date ?? null,
-    // TODO: migration 0023 (role_label kolonu) Supabase'de çalıştırılınca
-    // select'e "role_label" eklenip burası profile.role_label ?? "" olacak.
-    // Şimdiden eklemek TÜM moderatör/owner girişini kırıyor -- select'te
-    // olmayan bir kolonu istemek sorguyu komple patlatıyor, getUsers() ve
-    // getCurrentModerator() hatayı sessizce yutup "oturum yok" gibi
-    // davranıyor. Canlıda birebir bu şekilde yaşandı, bkz. sohbet geçmişi.
-    roleLabel: "",
+    roleLabel: profile.role_label ?? "",
     permissions: profile.is_owner
       ? ALL_TABS
       : ((profile.permissions ?? []) as ModeratorTab[]),

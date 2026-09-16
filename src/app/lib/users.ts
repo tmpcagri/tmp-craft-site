@@ -24,7 +24,7 @@ export async function getUsers(): Promise<ManagedUser[]> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, username, avatar_url, provider, device, joined_at, last_activity_at, last_activity_change, permissions, banned_until, ban_reason",
+      "id, username, avatar_url, provider, device, joined_at, last_activity_at, last_activity_change, permissions, role_label, banned_until, ban_reason",
     )
     .order("joined_at", { ascending: true });
 
@@ -42,9 +42,7 @@ export async function getUsers(): Promise<ManagedUser[]> {
       change: row.last_activity_change ?? "",
     },
     permissions: (row.permissions ?? []) as ModeratorTab[],
-    // TODO: migration 0023 (role_label kolonu) çalıştırılınca select'e
-    // geri eklenip burası row.role_label ?? "" olacak -- bkz. permissions.ts.
-    roleLabel: "",
+    roleLabel: row.role_label ?? "",
     bannedUntil: row.banned_until,
     banReason: row.ban_reason,
   }));
@@ -54,12 +52,10 @@ export async function saveUsers(users: ManagedUser[]): Promise<void> {
   const supabase = await createClient();
   await Promise.all(
     users.map((u) =>
-      // TODO: migration 0023 çalıştırılınca update'e role_label: u.roleLabel
-      // geri eklenecek -- bkz. permissions.ts'teki not.
-      supabase.from("profiles").update({ permissions: u.permissions }).eq(
-        "id",
-        u.id,
-      ),
+      supabase
+        .from("profiles")
+        .update({ permissions: u.permissions, role_label: u.roleLabel })
+        .eq("id", u.id),
     ),
   );
 }
