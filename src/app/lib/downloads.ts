@@ -54,6 +54,8 @@ export type DownloadItem = {
   iconImage?: string;
   /** Yapımcının resmi sitesi/sosyal medyası — yalnızca üye olup kendisi eklediğinde dolu olur. */
   authorLink?: string;
+  /** Tanıtım/inceleme videosu -- doluysa detay sayfasında gömülü YouTube player gösterilir. */
+  youtubeUrl?: string;
 };
 
 const raw: Omit<DownloadItem, "slug">[] = [

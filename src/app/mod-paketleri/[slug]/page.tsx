@@ -5,10 +5,12 @@ import { getCurrentUser } from "../../lib/auth";
 import { getSiteContent } from "../../lib/content";
 import { LICENSE_URLS } from "../../lib/downloads";
 import { getAllDownloadItems } from "../../lib/downloads-server";
+import { getYouTubeEmbedUrl } from "../../lib/youtube";
 import { InlineLogo } from "../../logo";
 import Navbar from "../../navbar";
-import QrShareButton from "../../qr-share-button";
 import ModPaketiActions from "./mod-paketi-actions";
+import ModPaketiComments from "./mod-paketi-comments";
+import ModPaketiQr from "./mod-paketi-qr";
 
 function AdSlot({ side }: { side: "left" | "right" }) {
   return (
@@ -40,6 +42,7 @@ export default async function ModPaketiPage({
   const content = getSiteContent();
   const user = await getCurrentUser();
   const licenseUrl = LICENSE_URLS[item.license];
+  const youtubeEmbedUrl = item.youtubeUrl ? getYouTubeEmbedUrl(item.youtubeUrl) : null;
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
@@ -61,9 +64,33 @@ export default async function ModPaketiPage({
             ← Tüm paketler
           </Link>
 
-          <div className="mt-6 grid grid-cols-1 items-start gap-8 [grid-template-areas:'middle'_'right'_'left'] lg:grid-cols-[200px_1fr_300px] lg:[grid-template-areas:'left_middle_right']">
-            {/* Sol: yapımcı, lisans, bağımlılıklar */}
-            <div style={{ gridArea: "left" }} className="flex flex-col gap-5">
+          <div className="mt-6 grid grid-cols-1 items-start gap-8 [grid-template-areas:'main'_'sidebar'] lg:grid-cols-[300px_1fr] lg:[grid-template-areas:'sidebar_main']">
+            {/* Sidebar: küçük görsel + paylaşım QR'ı, yapımcı/lisans/
+                bağımlılıklar bilgisi, bilgi paneli ve indirme/etkileşim --
+                hepsi tek blokta, sayfa kaydırılsa da üstte kalır. Görsel ve
+                QR bilerek küçük; asıl odak sağdaki içerik. */}
+            <div
+              style={{ gridArea: "sidebar" }}
+              className="flex flex-col gap-5 lg:sticky lg:top-36 lg:self-start"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`aspect-square w-20 shrink-0 overflow-hidden rounded-2xl shadow-md ${
+                    item.iconImage ? "" : `bg-gradient-to-br ${item.gradient}`
+                  }`}
+                >
+                  {item.iconImage && (
+                    // eslint-disable-next-line @next/next/no-img-element -- kullanıcı tarafından yüklenen mod görseli
+                    <img
+                      src={item.iconImage}
+                      alt={item.name}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+                <ModPaketiQr />
+              </div>
+
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
                   Yapımcı
@@ -137,45 +164,6 @@ export default async function ModPaketiPage({
                   </div>
                 </div>
               )}
-            </div>
-
-            {/* Orta: kutucuk görsel + açıklama — geniş, rahat okunur */}
-            <div style={{ gridArea: "middle" }} className="flex flex-col gap-5">
-              <div
-                className={`relative aspect-square w-full max-w-[240px] overflow-hidden rounded-3xl shadow-xl ${
-                  item.iconImage ? "" : `bg-gradient-to-br ${item.gradient}`
-                }`}
-              >
-                {item.iconImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- kullanıcı tarafından yüklenen mod görseli
-                  <img
-                    src={item.iconImage}
-                    alt={item.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full flex-col justify-end p-4">
-                    <span className="w-fit rounded-full bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
-                      {item.category}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <h1 className="font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
-                {item.name}
-              </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-black/70 dark:text-white/70">
-                {item.description}
-              </p>
-            </div>
-
-            {/* Sağ: bilgi paneli + indirme + etkileşim — sayfa kaydırılsa da üstte kalır */}
-            <div
-              style={{ gridArea: "right" }}
-              className="flex flex-col gap-5 lg:sticky lg:top-36 lg:self-start"
-            >
-              <QrShareButton inline />
 
               <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
                 <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
@@ -208,6 +196,37 @@ export default async function ModPaketiPage({
                 hasDependencies={item.dependsOn.length > 0}
               />
             </div>
+
+            {/* Main: başlık + açıklama + (varsa) tanıtım videosu — geniş,
+                rahat okunur. */}
+            <div style={{ gridArea: "main" }} className="flex flex-col gap-5">
+              <span className="w-fit rounded-full bg-black/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-black/60 dark:bg-white/10 dark:text-white/60">
+                {item.category}
+              </span>
+
+              <h1 className="font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
+                {item.name}
+              </h1>
+              <p className="max-w-2xl text-base leading-relaxed text-black/70 dark:text-white/70">
+                {item.description}
+              </p>
+
+              {youtubeEmbedUrl && (
+                <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-2xl shadow-lg">
+                  <iframe
+                    src={youtubeEmbedUrl}
+                    title={`${item.name} tanıtım videosu`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="h-full w-full"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-16 border-t border-black/10 pt-10 dark:border-white/10">
+            <ModPaketiComments slug={item.slug} />
           </div>
         </div>
       </div>

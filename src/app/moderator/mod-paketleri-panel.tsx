@@ -15,6 +15,7 @@ import {
   createModPackage,
   deleteModPackage,
   listModPackages,
+  updateModPackage,
   type ModPackageRow,
 } from "../lib/mod-packages";
 import ImageUpload from "./image-upload";
@@ -38,6 +39,7 @@ const emptyForm = {
   license: "MIT" as License,
   author: "",
   authorLink: "",
+  youtubeUrl: "",
   dependsOn: "",
 };
 
@@ -45,6 +47,7 @@ export default function ModPaketleriPanel() {
   const [items, setItems] = useState<ModPackageRow[] | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [iconImage, setIconImage] = useState<string | null>(null);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -64,37 +67,88 @@ export default function ModPaketleriPanel() {
     setSaving(true);
     setStatus("");
     try {
-      await createModPackage({
-        name: form.name.trim(),
-        category: form.category,
-        description: form.description.trim(),
-        gradient: GRADIENTS[Math.floor(Math.random() * GRADIENTS.length)],
-        gameVersion: form.gameVersion.trim(),
-        loader: form.loader,
-        environment: form.environment,
-        license: form.license,
-        dependsOn: form.dependsOn
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        author: form.author.trim(),
-        iconImage,
-        authorLink: form.authorLink.trim() || null,
-      });
+      const dependsOn = form.dependsOn
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const authorLink = form.authorLink.trim() || null;
+      const youtubeUrl = form.youtubeUrl.trim() || null;
+
+      if (editingSlug) {
+        await updateModPackage(editingSlug, {
+          name: form.name.trim(),
+          category: form.category,
+          description: form.description.trim(),
+          gameVersion: form.gameVersion.trim(),
+          loader: form.loader,
+          environment: form.environment,
+          license: form.license,
+          dependsOn,
+          author: form.author.trim(),
+          iconImage,
+          authorLink,
+          youtubeUrl,
+        });
+        setStatus("Güncellendi ✓");
+      } else {
+        await createModPackage({
+          name: form.name.trim(),
+          category: form.category,
+          description: form.description.trim(),
+          gradient: GRADIENTS[Math.floor(Math.random() * GRADIENTS.length)],
+          gameVersion: form.gameVersion.trim(),
+          loader: form.loader,
+          environment: form.environment,
+          license: form.license,
+          dependsOn,
+          author: form.author.trim(),
+          iconImage,
+          authorLink,
+          youtubeUrl,
+        });
+        setStatus("Eklendi ✓");
+      }
       setForm(emptyForm);
       setIconImage(null);
-      setStatus("Eklendi ✓");
+      setEditingSlug(null);
       refresh();
     } catch (e) {
-      setStatus(e instanceof Error ? e.message : "Eklenemedi");
+      setStatus(e instanceof Error ? e.message : "Kaydedilemedi");
     } finally {
       setSaving(false);
     }
   };
 
+  const startEdit = (item: ModPackageRow) => {
+    setEditingSlug(item.slug);
+    setForm({
+      name: item.name,
+      category: item.category,
+      description: item.description,
+      gameVersion: item.game_version,
+      loader: item.loader,
+      environment: item.environment,
+      license: item.license,
+      author: item.author,
+      authorLink: item.author_link ?? "",
+      youtubeUrl: item.youtube_url ?? "",
+      dependsOn: item.depends_on.join(", "),
+    });
+    setIconImage(item.icon_image);
+    setStatus("");
+  };
+
+  const cancelEdit = () => {
+    setEditingSlug(null);
+    setForm(emptyForm);
+    setIconImage(null);
+    setStatus("");
+  };
+
   const remove = async (slug: string) => {
     if (!confirm(`"${slug}" kalıcı olarak silinsin mi?`)) return;
     await deleteModPackage(slug);
+    if (editingSlug === slug) cancelEdit();
     refresh();
   };
 
@@ -102,7 +156,7 @@ export default function ModPaketleriPanel() {
     <div className="flex flex-col gap-8">
       <div>
         <h3 className="mb-3 font-sans text-sm font-bold text-black dark:text-white">
-          Yeni Mod / Shader / Paket Yükle
+          {editingSlug ? `Paketi Düzenle: ${editingSlug}` : "Yeni Mod / Shader / Paket Yükle"}
         </h3>
         <div className="grid grid-cols-1 gap-3 rounded-2xl border border-black/10 p-4 dark:border-white/10 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm">
@@ -203,6 +257,15 @@ export default function ModPaketleriPanel() {
             />
           </label>
           <label className="col-span-full flex flex-col gap-1 text-sm">
+            YouTube Video Linki (opsiyonel)
+            <input
+              value={form.youtubeUrl}
+              onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="rounded-xl border border-black/10 bg-transparent px-3 py-2 outline-none dark:border-white/10"
+            />
+          </label>
+          <label className="col-span-full flex flex-col gap-1 text-sm">
             Bağımlılıklar (virgülle ayrılmış isim listesi, opsiyonel)
             <input
               value={form.dependsOn}
@@ -215,7 +278,7 @@ export default function ModPaketleriPanel() {
             <p className="mb-1.5 text-sm">Görsel</p>
             <ImageUpload
               section="mod-paketleri"
-              slug={form.name.trim().toLowerCase().replace(/\s+/g, "-") || "yeni"}
+              slug={editingSlug ?? (form.name.trim().toLowerCase().replace(/\s+/g, "-") || "yeni")}
               value={iconImage}
               onChange={setIconImage}
             />
@@ -223,13 +286,23 @@ export default function ModPaketleriPanel() {
 
           <div className="col-span-full mt-1 flex items-center justify-between">
             {status && <p className="text-xs opacity-70">{status}</p>}
-            <button
-              onClick={submit}
-              disabled={saving}
-              className="ml-auto rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-black/80 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/80"
-            >
-              {saving ? "Ekleniyor..." : "Ekle"}
-            </button>
+            <div className="ml-auto flex items-center gap-2">
+              {editingSlug && (
+                <button
+                  onClick={cancelEdit}
+                  className="rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-black transition hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+                >
+                  İptal
+                </button>
+              )}
+              <button
+                onClick={submit}
+                disabled={saving}
+                className="rounded-full bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-black/80 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/80"
+              >
+                {saving ? "Kaydediliyor..." : editingSlug ? "Güncelle" : "Ekle"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -263,6 +336,12 @@ export default function ModPaketleriPanel() {
                     {item.category} · {item.author}
                   </p>
                 </div>
+                <button
+                  onClick={() => startEdit(item)}
+                  className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-black/70 transition hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+                >
+                  Düzenle
+                </button>
                 <button
                   onClick={() => remove(item.slug)}
                   className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-500/10 dark:text-red-400"

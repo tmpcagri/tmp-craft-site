@@ -24,6 +24,7 @@ export type ModPackageRow = {
   author: string;
   icon_image: string | null;
   author_link: string | null;
+  youtube_url: string | null;
   created_at: string;
 };
 
@@ -42,6 +43,7 @@ export function toDownloadItem(row: ModPackageRow): DownloadItem {
     author: row.author,
     iconImage: row.icon_image ?? undefined,
     authorLink: row.author_link ?? undefined,
+    youtubeUrl: row.youtube_url ?? undefined,
   };
 }
 
@@ -78,6 +80,7 @@ export type ModPackageInput = {
   author: string;
   iconImage: string | null;
   authorLink: string | null;
+  youtubeUrl: string | null;
 };
 
 export async function createModPackage(input: ModPackageInput): Promise<string> {
@@ -100,6 +103,7 @@ export async function createModPackage(input: ModPackageInput): Promise<string> 
     author: input.author,
     icon_image: input.iconImage,
     author_link: input.authorLink,
+    youtube_url: input.youtubeUrl,
     created_by: user?.id ?? null,
   });
   if (error) throw error;
@@ -124,6 +128,7 @@ export async function updateModPackage(
   if (patch.author !== undefined) dbPatch.author = patch.author;
   if (patch.iconImage !== undefined) dbPatch.icon_image = patch.iconImage;
   if (patch.authorLink !== undefined) dbPatch.author_link = patch.authorLink;
+  if (patch.youtubeUrl !== undefined) dbPatch.youtube_url = patch.youtubeUrl;
 
   const { error } = await supabase
     .from("mod_packages")
