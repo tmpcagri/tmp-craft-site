@@ -5,7 +5,7 @@ export default function EgitimlerPage() {
     <ContentPage
       eyebrow="EĞİTİMLER"
       title="Ücretsiz Kurslar ve Premium Eğitim"
-      intro="Herkes öğrenebilmeli, isteyen daha derine inebilmeli."
+      intro="Eğitimler bölümüne hoş geldin! Herkes öğrenebilmeli, isteyen daha derine inebilmeli."
       accent="fuchsia"
       variant="stub"
     >
