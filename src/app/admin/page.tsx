@@ -6,6 +6,7 @@ import type { ModeratorSession } from "@/app/lib/permissions";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 import IdentityPanel from "./identity-panel";
+import ModChatPanel from "./mod-chat-panel";
 
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
@@ -80,7 +81,9 @@ export default function AdminPage() {
             roleLabel={moderator.roleLabel}
           />
 
-          <div className="flex flex-col gap-3 sm:mt-auto">
+          <ModChatPanel selfId={moderator.id} />
+
+          <div className="flex flex-col gap-3">
             <Link
               href="/"
               className="text-xs text-black/60 underline underline-offset-4 hover:text-black dark:text-white/60 dark:hover:text-white"
