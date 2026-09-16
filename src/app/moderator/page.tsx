@@ -3,17 +3,23 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ModeratorSession } from "@/app/lib/permissions";
+import { MOD_CHAT_CHANNELS, getAccessibleModChatChannels } from "@/app/lib/mod-chat";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 import IdentityPanel from "./identity-panel";
 import ModChatPanel from "./mod-chat-panel";
 import PendingGrantsCard from "./pending-grants-card";
 
+// "genel" bir sohbet kanalı ama yönetilecek bir ALAN değil -- kimlik
+// panelindeki seçim menüsü bunu hariç tutuyor.
+const MANAGED_SECTIONS = MOD_CHAT_CHANNELS.filter((c) => c.id !== "genel");
+
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
     undefined,
   );
   const [loadError, setLoadError] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const loadSession = () => {
     fetch("/api/session")
@@ -73,6 +79,18 @@ export default function AdminPage() {
   const cardClass =
     "rounded-3xl border border-black/10 bg-[#fafafa] dark:border-white/10 dark:bg-white/5";
 
+  const accessibleSections = MANAGED_SECTIONS.filter((s) =>
+    getAccessibleModChatChannels(moderator).includes(s.id),
+  );
+  // activeSection henüz seçilmemişse (ilk yükleme) ya da artık erişilemeyen
+  // bir bölümse (izin kaldırıldıysa), erişilebilir ilk bölüme düş -- bunu
+  // bir effect'te setState ile değil, doğrudan render'da türetiyoruz.
+  const effectiveSection = accessibleSections.some((s) => s.id === activeSection)
+    ? activeSection
+    : (accessibleSections[0]?.id ?? null);
+  const activeSectionLabel =
+    accessibleSections.find((s) => s.id === effectiveSection)?.label ?? "";
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] p-4 font-sans text-black dark:bg-black dark:text-white sm:p-6 lg:p-8">
       <Watermark text={moderator.id} />
@@ -92,6 +110,9 @@ export default function AdminPage() {
             avatarUrl={moderator.avatarUrl}
             birthDate={moderator.birthDate}
             roleLabel={moderator.roleLabel}
+            sections={accessibleSections}
+            activeSection={effectiveSection}
+            onSelectSection={setActiveSection}
           />
 
           <PendingGrantsCard onAccepted={loadSession} />
@@ -104,10 +125,13 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        <main className={`order-last flex min-h-48 w-full flex-1 items-center justify-center p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
-          <p className="text-sm text-black/60 dark:text-white/60">
-            Yeni panel tasarımı yakında.
-          </p>
+        <main className={`order-last flex min-h-48 w-full flex-1 flex-col p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
+          <h1 className="text-center text-lg font-bold">{activeSectionLabel}</h1>
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-sm text-black/60 dark:text-white/60">
+              Bu bölüm için içerik yakında.
+            </p>
+          </div>
         </main>
 
         <div className={`flex h-[32rem] min-w-0 w-full flex-col p-5 lg:h-[42rem] lg:w-72 lg:shrink-0 ${cardClass}`}>
