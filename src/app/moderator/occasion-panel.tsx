@@ -2,16 +2,33 @@
 
 import { useEffect, useState } from "react";
 import type {
+  OccasionMessageAnimation,
+  OccasionMessageStyle,
   OccasionTheme,
+  OccasionThemeSettings,
   ScheduledOccasion,
   SiteContent,
 } from "../lib/content";
 import ImageUpload from "./image-upload";
 
+type NonNoneTheme = Exclude<OccasionTheme, "none">;
+
 const scheduleThemeOptions: { label: string; value: OccasionTheme }[] = [
   { label: "Resmi Gün", value: "resmi" },
   { label: "Yas/Anma Günü", value: "yas" },
   { label: "Dini Bayram", value: "dini" },
+];
+
+const animationOptions: { label: string; value: OccasionMessageAnimation }[] = [
+  { label: "Yazılıp silinen", value: "typing" },
+  { label: "Sabit kalan", value: "static" },
+  { label: "Yanıp sönen", value: "blink" },
+];
+
+const styleOptions: { label: string; value: OccasionMessageStyle }[] = [
+  { label: "Neon", value: "neon" },
+  { label: "Kalın", value: "bold" },
+  { label: "Normal", value: "normal" },
 ];
 
 function FlagIcon({ size = 64 }: { size?: number }) {
@@ -93,41 +110,95 @@ function ToggleTile({
   );
 }
 
-function BackgroundControls({
-  content,
-  updateOccasion,
+// Bir temanın (resmi/yas/dini) arka plan görseli+şeffaflığı VE rozetin
+// yanındaki mesaj+animasyon+stil ayarları -- her üç temanın kendi ayrı
+// kopyası var (SpecialOccasion.themes), hangi toggle aktifse o temanın
+// bloğu gösteriliyor.
+function ThemeSettingsControls({
+  themeKey,
+  settings,
+  onChange,
 }: {
-  content: SiteContent;
-  updateOccasion: (patch: Partial<SiteContent["specialOccasion"]>) => void;
+  themeKey: NonNoneTheme;
+  settings: OccasionThemeSettings;
+  onChange: (patch: Partial<OccasionThemeSettings>) => void;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-4 rounded-2xl border border-black/10 p-4 dark:border-white/10 sm:grid-cols-2">
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
-          Site Arka Plan Görseli
-        </label>
-        <ImageUpload
-          section="ozel-gunler"
-          slug="arka-plan"
-          value={content.specialOccasion.backgroundImageUrl || null}
-          onChange={(url) => updateOccasion({ backgroundImageUrl: url })}
-        />
+    <div className="flex flex-col gap-4 rounded-2xl border border-black/10 p-4 dark:border-white/10">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+            Arka Plan Görseli
+          </label>
+          <ImageUpload
+            section="ozel-gunler"
+            slug={`arka-plan-${themeKey}`}
+            value={settings.backgroundImageUrl || null}
+            onChange={(url) => onChange({ backgroundImageUrl: url })}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+            Şeffaflık ({Math.round(settings.backgroundOpacity * 100)}%)
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={settings.backgroundOpacity}
+            onChange={(e) => onChange({ backgroundOpacity: Number(e.target.value) })}
+          />
+        </div>
       </div>
+
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
-          Şeffaflık ({Math.round(content.specialOccasion.backgroundOpacity * 100)}%)
+          Rozetin Yanındaki Mesaj (boşsa gösterilmez)
         </label>
         <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={content.specialOccasion.backgroundOpacity}
-          onChange={(e) => updateOccasion({ backgroundOpacity: Number(e.target.value) })}
+          value={settings.message}
+          onChange={(e) => onChange({ message: e.target.value })}
+          placeholder="ör. Zafer Bayramımız Kutlu Olsun!"
+          className="rounded-xl border border-black/10 bg-transparent px-3 py-2 text-sm outline-none dark:border-white/10"
         />
-        <p className="text-xs opacity-50">
-          Bu arka plan görseli ve şeffaflık, aktif olan temayla birlikte site genelinde gösterilir.
-        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+            Animasyon
+          </label>
+          <select
+            value={settings.messageAnimation}
+            onChange={(e) =>
+              onChange({ messageAnimation: e.target.value as OccasionMessageAnimation })
+            }
+            className="rounded-xl border border-black/10 bg-transparent px-3 py-2 text-sm outline-none dark:border-white/10"
+          >
+            {animationOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-wide opacity-50">
+            Yazı Stili
+          </label>
+          <select
+            value={settings.messageStyle}
+            onChange={(e) => onChange({ messageStyle: e.target.value as OccasionMessageStyle })}
+            className="rounded-xl border border-black/10 bg-transparent px-3 py-2 text-sm outline-none dark:border-white/10"
+          >
+            {styleOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
@@ -160,6 +231,12 @@ export default function OccasionPanel() {
 
   const toggleTheme = (theme: OccasionTheme) => {
     updateOccasion({ manualTheme: occasion.manualTheme === theme ? "none" : theme });
+  };
+
+  const updateThemeSettings = (theme: NonNoneTheme, patch: Partial<OccasionThemeSettings>) => {
+    updateOccasion({
+      themes: { ...occasion.themes, [theme]: { ...occasion.themes[theme], ...patch } },
+    });
   };
 
   const updateSchedulePeriod = (index: number, patch: Partial<ScheduledOccasion>) => {
@@ -199,7 +276,6 @@ export default function OccasionPanel() {
     }
   };
 
-  const isCelebration = occasion.manualTheme === "resmi" || occasion.manualTheme === "dini";
   const isMourning = occasion.manualTheme === "yas";
 
   return (
@@ -233,7 +309,20 @@ export default function OccasionPanel() {
           />
         </div>
 
-        {isCelebration && <BackgroundControls content={content} updateOccasion={updateOccasion} />}
+        {occasion.manualTheme === "resmi" && (
+          <ThemeSettingsControls
+            themeKey="resmi"
+            settings={occasion.themes.resmi}
+            onChange={(patch) => updateThemeSettings("resmi", patch)}
+          />
+        )}
+        {occasion.manualTheme === "dini" && (
+          <ThemeSettingsControls
+            themeKey="dini"
+            settings={occasion.themes.dini}
+            onChange={(patch) => updateThemeSettings("dini", patch)}
+          />
+        )}
       </section>
 
       {/* Yas Modu */}
@@ -246,9 +335,9 @@ export default function OccasionPanel() {
         <ToggleTile
           active={isMourning}
           icon={
-            occasion.mourningIconUrl ? (
+            occasion.themes.yas.iconUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- yüklenen kurdele ikonu önizlemesi
-              <img src={occasion.mourningIconUrl} alt="" className="h-10 w-auto" />
+              <img src={occasion.themes.yas.iconUrl} alt="" className="h-10 w-auto" />
             ) : (
               <RibbonPlaceholder size={44} />
             )
@@ -265,12 +354,18 @@ export default function OccasionPanel() {
           <ImageUpload
             section="ozel-gunler"
             slug="yas-ikon"
-            value={occasion.mourningIconUrl || null}
-            onChange={(url) => updateOccasion({ mourningIconUrl: url })}
+            value={occasion.themes.yas.iconUrl || null}
+            onChange={(url) => updateThemeSettings("yas", { iconUrl: url })}
           />
         </div>
 
-        {isMourning && <BackgroundControls content={content} updateOccasion={updateOccasion} />}
+        {isMourning && (
+          <ThemeSettingsControls
+            themeKey="yas"
+            settings={occasion.themes.yas}
+            onChange={(patch) => updateThemeSettings("yas", patch)}
+          />
+        )}
       </section>
 
       {/* Otomatik zamanlama */}

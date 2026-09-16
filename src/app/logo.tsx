@@ -15,7 +15,7 @@ const letters = ["T", "M", "P"];
 // mantık) ve occasion-context.tsx (bunu prop'suz her yerden okunabilir
 // yapan context).
 function OccasionBadge({ size = 20 }: { size?: number }) {
-  const theme = useOccasion();
+  const { theme } = useOccasion();
   if (theme === "resmi") {
     return (
       <svg
@@ -72,6 +72,56 @@ function OccasionBadge({ size = 20 }: { size?: number }) {
   return null;
 }
 
+// Rozetin yanında gösterilen, moderatörün özel günler panelinden girdiği
+// serbest mesaj -- animasyon (yazılıp silinen/sabit/yanıp sönen) ve stil
+// (neon/kalın/normal) birbirinden bağımsız, bkz. globals.css
+// "occasion-msg-*" class'ları ve lib/content.ts OccasionMessageAnimation/
+// OccasionMessageStyle. "typing" animasyonu mesaj uzunluğuna göre steps()
+// süresi hesaplıyor (harf sayısı sabit olmadığı için CSS'te tek başına
+// tanımlanamaz).
+const themeTextColor: Record<string, string> = {
+  resmi: "text-red-600 dark:text-red-400",
+  yas: "text-black dark:text-white",
+  dini: "text-emerald-600 dark:text-emerald-400",
+};
+
+function OccasionMessage() {
+  const { theme, message, messageAnimation, messageStyle } = useOccasion();
+  if (theme === "none" || !message) return null;
+
+  const styleClass =
+    messageStyle === "neon"
+      ? "occasion-msg-neon font-semibold"
+      : messageStyle === "bold"
+        ? "font-bold"
+        : "font-normal";
+
+  const colorClass = themeTextColor[theme] ?? "";
+
+  if (messageAnimation === "typing") {
+    return (
+      <span
+        className={`occasion-msg-typing max-w-[14rem] overflow-hidden whitespace-nowrap border-r-2 border-current align-bottom text-sm sm:max-w-xs ${styleClass} ${colorClass}`}
+        style={{
+          animation: `occasion-type-erase ${Math.max(message.length * 0.18, 2.5)}s steps(${Math.max(message.length, 1)}, end) infinite`,
+        }}
+      >
+        {message}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`max-w-[14rem] truncate align-bottom text-sm sm:max-w-xs ${styleClass} ${colorClass} ${
+        messageAnimation === "blink" ? "occasion-msg-blink" : ""
+      }`}
+    >
+      {message}
+    </span>
+  );
+}
+
 export default function Logo({
   compact = false,
   large = false,
@@ -123,6 +173,7 @@ export default function Logo({
           </sup>
         </span>
         <OccasionBadge size={compact ? 16 : large ? 26 : 20} />
+        <OccasionMessage />
       </span>
       {tagline && (
         <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/60 dark:text-white/60">

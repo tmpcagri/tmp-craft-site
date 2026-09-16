@@ -84,6 +84,7 @@ const jsonLd = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   const { specialOccasion } = getSiteContent();
   const activeTheme = resolveActiveTheme(specialOccasion);
+  const activeThemeSettings = activeTheme === "none" ? null : specialOccasion.themes[activeTheme];
 
   return (
     <html
@@ -105,11 +106,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body
         className={`min-h-full flex flex-col relative ${activeTheme === "yas" ? "occasion-yas" : ""}`}
       >
-        <OccasionProvider theme={activeTheme}>
-          {activeTheme !== "none" && (
+        <OccasionProvider
+          value={{
+            theme: activeTheme,
+            message: activeThemeSettings?.message ?? "",
+            messageAnimation: activeThemeSettings?.messageAnimation ?? "static",
+            messageStyle: activeThemeSettings?.messageStyle ?? "normal",
+          }}
+        >
+          {activeThemeSettings && (
             <OccasionBackground
-              imageUrl={specialOccasion.backgroundImageUrl}
-              opacity={specialOccasion.backgroundOpacity}
+              imageUrl={activeThemeSettings.backgroundImageUrl}
+              opacity={activeThemeSettings.backgroundOpacity}
             />
           )}
           {children}

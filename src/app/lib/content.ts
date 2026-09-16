@@ -34,8 +34,7 @@ export type ContactInfo = {
 
 // Resmi/milli günler (bayrak), yas/kötü günler (soluk+kurdele), dini
 // bayramlar (hilal) için site geneli tema -- ya elle açılıp kapatılır ya
-// da bir tarih aralığında otomatik aktif olur. bkg alanları özel günlerde
-// arka plana eklenebilecek, şeffaflığı ayarlanabilecek bir görsel için.
+// da bir tarih aralığında otomatik aktif olur.
 export type OccasionTheme = "none" | "resmi" | "yas" | "dini";
 
 // Yıl boyunca tekrar eden/farklı tarihlerdeki özel günler (30 Ağustos,
@@ -48,16 +47,33 @@ export type ScheduledOccasion = {
   label: string; // admin panelinde tanımak için, ör. "30 Ağustos Zafer Bayramı"
 };
 
+// Rozetin (bayrak/hilal/kurdele) yanında gösterilen moderatör mesajı için
+// animasyon (metnin kendisi nasıl hareket ediyor) ve stil (metnin kendisi
+// nasıl görünüyor) birbirinden bağımsız iki seçim -- bkz. globals.css
+// "occasion-msg-*" class'ları ve logo.tsx OccasionMessage.
+export type OccasionMessageAnimation = "typing" | "static" | "blink";
+export type OccasionMessageStyle = "neon" | "bold" | "normal";
+
+// Her temanın (resmi/yas/dini) kendi arka plan görseli/şeffaflığı VE kendi
+// rozet mesajı var -- patronun isteği: "onunla alakalı olan görsel" tema
+// başına ayrı olsun. iconUrl şu an sadece Yas Modu admin kontrolündeki
+// büyük kurdele ikonu için kullanılıyor (logo.tsx'teki OccasionBadge'in
+// sabit SVG'sinden bağımsız, sadece moderatör panelinde gösteriliyor);
+// diğer temalar için boş bırakılabilir.
+export type OccasionThemeSettings = {
+  backgroundImageUrl: string;
+  backgroundOpacity: number; // 0-1
+  iconUrl: string;
+  message: string; // boşsa rozetin yanında mesaj gösterilmez
+  messageAnimation: OccasionMessageAnimation;
+  messageStyle: OccasionMessageStyle;
+};
+
 export type SpecialOccasion = {
   manualTheme: OccasionTheme; // "none" değilse otomatik zamanlamanın önüne geçer
   autoScheduleEnabled: boolean;
   schedule: ScheduledOccasion[];
-  backgroundImageUrl: string;
-  backgroundOpacity: number; // 0-1
-  // Yas Modu admin kontrolündeki büyük kurdele ikonu -- logo.tsx'teki
-  // OccasionBadge'in sabit SVG'sinden bağımsız, sadece moderatör panelinde
-  // gösteriliyor. Boşsa panelde yer tutucu bir kurdele SVG'si görünür.
-  mourningIconUrl: string;
+  themes: Record<Exclude<OccasionTheme, "none">, OccasionThemeSettings>;
 };
 
 // CANLI şeridi -- soldaki kırmızı rozet artık admin'den serbest metin

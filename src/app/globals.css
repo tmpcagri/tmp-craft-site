@@ -107,3 +107,50 @@ body {
   transform-origin: left center;
 }
 
+/* Özel gün rozetinin yanındaki moderatör mesajı -- 3 animasyon modu x 3
+   yazı stili, bkz. lib/content.ts OccasionMessageAnimation/
+   OccasionMessageStyle ve logo.tsx OccasionMessage. "typing" için genişlik
+   animasyonunun süresi/steps() sayısı mesaj uzunluğuna göre satır içi
+   style ile JS'ten geliyor (bkz. logo.tsx), burada sadece keyframe'in
+   şekli (yazılır, bir süre bekler, silinir) tanımlı. */
+@keyframes occasion-type-erase {
+  0%,
+  8% {
+    width: 0;
+  }
+  45%,
+  55% {
+    width: 100%;
+  }
+  92%,
+  100% {
+    width: 0;
+  }
+}
+
+.occasion-msg-typing {
+  display: inline-block;
+  width: 0;
+}
+
+@keyframes occasion-msg-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.occasion-msg-blink {
+  animation: occasion-msg-blink 1.6s ease-in-out infinite;
+}
+
+.occasion-msg-neon {
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 10px currentColor,
+    0 0 18px currentColor;
+}
+
