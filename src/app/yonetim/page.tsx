@@ -107,6 +107,10 @@ export default function YonetimPage() {
     setStatus(res.ok ? "Kaydedildi ✓" : "Hata oluştu");
   };
 
+  const updateRoleLabel = (userId: string, roleLabel: string) => {
+    setUsers(users.map((u) => (u.id === userId ? { ...u, roleLabel } : u)));
+  };
+
   const togglePermission = (userId: string, tab: ModeratorTab) => {
     setUsers(
       users.map((u) => {
@@ -246,6 +250,20 @@ export default function YonetimPage() {
                 {formatProvider(user.provider)} ile giriş
               </span>
             </div>
+
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-xs font-semibold uppercase tracking-wide opacity-50">
+                Rol (opsiyonel, /admin&apos;de gösterilir) — migration 0023
+                Supabase&apos;de çalıştırılana kadar devre dışı
+              </span>
+              <input
+                value={user.roleLabel}
+                onChange={(e) => updateRoleLabel(user.id, e.target.value)}
+                placeholder="ör. Mod Ekleyicisi, Topluluk Yöneticisi"
+                disabled
+                className="rounded-full border border-black/10 bg-white/40 px-3 py-1.5 text-sm opacity-50 dark:border-white/10 dark:bg-black/30"
+              />
+            </label>
 
             <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
               <p>

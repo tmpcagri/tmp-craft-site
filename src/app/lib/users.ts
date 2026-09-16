@@ -10,6 +10,7 @@ export type ManagedUser = {
   joinedAt: string;
   lastActivity: { at: string; change: string };
   permissions: ModeratorTab[];
+  roleLabel: string;
   bannedUntil: string | null;
   banReason: string | null;
 };
@@ -41,6 +42,9 @@ export async function getUsers(): Promise<ManagedUser[]> {
       change: row.last_activity_change ?? "",
     },
     permissions: (row.permissions ?? []) as ModeratorTab[],
+    // TODO: migration 0023 (role_label kolonu) çalıştırılınca select'e
+    // geri eklenip burası row.role_label ?? "" olacak -- bkz. permissions.ts.
+    roleLabel: "",
     bannedUntil: row.banned_until,
     banReason: row.ban_reason,
   }));
@@ -50,6 +54,8 @@ export async function saveUsers(users: ManagedUser[]): Promise<void> {
   const supabase = await createClient();
   await Promise.all(
     users.map((u) =>
+      // TODO: migration 0023 çalıştırılınca update'e role_label: u.roleLabel
+      // geri eklenecek -- bkz. permissions.ts'teki not.
       supabase.from("profiles").update({ permissions: u.permissions }).eq(
         "id",
         u.id,

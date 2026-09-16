@@ -34,11 +34,13 @@ export default function IdentityPanel({
   username,
   avatarUrl,
   birthDate,
+  roleLabel,
 }: {
   code: string;
   username: string;
   avatarUrl: string;
   birthDate: string | null;
+  roleLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,6 +99,11 @@ export default function IdentityPanel({
         {birthDate && (
           <p className="text-xs text-[#737373]">
             {calcAge(birthDate)} yaşında · {formatDate(birthDate)}
+          </p>
+        )}
+        {roleLabel && (
+          <p className="mt-1 inline-block rounded-full bg-[#f5f5f5] px-2.5 py-0.5 text-xs font-medium text-[#0a0a0a]">
+            {roleLabel}
           </p>
         )}
       </div>

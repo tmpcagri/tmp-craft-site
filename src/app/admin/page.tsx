@@ -77,6 +77,7 @@ export default function AdminPage() {
             username={moderator.username}
             avatarUrl={moderator.avatarUrl}
             birthDate={moderator.birthDate}
+            roleLabel={moderator.roleLabel}
           />
 
           <div className="flex flex-col gap-3 sm:mt-auto">
