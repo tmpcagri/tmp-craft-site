@@ -16,7 +16,6 @@ import {
   feedColumnA,
   feedColumnB,
 } from "./community-feed";
-import IcerikSliderPanel from "./icerik-slider-panel";
 import ModPaketleriSliderPanel from "./mod-paketleri-slider-panel";
 import Navbar from "./navbar";
 import NewsTicker, { type TickerItem } from "./news-ticker";
@@ -250,13 +249,15 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* İçeriklerimiz kayan bandı patronun isteğiyle şimdilik
+              kaldırıldı (2026-09-17) -- bileşen (icerik-slider-panel.tsx)
+              silinmedi, ileride geri eklenecek. */}
+          <div className="grid grid-cols-1 gap-3">
             <ModPaketleriSliderPanel
               className="h-72"
               allItems={allDownloadItems}
               featured={featuredModItems}
             />
-            <IcerikSliderPanel className="h-72" />
           </div>
         </div>
       </AtmosphereSection>
