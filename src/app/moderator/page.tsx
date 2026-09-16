@@ -3,23 +3,41 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ModeratorSession } from "@/app/lib/permissions";
-import { MOD_CHAT_CHANNELS, getAccessibleModChatChannels } from "@/app/lib/mod-chat";
+import { MODERATOR_MENU, pruneMenu, resolveMenuLevels } from "@/app/lib/moderator-menu";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 import IdentityPanel from "./identity-panel";
 import ModChatPanel from "./mod-chat-panel";
+import ModPaketleriPanel from "./mod-paketleri-panel";
 import PendingGrantsCard from "./pending-grants-card";
+import SectionSwitcher from "./section-switcher";
+import SunucularPanel from "./sunucular-panel";
+import ToplulukPanel from "./topluluk-panel";
 
-// "genel" bir sohbet kanalı ama yönetilecek bir ALAN değil -- kimlik
-// panelindeki seçim menüsü bunu hariç tutuyor.
-const MANAGED_SECTIONS = MOD_CHAT_CHANNELS.filter((c) => c.id !== "genel");
+// Bir yaprağa (leafId) karşılık gelen gerçek ayar ekranı -- henüz
+// taşınmamış olanlar (özel günler/ticker/hero/panels/cards/creators/
+// topluluk_hero/links gibi eski admin/page.tsx'in inline JSX'iyle
+// yazılmıştı, wipe'ta silindi) placeholder'a düşer. mods/servers/articles
+// zaten bağımsız bileşen olarak var olduğu için doğrudan bağlandı.
+function LeafContent({ leafId }: { leafId: string | null }) {
+  if (leafId === "mods") return <ModPaketleriPanel />;
+  if (leafId === "servers") return <SunucularPanel />;
+  if (leafId === "articles") return <ToplulukPanel />;
+  return (
+    <div className="flex flex-1 items-center justify-center">
+      <p className="text-sm text-black/60 dark:text-white/60">
+        Bu bölüm için içerik yakında.
+      </p>
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
     undefined,
   );
   const [loadError, setLoadError] = useState(false);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [menuPath, setMenuPath] = useState<string[]>([]);
 
   const loadSession = () => {
     fetch("/api/session")
@@ -79,17 +97,16 @@ export default function AdminPage() {
   const cardClass =
     "rounded-3xl border border-black/10 bg-[#fafafa] dark:border-white/10 dark:bg-white/5";
 
-  const accessibleSections = MANAGED_SECTIONS.filter((s) =>
-    getAccessibleModChatChannels(moderator).includes(s.id),
-  );
-  // activeSection henüz seçilmemişse (ilk yükleme) ya da artık erişilemeyen
-  // bir bölümse (izin kaldırıldıysa), erişilebilir ilk bölüme düş -- bunu
-  // bir effect'te setState ile değil, doğrudan render'da türetiyoruz.
-  const effectiveSection = accessibleSections.some((s) => s.id === activeSection)
-    ? activeSection
-    : (accessibleSections[0]?.id ?? null);
-  const activeSectionLabel =
-    accessibleSections.find((s) => s.id === effectiveSection)?.label ?? "";
+  // Ağacı moderatörün gerçek izinlerine göre budayıp path'e göre her
+  // seviyenin seçeneklerini/seçilisini çöz -- bir yaprağa ulaşınca leafId
+  // dolar. Path geçersizleşmişse (izin kaldırıldı vs.) her seviye kendi
+  // ilk seçeneğine düşer, bunu effect'te setState ile değil doğrudan
+  // render'da yapıyoruz (bkz. eski effectiveSection deseni).
+  const prunedMenu = pruneMenu(MODERATOR_MENU, moderator);
+  const { levels, leafId } = resolveMenuLevels(prunedMenu, menuPath);
+  const activeLabel = levels[levels.length - 1]?.options.find(
+    (o) => o.id === levels[levels.length - 1].selectedId,
+  )?.label;
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] p-4 font-sans text-black dark:bg-black dark:text-white sm:p-6 lg:p-8">
@@ -110,9 +127,11 @@ export default function AdminPage() {
             avatarUrl={moderator.avatarUrl}
             birthDate={moderator.birthDate}
             roleLabel={moderator.roleLabel}
-            sections={accessibleSections}
-            activeSection={effectiveSection}
-            onSelectSection={setActiveSection}
+          />
+
+          <SectionSwitcher
+            levels={levels}
+            onSelect={(depth, id) => setMenuPath((prev) => [...prev.slice(0, depth), id])}
           />
 
           <PendingGrantsCard onAccepted={loadSession} />
@@ -125,12 +144,10 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        <main className={`order-last flex min-h-48 w-full flex-1 flex-col p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
-          <h1 className="text-center text-lg font-bold">{activeSectionLabel}</h1>
-          <div className="flex flex-1 items-center justify-center">
-            <p className="text-sm text-black/60 dark:text-white/60">
-              Bu bölüm için içerik yakında.
-            </p>
+        <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
+          <h1 className="shrink-0 text-center text-lg font-bold">{activeLabel}</h1>
+          <div className="mt-4 flex flex-1 flex-col overflow-y-auto">
+            <LeafContent leafId={leafId} />
           </div>
         </main>
 

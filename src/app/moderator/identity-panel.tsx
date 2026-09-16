@@ -35,38 +35,15 @@ export default function IdentityPanel({
   avatarUrl,
   birthDate,
   roleLabel,
-  sections,
-  activeSection,
-  onSelectSection,
 }: {
   code: string;
   username: string;
   avatarUrl: string;
   birthDate: string | null;
   roleLabel: string;
-  sections: { id: string; label: string }[];
-  activeSection: string | null;
-  onSelectSection: (id: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const [sectionMenuOpen, setSectionMenuOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sectionMenuRef = useRef<HTMLDivElement>(null);
-
-  // Native <select>'in açılır listesi tarayıcının kendi (genelde beyaz)
-  // temasını kullanıyor, sitenin dark mode'una hiç uymuyordu -- bu yüzden
-  // kapalı/açık listeyi tamamen kendimiz çiziyoruz (search-bar.tsx/
-  // notification-bell.tsx'teki popover deseniyle aynı).
-  useEffect(() => {
-    if (!sectionMenuOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!sectionMenuRef.current?.contains(e.target as Node)) {
-        setSectionMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [sectionMenuOpen]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -131,68 +108,6 @@ export default function IdentityPanel({
           <p className="mt-1 inline-block rounded-full bg-black/5 px-2.5 py-0.5 text-xs font-medium text-black dark:bg-white/10 dark:text-white">
             {roleLabel}
           </p>
-        )}
-
-        {/* Neyi yöneteceğini seçtiği menü -- seçim, sağdaki ana panelin
-            üstünde bölüm adı olarak gösteriliyor (bkz. page.tsx). Native
-            <select> yerine kendi çizdiğimiz popover: search-bar.tsx/
-            notification-bell.tsx'teki "bg-white/95 dark:bg-black/90 +
-            backdrop-blur-xl" deseniyle aynı, açık listesi de dark mode'a
-            uyuyor. */}
-        {sections.length > 0 && (
-          <div ref={sectionMenuRef} className="relative mt-3 w-full">
-            <button
-              type="button"
-              onClick={() => setSectionMenuOpen((v) => !v)}
-              aria-haspopup="listbox"
-              aria-expanded={sectionMenuOpen}
-              className="flex w-full items-center justify-between gap-2 rounded-[18px] border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-            >
-              <span className="truncate">
-                {sections.find((s) => s.id === activeSection)?.label ?? "Bölüm seç"}
-              </span>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={`shrink-0 opacity-60 transition-transform ${sectionMenuOpen ? "rotate-180" : ""}`}
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-
-            {sectionMenuOpen && (
-              <div
-                role="listbox"
-                className="absolute inset-x-0 top-full z-20 mt-1.5 flex flex-col gap-0.5 rounded-2xl border border-black/10 bg-white/95 p-1.5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-black/90"
-              >
-                {sections.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    role="option"
-                    aria-selected={s.id === activeSection}
-                    onClick={() => {
-                      onSelectSection(s.id);
-                      setSectionMenuOpen(false);
-                    }}
-                    className={`rounded-xl px-3.5 py-2 text-left text-sm font-medium transition ${
-                      s.id === activeSection
-                        ? "bg-black text-white dark:bg-white dark:text-black"
-                        : "text-black/70 hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
         )}
       </div>
     </div>
