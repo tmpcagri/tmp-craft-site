@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ModeratorSession } from "@/app/lib/permissions";
-import Logo from "../logo";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
+import IdentityPanel from "./identity-panel";
 
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
@@ -68,21 +68,23 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] font-sans text-[#0a0a0a]">
-      <Watermark text={`${moderator.username} · ${moderator.id}`} />
+      <Watermark text={moderator.id} />
 
       <div className="flex min-h-screen w-full flex-col sm:flex-row">
         <aside className="flex w-full shrink-0 flex-col gap-6 border-b border-[#e5e5e5] bg-[#fafafa] px-6 py-6 sm:w-64 sm:min-h-screen sm:border-b-0 sm:border-r sm:px-5">
-          <Link href="/" className="flex items-center gap-3">
-            <Logo compact />
-          </Link>
-          <p className="-mt-4 hidden text-xs font-normal text-[#737373] sm:block">
-            Moderatör Paneli
-          </p>
+          <IdentityPanel
+            code={moderator.id}
+            username={moderator.username}
+            birthDate={moderator.birthDate}
+          />
 
-          <div className="flex flex-col gap-3 border-t border-[#e5e5e5] pt-5 sm:mt-auto">
-            <p className="truncate text-xs text-[#737373]">
-              {moderator.username} · {moderator.id}
-            </p>
+          <div className="flex flex-col gap-3 sm:mt-auto">
+            <Link
+              href="/"
+              className="text-xs text-[#737373] underline underline-offset-4 hover:text-[#0a0a0a]"
+            >
+              ← Siteye dön
+            </Link>
           </div>
         </aside>
 

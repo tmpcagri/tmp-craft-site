@@ -16,6 +16,7 @@ export type ModeratorTab =
 export type ModeratorSession = {
   username: string;
   id: string;
+  birthDate: string | null;
   permissions: ModeratorTab[];
   isOwner: boolean;
 } | null;
@@ -49,7 +50,7 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, is_owner, permissions")
+    .select("username, is_owner, permissions, birth_date")
     .eq("id", user.id)
     .single();
 
@@ -58,6 +59,7 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
   return {
     username: profile.username,
     id: user.id,
+    birthDate: profile.birth_date ?? null,
     permissions: profile.is_owner
       ? ALL_TABS
       : ((profile.permissions ?? []) as ModeratorTab[]),
