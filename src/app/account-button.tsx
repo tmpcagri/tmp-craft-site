@@ -58,7 +58,7 @@ export default function AccountButton({
       if (data?.is_owner) {
         setStaffLink({ href: "/yonetim", label: "Yönetim Paneli" });
       } else if ((data?.permissions ?? []).length > 0) {
-        setStaffLink({ href: "/admin", label: "Moderatör Paneli" });
+        setStaffLink({ href: "/moderator", label: "Moderatör Paneli" });
       }
       if (data && !data.birth_date) setNeedsOnboarding(true);
     })();

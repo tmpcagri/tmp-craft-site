@@ -32,7 +32,7 @@ const PAGES: { label: string; href: string }[] = [
   { label: "Hesap Hakkında", href: "/hesap" },
   { label: "Mesajlar", href: "/mesajlar" },
   { label: "Yasaklı", href: "/yasakli" },
-  { label: "Moderatör Paneli", href: "/admin" },
+  { label: "Moderatör Paneli", href: "/moderator" },
   { label: "Yönetim Paneli", href: "/yonetim" },
 ];
 

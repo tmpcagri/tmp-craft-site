@@ -55,7 +55,7 @@ export default function AdminPage() {
     return (
       <ModeratorAuthGate
         message="Bu sayfayı görüntülemek için giriş yapmalısın."
-        redirectTo="/admin"
+        redirectTo="/moderator"
       />
     );
   }
