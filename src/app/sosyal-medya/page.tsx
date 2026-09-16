@@ -4,12 +4,13 @@ import IcerikSliderPanel from "../icerik-slider-panel";
 import { getCurrentUser } from "../lib/auth";
 import { getSiteContent } from "../lib/content";
 import Navbar from "../navbar";
+import SocialAccountCard, { type SocialAccount } from "./social-account-card";
 
 // Gerçek marka görselleri kart içinde alakasız/kırpık durduğu için --
 // hepsi renksiz, sade bir kart üstünde direkt isim yazıyor. Henüz gerçek
 // linki olmayanlar (comingSoon) diğerleri gibi tıklanabilir değil, dürüst
 // bir "Yakında" rozetiyle gösteriliyor -- sahte/çalışmayan link yerine.
-const accounts = [
+const accounts: SocialAccount[] = [
   {
     label: "TikTok",
     username: "@tmp_cagri",
@@ -72,7 +73,7 @@ export default async function SosyalMedyaPage() {
       />
 
       <div className="flex-1 px-6 pb-24 pt-32 sm:px-10">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-5xl">
           <BackButton />
 
           <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-[0.2em] text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400">
@@ -86,56 +87,19 @@ export default async function SosyalMedyaPage() {
             hesaplarımıza göz at.
           </p>
 
-          {/* Bilgilendirme amaçlı, yatay geniş-kısa kartlar -- her biri tek
-              satırda platform + kullanıcı adı, tıklanınca hesaba gidiyor. */}
-          <div className="mt-10 flex flex-col gap-3 sm:grid sm:grid-cols-2">
-            {accounts.map(({ label, username, href, gradient, comingSoon }) => {
-              const cardClass = `group relative flex h-20 items-center justify-between gap-3 rounded-2xl bg-gradient-to-r px-6 shadow-lg transition ${gradient}`;
-              const content = (
-                <>
-                  <div>
-                    <p className="font-sans text-base font-bold text-white">{label}</p>
-                    <p className="text-sm text-white/70">{username}</p>
-                  </div>
-                  {comingSoon ? (
-                    <span className="shrink-0 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-black">
-                      Yakında
-                    </span>
-                  ) : (
-                    <span className="shrink-0 text-white/60 transition group-hover:translate-x-0.5 group-hover:text-white">
-                      →
-                    </span>
-                  )}
-                </>
-              );
+          {/* Sosyal medya düğmeleri sayfanın solunda sabit, dar bir
+              sütunda duruyor -- masaüstünde içerik vitrini sağda,
+              mobilde tam genişlikte üstte. */}
+          <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-start">
+            <div className="flex w-full flex-col gap-3 lg:w-[340px] lg:shrink-0">
+              {accounts.map((account) => (
+                <SocialAccountCard key={account.label} account={account} />
+              ))}
+            </div>
 
-              if (comingSoon) {
-                return (
-                  <div key={label} className={cardClass}>
-                    {content}
-                  </div>
-                );
-              }
-
-              return (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${cardClass} hover:-translate-y-0.5 hover:shadow-xl`}
-                >
-                  {content}
-                </a>
-              );
-            })}
-          </div>
-
-          {/* İçerikle ilgili kartlar -- gerçek video/paylaşım vitrinimiz,
-              anasayfadakiyle aynı bileşen (uydurma yeni içerik değil),
-              kendi başlığını zaten içeriyor. */}
-          <div className="mt-12">
-            <IcerikSliderPanel className="h-72" />
+            <div className="w-full min-w-0 lg:flex-1">
+              <IcerikSliderPanel className="h-72 lg:h-full lg:min-h-[440px]" />
+            </div>
           </div>
         </div>
       </div>
