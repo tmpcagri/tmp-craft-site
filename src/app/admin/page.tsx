@@ -75,6 +75,7 @@ export default function AdminPage() {
           <IdentityPanel
             code={moderator.id}
             username={moderator.username}
+            avatarUrl={moderator.avatarUrl}
             birthDate={moderator.birthDate}
           />
 

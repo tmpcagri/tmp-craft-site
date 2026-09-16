@@ -32,10 +32,12 @@ function formatDate(iso: string): string {
 export default function IdentityPanel({
   code,
   username,
+  avatarUrl,
   birthDate,
 }: {
   code: string;
   username: string;
+  avatarUrl: string;
   birthDate: string | null;
 }) {
   const [copied, setCopied] = useState(false);
@@ -78,6 +80,19 @@ export default function IdentityPanel({
       </p>
 
       <div className="w-full text-center">
+        <span className="mx-auto mb-2 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[#f5f5f5] text-lg font-semibold text-[#0a0a0a]">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- dış Google avatar URL'i
+            <img
+              src={avatarUrl}
+              alt={username}
+              referrerPolicy="no-referrer"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            username.slice(0, 1).toUpperCase()
+          )}
+        </span>
         <p className="text-sm font-semibold">{username}</p>
         {birthDate && (
           <p className="text-xs text-[#737373]">
