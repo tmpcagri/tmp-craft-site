@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOutsideClick } from "./lib/use-outside-click";
 
 type Notification = { title: string; body: string };
@@ -11,6 +11,14 @@ export default function NotificationBell() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(containerRef, () => setOpen(false), open);
+
+  // Test paneli buradan bağımsız olarak bu popup'ı açabilsin diye --
+  // sadece dev/QA amaçlı, gerçek kullanıcı akışını etkilemiyor.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("testpanel:open-notifications", handler);
+    return () => window.removeEventListener("testpanel:open-notifications", handler);
+  }, []);
 
   return (
     <div className="relative" ref={containerRef}>

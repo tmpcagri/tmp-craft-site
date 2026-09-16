@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { downloadItems, searchDownloads } from "./lib/downloads";
 import { trends } from "./lib/trends";
 
@@ -22,6 +22,15 @@ export default function SearchBar({
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [placeholder, setPlaceholder] = useState("Ara...");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Test paneli buradan bağımsız olarak arama kutusunu odaklayabilsin diye
+  // -- sadece dev/QA amaçlı, gerçek kullanıcı akışını etkilemiyor.
+  useEffect(() => {
+    const handler = () => inputRef.current?.focus();
+    window.addEventListener("testpanel:focus-search", handler);
+    return () => window.removeEventListener("testpanel:focus-search", handler);
+  }, []);
 
   const modResults = inTopluluk ? [] : searchDownloads(query);
   const trendMatches = query.trim()
@@ -126,6 +135,7 @@ export default function SearchBar({
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
         <input
+          ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}

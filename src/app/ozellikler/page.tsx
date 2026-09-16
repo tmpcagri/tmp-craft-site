@@ -110,6 +110,8 @@ const features = [
     ],
     gradient: "from-emerald-500 to-teal-700",
     preview: <ModPaketleriPreview />,
+    href: "/mod-paketleri",
+    cta: "Mod Paketlerini Keşfet",
   },
   {
     eyebrow: "BUILD VE FARM REHBERİ",
@@ -123,6 +125,8 @@ const features = [
     ],
     gradient: "from-amber-500 to-orange-700",
     preview: <ProjelerPreview />,
+    href: "/projeler",
+    cta: "Rehberlere Göz At",
   },
   {
     eyebrow: "TOPLULUK",
@@ -136,6 +140,8 @@ const features = [
     ],
     gradient: "from-fuchsia-500 to-purple-700",
     preview: <GundemPreview />,
+    href: "/topluluk",
+    cta: "Topluluğa Katıl",
   },
   {
     eyebrow: "SUNUCULAR",
@@ -149,6 +155,8 @@ const features = [
     ],
     gradient: "from-red-600 to-rose-900",
     preview: <SunucularPreview />,
+    href: "/sunucular",
+    cta: "Sunucuları İncele",
   },
   {
     eyebrow: "HESAP VE GÜVENLİK",
@@ -162,6 +170,8 @@ const features = [
     ],
     gradient: "from-blue-500 to-indigo-700",
     preview: <HesapPreview />,
+    href: "/hesap",
+    cta: "Hesabını Yönet",
   },
   {
     eyebrow: "BİLDİRİMLER VE MESAJLAR",
@@ -175,6 +185,8 @@ const features = [
     ],
     gradient: "from-cyan-500 to-blue-800",
     preview: <MesajlarPreview />,
+    href: "/mesajlar",
+    cta: "Mesajlarını Aç",
   },
 ];
 

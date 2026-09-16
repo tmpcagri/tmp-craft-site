@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export default function FeatureRow({
@@ -8,6 +9,8 @@ export default function FeatureRow({
   gradient,
   reverse = false,
   preview,
+  href,
+  cta,
 }: {
   eyebrow: string;
   title: string;
@@ -16,6 +19,8 @@ export default function FeatureRow({
   gradient: string;
   reverse?: boolean;
   preview: ReactNode;
+  href: string;
+  cta: string;
 }) {
   return (
     <div
@@ -44,6 +49,12 @@ export default function FeatureRow({
             </li>
           ))}
         </ul>
+        <Link
+          href={href}
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 transition hover:gap-2.5 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+        >
+          {cta} →
+        </Link>
       </div>
 
       <div className="flex-1">

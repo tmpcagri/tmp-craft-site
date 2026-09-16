@@ -78,6 +78,14 @@ export default function MenuToggle({
   // sessizce arkadaki bulanık sayfaya geçip nerede olduğunu kaybediyordu.
   useFocusTrap(asideRef, open, () => setOpen(false));
 
+  // Test paneli buradan bağımsız olarak bu çekmeceyi açabilsin diye --
+  // sadece dev/QA amaçlı, gerçek kullanıcı akışını etkilemiyor.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("testpanel:open-menu", handler);
+    return () => window.removeEventListener("testpanel:open-menu", handler);
+  }, []);
+
   // Menü açıkken arkadaki sayfanın kaymasını engelle — kilitlenmezse
   // kullanıcı menü açıkken aşağı kaydırınca ana sayfa altta hareket
   // ediyor, yukarı kaydırınca da menü sanki yeniden açılmış gibi

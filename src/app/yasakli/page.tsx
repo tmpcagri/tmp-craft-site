@@ -1,5 +1,10 @@
 import HillsBackground from "../hills-background";
+import { getSiteContent } from "../lib/content";
 import { createClient } from "../lib/supabase/server";
+
+const PREFILLED_SUBJECT = "TMP Craft — Hesap Askıya Alma İtirazı";
+const PREFILLED_MESSAGE =
+  "Merhaba, hesabımın askıya alınmasının bir hata olduğunu düşünüyorum. ";
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
@@ -14,6 +19,7 @@ function formatDate(iso: string): string {
 }
 
 export default async function YasakliPage() {
+  const { email } = getSiteContent().contact;
   const supabase = await createClient();
   const {
     data: { user },
@@ -52,8 +58,18 @@ export default async function YasakliPage() {
           </p>
         )}
         <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-          Bunun bir hata olduğunu düşünüyorsan İletişim sayfasından bize
-          ulaşabilirsin.
+          Bunun bir hata olduğunu düşünüyorsan{" "}
+          {email ? (
+            <a
+              href={`mailto:${email}?subject=${encodeURIComponent(PREFILLED_SUBJECT)}&body=${encodeURIComponent(PREFILLED_MESSAGE)}`}
+              className="font-semibold text-emerald-600 underline underline-offset-4 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+            >
+              bize e-posta atabilirsin
+            </a>
+          ) : (
+            "bize İletişim sayfasından ulaşabilirsin"
+          )}
+          .
         </p>
       </div>
     </div>
