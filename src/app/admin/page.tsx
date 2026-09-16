@@ -78,8 +78,9 @@ export default function AdminPage() {
       <Watermark text={moderator.id} />
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        {/* Sol: kimlik kartı (foto/ad/yaş/rol/QR/kod) + bekleyen yetkiler */}
-        <div className={`flex w-full flex-col gap-4 p-5 lg:w-72 lg:shrink-0 ${cardClass}`}>
+        {/* Sol: kimlik kartı (foto/ad/yaş/rol/QR/kod) + bekleyen yetkiler --
+            masaüstünde geniş, kalan alanı dolduruyor. */}
+        <div className={`flex w-full flex-col gap-4 p-5 lg:flex-1 ${cardClass}`}>
           <IdentityPanel
             code={moderator.id}
             username={moderator.username}
@@ -98,8 +99,9 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        {/* Sağ: moderatör sohbeti, kendi bölgesinde */}
-        <div className={`flex h-[28rem] min-w-0 w-full flex-col p-5 lg:flex-1 ${cardClass}`}>
+        {/* Sağ: moderatör sohbeti -- masaüstünde dar ve uzun (dikey şerit),
+            mobilde tam genişlik + alt alta düşüyor. */}
+        <div className={`flex h-[32rem] min-w-0 w-full flex-col p-5 lg:h-[42rem] lg:w-72 lg:shrink-0 ${cardClass}`}>
           <ModChatPanel
             selfId={moderator.id}
             isOwner={moderator.isOwner}
