@@ -1,11 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
+  getAccessibleModChatChannels,
   getModChatMessages,
+  MOD_CHAT_CHANNELS,
   sendModChatMessage,
+  type ModChatChannel,
   type ModChatMessage,
 } from "@/app/lib/mod-chat";
+import type { ModeratorTab } from "@/app/lib/permissions";
 
 function formatTime(iso: string): string {
   const date = new Date(iso);
@@ -18,10 +23,25 @@ function formatTime(iso: string): string {
         date.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
-// Moderatörler arası tek grup sohbeti -- kimlik bölgesinin hemen altında.
+// Moderatör sohbeti -- kimlik bölgesinin hemen altında. Üç katman: bu
+// panel "genel" + admin GROUPS'una denk gelen kanalları kapsıyor (bkz.
+// lib/mod-chat.ts); birebir (1:1) için ayrı bir şey yok, mesaj
+// gönderenin adına tıklayınca mevcut /mesajlar'a (?to= deep-link) gider.
 // Şimdilik basit polling (5sn) ile güncelleniyor, realtime'a geçiş ayrı
 // bir adım olarak bırakıldı.
-export default function ModChatPanel({ selfId }: { selfId: string }) {
+export default function ModChatPanel({
+  selfId,
+  isOwner,
+  permissions,
+}: {
+  selfId: string;
+  isOwner: boolean;
+  permissions: ModeratorTab[];
+}) {
+  const accessibleChannels = getAccessibleModChatChannels({ isOwner, permissions });
+  const [channel, setChannel] = useState<ModChatChannel>(
+    accessibleChannels[0] ?? "genel",
+  );
   const [messages, setMessages] = useState<ModChatMessage[] | null>(null);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -32,7 +52,7 @@ export default function ModChatPanel({ selfId }: { selfId: string }) {
     let cancelled = false;
 
     const load = () => {
-      getModChatMessages()
+      getModChatMessages(channel)
         .then((msgs) => {
           if (!cancelled) setMessages(msgs);
         })
@@ -47,7 +67,7 @@ export default function ModChatPanel({ selfId }: { selfId: string }) {
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [channel]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -59,9 +79,9 @@ export default function ModChatPanel({ selfId }: { selfId: string }) {
     setSending(true);
     setError("");
     try {
-      await sendModChatMessage(content);
+      await sendModChatMessage(channel, content);
       setDraft("");
-      const msgs = await getModChatMessages();
+      const msgs = await getModChatMessages(channel);
       setMessages(msgs);
     } catch {
       setError("Gönderilemedi, tekrar dene");
@@ -70,11 +90,36 @@ export default function ModChatPanel({ selfId }: { selfId: string }) {
     }
   };
 
+  if (accessibleChannels.length === 0) return null;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
         Moderatör Sohbeti
       </p>
+
+      {accessibleChannels.length > 1 && (
+        <div className="flex flex-wrap gap-1">
+          {MOD_CHAT_CHANNELS.filter((c) => accessibleChannels.includes(c.id)).map(
+            (c) => (
+              <button
+                key={c.id}
+                onClick={() => {
+                  setChannel(c.id);
+                  setMessages(null);
+                }}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition ${
+                  channel === c.id
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "bg-black/5 text-black/60 hover:bg-black/10 dark:bg-white/10 dark:text-white/60 dark:hover:bg-white/15"
+                }`}
+              >
+                {c.label}
+              </button>
+            ),
+          )}
+        </div>
+      )}
 
       <div
         ref={listRef}
@@ -104,13 +149,19 @@ export default function ModChatPanel({ selfId }: { selfId: string }) {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="flex items-baseline gap-1.5">
-                  <span
-                    className={`truncate text-xs font-semibold ${
-                      m.senderId === selfId ? "text-black dark:text-white" : ""
-                    }`}
-                  >
-                    {m.senderUsername}
-                  </span>
+                  {m.senderId && m.senderId !== selfId ? (
+                    <Link
+                      href={`/mesajlar?to=${m.senderId}`}
+                      className="truncate text-xs font-semibold hover:underline"
+                      title="Özel mesaj gönder"
+                    >
+                      {m.senderUsername}
+                    </Link>
+                  ) : (
+                    <span className="truncate text-xs font-semibold text-black dark:text-white">
+                      {m.senderUsername}
+                    </span>
+                  )}
                   <span className="shrink-0 text-[10px] text-black/40 dark:text-white/40">
                     {formatTime(m.createdAt)}
                   </span>

@@ -81,7 +81,11 @@ export default function AdminPage() {
             roleLabel={moderator.roleLabel}
           />
 
-          <ModChatPanel selfId={moderator.id} />
+          <ModChatPanel
+            selfId={moderator.id}
+            isOwner={moderator.isOwner}
+            permissions={moderator.permissions}
+          />
 
           <div className="flex flex-col gap-3">
             <Link

@@ -190,6 +190,26 @@ export async function markAsRead(otherUserId: string): Promise<void> {
   if (error) throw error;
 }
 
+// Tek bir kullanıcının public profilini id'den çekiyor -- /mesajlar'ın
+// ?to=<userId> deep-link'i (ör. /admin'deki mod sohbetinden bir isme
+// tıklamak) için, o kullanıcı henüz conversations listesinde yoksa
+// (hiç mesajlaşılmamışsa) username/avatar'ını gösterebilmek amacıyla.
+export async function getPublicProfile(
+  userId: string,
+): Promise<SearchedUser | null> {
+  if (!UUID_RE.test(userId)) return null;
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("public_profiles")
+    .select("id, username, avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+
+  return data ? mapSearchedUser(data) : null;
+}
+
 // Username search against public_profiles, for picking who to message.
 // Excludes the caller's own row.
 export async function searchUsers(query: string): Promise<SearchedUser[]> {

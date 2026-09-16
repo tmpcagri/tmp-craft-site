@@ -1,8 +1,56 @@
 import { createClient } from "./supabase/client";
+import type { ModeratorTab } from "./permissions";
 
-// Moderatör grup sohbeti -- lib/messages.ts'teki 1:1 DM deseninin aynısı
+// Moderatör sohbeti -- lib/messages.ts'teki 1:1 DM deseninin aynısı
 // (client-side, RLS zaten kimin okuyup/yazabileceğini kısıtlıyor, bkz.
-// migration 0024), ama alıcı yok: tek oda, herkes aynı akışı görüyor.
+// migration 0024), ama alıcı yok: bir kanaldaki herkes aynı akışı görüyor.
+export type ModChatChannel =
+  | "genel"
+  | "ana-sayfa"
+  | "mod-paketleri"
+  | "sunucular"
+  | "topluluk"
+  | "site";
+
+// Eski /admin GROUPS gruplamasıyla birebir aynı (bkz. admin/page.tsx'in
+// wipe'tan önceki hali) -- migration 0024'teki can_access_mod_channel()
+// SQL fonksiyonuyla senkron tutulmalı, biri değişirse diğeri de değişsin.
+export const MOD_CHAT_CHANNELS: {
+  id: ModChatChannel;
+  label: string;
+  tabs: ModeratorTab[];
+}[] = [
+  { id: "genel", label: "Genel", tabs: [] },
+  {
+    id: "ana-sayfa",
+    label: "Ana Sayfa",
+    tabs: ["cards", "occasion", "ticker", "hero", "panels"],
+  },
+  { id: "mod-paketleri", label: "Mod Paketleri", tabs: ["mods"] },
+  { id: "sunucular", label: "Sunucular", tabs: ["servers"] },
+  {
+    id: "topluluk",
+    label: "Topluluk",
+    tabs: ["creators", "articles", "topluluk_hero"],
+  },
+  { id: "site", label: "Site", tabs: ["links"] },
+];
+
+// Hangi kanal pill'lerinin gösterileceğine karar vermek için -- gerçek
+// erişim kontrolü her zaman RLS'te (can_access_mod_channel), bu sadece
+// UI'da alakasız kanalları gizlemek için.
+export function getAccessibleModChatChannels(moderator: {
+  isOwner: boolean;
+  permissions: ModeratorTab[];
+}): ModChatChannel[] {
+  if (moderator.isOwner) return MOD_CHAT_CHANNELS.map((c) => c.id);
+  return MOD_CHAT_CHANNELS.filter((c) =>
+    c.id === "genel"
+      ? moderator.permissions.length > 0
+      : c.tabs.some((t) => moderator.permissions.includes(t)),
+  ).map((c) => c.id);
+}
+
 export type ModChatMessage = {
   id: string;
   senderId: string | null;
@@ -21,12 +69,15 @@ type ModChatRow = {
 
 // Son 200 mesaj, en eskiden en yeniye -- şimdilik geçmişe bir zaman sınırı
 // yok, sadece sayıyla sınırlıyoruz.
-export async function getModChatMessages(): Promise<ModChatMessage[]> {
+export async function getModChatMessages(
+  channel: ModChatChannel,
+): Promise<ModChatMessage[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from("mod_chat_messages")
     .select("id, sender_id, content, created_at")
+    .eq("channel", channel)
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw error;
@@ -61,7 +112,10 @@ export async function getModChatMessages(): Promise<ModChatMessage[]> {
     .reverse();
 }
 
-export async function sendModChatMessage(content: string): Promise<void> {
+export async function sendModChatMessage(
+  channel: ModChatChannel,
+  content: string,
+): Promise<void> {
   const trimmed = content.trim();
   if (!trimmed) return;
 
@@ -73,6 +127,6 @@ export async function sendModChatMessage(content: string): Promise<void> {
 
   const { error } = await supabase
     .from("mod_chat_messages")
-    .insert({ sender_id: user.id, content: trimmed });
+    .insert({ sender_id: user.id, channel, content: trimmed });
   if (error) throw error;
 }

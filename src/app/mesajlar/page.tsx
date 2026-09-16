@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import HillsBackground from "../hills-background";
 import Logo from "../logo";
 import {
+  getPublicProfile,
   getThread,
   listConversations,
   markAsRead,
@@ -50,8 +52,10 @@ type PartialConversation = {
 };
 
 export default function MesajlarPage() {
+  const searchParams = useSearchParams();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const deepLinkHandledRef = useRef(false);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selected, setSelected] = useState<Conversation | PartialConversation | null>(
@@ -125,6 +129,27 @@ export default function MesajlarPage() {
     },
     [conversations],
   );
+
+  // /admin'deki mod sohbeti gibi yerlerden ?to=<userId> ile gelindiyse,
+  // o kullanıcıyla konuşmayı otomatik aç -- hiç mesajlaşılmamışsa
+  // conversations listesinde henüz yok, o yüzden public profilini ayrıca
+  // çekiyoruz. Sadece bir kere çalışsın diye bir ref'le kilitli (ref
+  // değişimi render tetiklemediği için burada state'e göre daha doğru).
+  useEffect(() => {
+    if (!currentUserId || deepLinkHandledRef.current) return;
+    deepLinkHandledRef.current = true;
+    const to = searchParams.get("to");
+    if (!to || to === currentUserId) return;
+    getPublicProfile(to).then((profile) => {
+      if (profile) {
+        openThreadFor({
+          userId: profile.id,
+          username: profile.username,
+          avatarUrl: profile.avatarUrl,
+        });
+      }
+    });
+  }, [currentUserId, searchParams, openThreadFor]);
 
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ block: "end" });
