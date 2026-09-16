@@ -6,7 +6,6 @@ import AccountButton from "./account-button";
 import type { NavLink } from "./lib/content";
 import type { CurrentUser } from "./lib/auth";
 import Logo from "./logo";
-import MegaMenu from "./mega-menu";
 import MenuToggle from "./menu-toggle";
 import NotificationBell from "./notification-bell";
 import SearchBar from "./search-bar";
@@ -85,7 +84,6 @@ export default function Navbar({
         <Link href="/">
           <Logo compact={compact} hideWordmarkOnMobile />
         </Link>
-        <MegaMenu />
       </div>
       <SearchBar compact={compact} />
       <div
