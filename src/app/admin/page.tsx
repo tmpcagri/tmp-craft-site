@@ -77,10 +77,15 @@ export default function AdminPage() {
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] p-4 font-sans text-black dark:bg-black dark:text-white sm:p-6 lg:p-8">
       <Watermark text={moderator.id} />
 
+      {/* Üç sütun: sol köşede kimlik/QR (dar, sabit), ortada asıl panel
+          alanı (boş/rezerve, gelecekteki gerçek admin içeriği buraya
+          gelecek), sağ köşede sohbet (dar, sabit). Kimlik paneli eskiden
+          lg:flex-1 ile genişti -- içeriği (QR/buton/metin) dar olduğu için
+          geniş kartın ortasında kayboluyor, etrafında dev boşluk
+          bırakıyordu. Artık o boşluk kasıtlı: ORTA sütunda, gelecekteki
+          içerik için ayrılmış. Mobilde üç blok alt alta düşüyor. */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        {/* Sol: kimlik kartı (foto/ad/yaş/rol/QR/kod) + bekleyen yetkiler --
-            masaüstünde geniş, kalan alanı dolduruyor. */}
-        <div className={`flex w-full flex-col gap-4 p-5 lg:flex-1 ${cardClass}`}>
+        <div className={`flex w-full flex-col gap-4 p-5 lg:w-72 lg:shrink-0 ${cardClass}`}>
           <IdentityPanel
             code={moderator.id}
             username={moderator.username}
@@ -99,8 +104,12 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        {/* Sağ: moderatör sohbeti -- masaüstünde dar ve uzun (dikey şerit),
-            mobilde tam genişlik + alt alta düşüyor. */}
+        <main className={`order-last flex min-h-48 w-full flex-1 items-center justify-center p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
+          <p className="text-sm text-black/60 dark:text-white/60">
+            Yeni panel tasarımı yakında.
+          </p>
+        </main>
+
         <div className={`flex h-[32rem] min-w-0 w-full flex-col p-5 lg:h-[42rem] lg:w-72 lg:shrink-0 ${cardClass}`}>
           <ModChatPanel
             selfId={moderator.id}
@@ -109,12 +118,6 @@ export default function AdminPage() {
           />
         </div>
       </div>
-
-      <main className={`mt-4 flex min-h-48 w-full items-center justify-center p-8 ${cardClass}`}>
-        <p className="text-sm text-black/60 dark:text-white/60">
-          Yeni panel tasarımı yakında.
-        </p>
-      </main>
     </div>
   );
 }
