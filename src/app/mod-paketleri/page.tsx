@@ -2,12 +2,14 @@ import BackButton from "../back-button";
 import Footer from "../footer";
 import { getCurrentUser } from "../lib/auth";
 import { getSiteContent } from "../lib/content";
+import { getAllDownloadItems } from "../lib/downloads-server";
 import Navbar from "../navbar";
 import ModPaketleriFilters from "./mod-paketleri-filters";
 
 export default async function ModPaketleriPage() {
   const content = getSiteContent();
   const user = await getCurrentUser();
+  const items = await getAllDownloadItems();
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
@@ -30,7 +32,7 @@ export default async function ModPaketleriPage() {
           bul, hemen indir, oynamaya başla.
         </p>
 
-        <ModPaketleriFilters />
+        <ModPaketleriFilters items={items} />
       </div>
 
       <Footer logoText={content.navbar.logoText} links={content.footerLinks} />

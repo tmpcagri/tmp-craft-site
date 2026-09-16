@@ -3,7 +3,7 @@ import BackButton from "../back-button";
 import Footer from "../footer";
 import { getCurrentUser } from "../lib/auth";
 import { getSiteContent } from "../lib/content";
-import { searchDownloads } from "../lib/downloads";
+import { getAllDownloadItems } from "../lib/downloads-server";
 import ModPackageRow from "../mod-paketleri/mod-package-row";
 import Navbar from "../navbar";
 
@@ -14,7 +14,16 @@ export default async function AramaPage({
 }) {
   const { q } = await searchParams;
   const query = q?.trim() ?? "";
-  const results = searchDownloads(query);
+  const q_ = query.toLowerCase();
+  const allItems = await getAllDownloadItems();
+  const results = q_
+    ? allItems.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q_) ||
+          item.category.toLowerCase().includes(q_) ||
+          item.description.toLowerCase().includes(q_),
+      )
+    : [];
 
   const content = getSiteContent();
   const user = await getCurrentUser();

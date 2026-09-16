@@ -6,12 +6,11 @@ import { CATEGORY_ICONS } from "../category-icons";
 import {
   CATEGORY_TR,
   DOWNLOAD_CATEGORIES,
-  downloadItems,
   ENVIRONMENTS,
-  GAME_VERSIONS,
   LICENSES,
   LOADERS,
   type DownloadCategory,
+  type DownloadItem,
   type Environment,
   type License,
   type Loader,
@@ -24,12 +23,15 @@ function toggle<T>(list: T[], value: T): T[] {
     : [...list, value];
 }
 
-const dependableNames = Array.from(
-  new Set(downloadItems.flatMap((i) => i.dependsOn)),
-).sort();
-
-export default function ModPaketleriFilters() {
+export default function ModPaketleriFilters({ items: downloadItems }: { items: DownloadItem[] }) {
   const searchParams = useSearchParams();
+
+  const dependableNames = Array.from(
+    new Set(downloadItems.flatMap((i) => i.dependsOn)),
+  ).sort();
+  const gameVersionOptions = Array.from(
+    new Set(downloadItems.map((i) => i.gameVersion)),
+  ).sort().reverse();
   const initialCategory = DOWNLOAD_CATEGORIES.find(
     (c) => c === searchParams.get("category"),
   );
@@ -89,7 +91,7 @@ export default function ModPaketleriFilters() {
         return false;
       return true;
     });
-  }, [gameVersions, loaders, categories, environments, licenses, dependsOn, exclusions]);
+  }, [downloadItems, gameVersions, loaders, categories, environments, licenses, dependsOn, exclusions]);
 
   const groups = DOWNLOAD_CATEGORIES.map((category) => ({
     category,
@@ -201,7 +203,7 @@ export default function ModPaketleriFilters() {
         </div>
 
         <div className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/40 p-5 shadow-sm backdrop-blur-xl sm:sticky sm:top-44 dark:border-white/10 dark:bg-black/40">
-          {checkboxGroup("Sürüm", GAME_VERSIONS, gameVersions, setGameVersions)}
+          {checkboxGroup("Sürüm", gameVersionOptions, gameVersions, setGameVersions)}
           {checkboxGroup("Loader", LOADERS, loaders, setLoaders)}
           {checkboxGroup("Ortam", ENVIRONMENTS, environments, setEnvironments, {
             Client: "İstemci",

@@ -9,10 +9,12 @@ import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 
 const permissionTabs: { id: ModeratorTab; label: string }[] = [
-  { id: "cards", label: "Bilgi Kartları" },
-  { id: "links", label: "Footer / Menü Linkleri" },
-  { id: "creators", label: "Önerilen Yayıncılar" },
-  { id: "articles", label: "Topluluk Makaleleri" },
+  { id: "cards", label: "Ana Sayfa — Duyuru Kartları" },
+  { id: "mods", label: "Mod Paketleri — Mod/Shader Yükle" },
+  { id: "servers", label: "Sunucular — Sunucu Kartları" },
+  { id: "creators", label: "Topluluk — Önerilen Yayıncılar" },
+  { id: "articles", label: "Topluluk — Makaleler" },
+  { id: "links", label: "Site — Footer / Menü Linkleri" },
 ];
 
 function formatDateTime(iso: string): string {

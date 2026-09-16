@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Footer from "../../footer";
 import { getCurrentUser } from "../../lib/auth";
 import { getSiteContent } from "../../lib/content";
-import { downloadItems, LICENSE_URLS } from "../../lib/downloads";
+import { LICENSE_URLS } from "../../lib/downloads";
+import { getAllDownloadItems } from "../../lib/downloads-server";
 import { InlineLogo } from "../../logo";
 import Navbar from "../../navbar";
 import QrShareButton from "../../qr-share-button";
@@ -32,6 +33,7 @@ export default async function ModPaketiPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const downloadItems = await getAllDownloadItems();
   const item = downloadItems.find((i) => i.slug === slug);
   if (!item) notFound();
 

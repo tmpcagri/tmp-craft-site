@@ -1,6 +1,17 @@
 import { createClient } from "./supabase/server";
 
-export type ModeratorTab = "cards" | "links" | "creators" | "articles";
+export type ModeratorTab =
+  | "cards"
+  | "links"
+  | "creators"
+  | "articles"
+  | "mods"
+  | "servers"
+  | "occasion"
+  | "ticker"
+  | "hero"
+  | "panels"
+  | "topluluk_hero";
 
 export type ModeratorSession = {
   username: string;
@@ -9,7 +20,19 @@ export type ModeratorSession = {
   isOwner: boolean;
 } | null;
 
-const ALL_TABS: ModeratorTab[] = ["cards", "links", "creators", "articles"];
+const ALL_TABS: ModeratorTab[] = [
+  "cards",
+  "links",
+  "creators",
+  "articles",
+  "mods",
+  "servers",
+  "occasion",
+  "ticker",
+  "hero",
+  "panels",
+  "topluluk_hero",
+];
 
 // Reads the logged-in user's moderator session from their `profiles` row.
 // Returns null when signed out, or when signed in but no profile row
