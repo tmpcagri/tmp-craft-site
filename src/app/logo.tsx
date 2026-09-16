@@ -1,4 +1,7 @@
+"use client";
+
 import { Archivo_Black } from "next/font/google";
+import { useOccasion } from "./occasion-context";
 
 const blockFont = Archivo_Black({
   weight: "400",
@@ -6,6 +9,68 @@ const blockFont = Archivo_Black({
 });
 
 const letters = ["T", "M", "P"];
+
+// Özel gün rozetleri -- aktif temaya göre wordmark'ın yanında görünür.
+// bkz. src/app/lib/occasion.ts (hangi temanın aktif olduğuna karar veren
+// mantık) ve occasion-context.tsx (bunu prop'suz her yerden okunabilir
+// yapan context).
+function OccasionBadge({ size = 20 }: { size?: number }) {
+  const theme = useOccasion();
+  if (theme === "resmi") {
+    return (
+      <svg
+        width={size}
+        height={size * 0.67}
+        viewBox="0 0 30 20"
+        className="animate-flag-wave shrink-0"
+        aria-label="Resmi gün"
+      >
+        <rect width="30" height="20" fill="#e30a17" />
+        <circle cx="12" cy="10" r="5" fill="#fff" />
+        <circle cx="13.5" cy="10" r="4" fill="#e30a17" />
+        <path
+          fill="#fff"
+          d="M17.5 6.5l1.2 2.4 2.6.4-1.9 1.9.4 2.6-2.3-1.3-2.3 1.3.4-2.6-1.9-1.9 2.6-.4z"
+        />
+      </svg>
+    );
+  }
+  if (theme === "yas") {
+    return (
+      <svg
+        width={size * 0.7}
+        height={size}
+        viewBox="0 0 16 24"
+        className="shrink-0"
+        aria-label="Anma günü"
+      >
+        <path
+          fill="#111"
+          d="M8 0C5 5 0 7 0 12a8 8 0 0 0 8 8 8 8 0 0 0 8-8C16 7 11 5 8 0z"
+        />
+        <path fill="#111" d="M5 17l3 7 3-7-3 2z" />
+      </svg>
+    );
+  }
+  if (theme === "dini") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        className="shrink-0 text-emerald-600 dark:text-emerald-400"
+        aria-label="Dini bayram"
+      >
+        <path d="M20 13.5A8.5 8.5 0 1 1 10.5 4a7 7 0 0 0 9.5 9.5z" fill="currentColor" opacity="0.15" />
+        <path d="M20 13.5A8.5 8.5 0 1 1 10.5 4a7 7 0 0 0 9.5 9.5z" />
+      </svg>
+    );
+  }
+  return null;
+}
 
 export default function Logo({
   compact = false,
@@ -35,7 +100,7 @@ export default function Logo({
           {letters.map((letter) => (
             <span
               key={letter}
-              className={`flex shrink-0 items-center justify-center rounded-lg bg-emerald-900 text-white dark:bg-emerald-800 ${blockFont.className} ${tileSize}`}
+              className={`tmp-logo-tile flex shrink-0 items-center justify-center rounded-lg bg-emerald-900 text-white dark:bg-emerald-800 ${blockFont.className} ${tileSize}`}
             >
               {letter}
             </span>
@@ -57,6 +122,7 @@ export default function Logo({
             ™
           </sup>
         </span>
+        <OccasionBadge size={compact ? 16 : large ? 26 : 20} />
       </span>
       {tagline && (
         <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/60 dark:text-white/60">
@@ -79,7 +145,7 @@ export function InlineLogo() {
           <span
             key={letter}
             style={{ width: "1.3em", height: "1.3em", fontSize: "0.6em" }}
-            className="flex shrink-0 items-center justify-center rounded-[0.2em] bg-emerald-900 text-white dark:bg-emerald-800"
+            className="tmp-logo-tile flex shrink-0 items-center justify-center rounded-[0.2em] bg-emerald-900 text-white dark:bg-emerald-800"
           >
             {letter}
           </span>
@@ -110,7 +176,7 @@ export function TmpMark({ className = "" }: { className?: string }) {
         <span
           key={letter}
           style={{ width: "1.3em", height: "1.3em", fontSize: "0.6em" }}
-          className="flex shrink-0 items-center justify-center rounded-[0.2em] bg-emerald-900 text-white dark:bg-emerald-800"
+          className="tmp-logo-tile flex shrink-0 items-center justify-center rounded-[0.2em] bg-emerald-900 text-white dark:bg-emerald-800"
         >
           {letter}
         </span>

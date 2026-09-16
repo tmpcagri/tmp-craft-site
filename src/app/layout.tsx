@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Mono } from "next/font/google";
 import CookieConsent from "./cookie-consent";
+import { getSiteContent } from "./lib/content";
+import { resolveActiveTheme } from "./lib/occasion";
+import OccasionBackground from "./occasion-background";
+import { OccasionProvider } from "./occasion-context";
+import TestPanel from "./test-panel";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -77,6 +82,9 @@ const jsonLd = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const { specialOccasion } = getSiteContent();
+  const activeTheme = resolveActiveTheme(specialOccasion);
+
   return (
     <html
       lang="tr"
@@ -94,9 +102,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
-        {children}
-        <CookieConsent />
+      <body
+        className={`min-h-full flex flex-col relative ${activeTheme === "yas" ? "occasion-yas" : ""}`}
+      >
+        <OccasionProvider theme={activeTheme}>
+          {activeTheme !== "none" && (
+            <OccasionBackground
+              imageUrl={specialOccasion.backgroundImageUrl}
+              opacity={specialOccasion.backgroundOpacity}
+            />
+          )}
+          {children}
+          <CookieConsent />
+          <TestPanel />
+        </OccasionProvider>
       </body>
     </html>
   );

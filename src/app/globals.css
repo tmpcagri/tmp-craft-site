@@ -80,3 +80,30 @@ body {
   animation: gradient-flow 6s ease infinite;
 }
 
+/* Özel gün temaları -- bkz. src/app/lib/occasion.ts + occasion-context.tsx.
+   "yas" (anma/kötü gün) modunda site soluk/siyah-beyaz görünsün, canlılık
+   olmasın diye tüm sayfa griye çekiliyor ve logo kutucukları siyaha
+   dönüyor (Logo/InlineLogo/TmpMark'taki .tmp-logo-tile class'ı). */
+.occasion-yas {
+  filter: grayscale(1);
+}
+
+.occasion-yas .tmp-logo-tile {
+  background-color: #000 !important;
+}
+
+@keyframes flag-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+
+.animate-flag-wave {
+  animation: flag-wave 2.2s ease-in-out infinite;
+  transform-origin: left center;
+}
+

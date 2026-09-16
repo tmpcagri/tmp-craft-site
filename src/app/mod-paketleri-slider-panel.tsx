@@ -1,17 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { downloadItems } from "./lib/downloads";
+import type { FeaturedModTag } from "./lib/content";
+import type { DownloadItem } from "./lib/downloads";
 import { useAutoScroll } from "./lib/use-auto-scroll";
 
-const items = downloadItems.slice(0, 8);
-const track = [...items, ...items];
+const TAG_STYLE: Record<Exclude<FeaturedModTag, "">, string> = {
+  Popüler: "bg-amber-400 text-black",
+  "En Çok İndirilen": "bg-emerald-400 text-black",
+  Yeni: "bg-sky-400 text-black",
+};
 
 export default function ModPaketleriSliderPanel({
   className = "",
+  allItems,
+  featured,
 }: {
   className?: string;
+  allItems: DownloadItem[];
+  // Admin'in /admin -> Öne Çıkan Modlar'da seçtiği sıra + rozet -- boşsa
+  // eski davranışa (ilk 8 mod, rozetsiz) düşülüyor.
+  featured: { item: DownloadItem; tag: FeaturedModTag }[];
 }) {
+  const items =
+    featured.length > 0
+      ? featured
+      : allItems.slice(0, 8).map((item) => ({ item, tag: "" as FeaturedModTag }));
+  const track = [...items, ...items];
+
   const { ref: trackRef, handlers } = useAutoScroll<HTMLDivElement>("horizontal");
 
   return (
@@ -43,14 +59,21 @@ export default function ModPaketleriSliderPanel({
         className="relative z-10 flex flex-1 gap-4 overflow-x-auto px-6 pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         {...handlers}
       >
-        {track.map((item, i) => (
+        {track.map(({ item, tag }, i) => (
           <Link
             key={`${item.slug}-${i}`}
             href={`/mod-paketleri/${item.slug}`}
             aria-hidden={i >= items.length}
             tabIndex={i >= items.length ? -1 : undefined}
-            className="flex w-56 shrink-0 flex-col justify-end rounded-2xl bg-white/10 p-4 shadow-lg backdrop-blur-sm transition hover:bg-white/15"
+            className="relative flex w-56 shrink-0 flex-col justify-end rounded-2xl bg-white/10 p-4 shadow-lg backdrop-blur-sm transition hover:bg-white/15"
           >
+            {tag && (
+              <span
+                className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TAG_STYLE[tag]}`}
+              >
+                {tag}
+              </span>
+            )}
             <h4 className="font-sans text-sm font-bold text-white">
               {item.name}
             </h4>

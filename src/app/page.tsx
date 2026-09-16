@@ -7,6 +7,8 @@ import HeroSlider from "./hero-slider";
 import HillsBackground from "./hills-background";
 import { getCurrentUser } from "./lib/auth";
 import { getSiteContent } from "./lib/content";
+import { getAllDownloadItems } from "./lib/downloads-server";
+import { getDbServerCards } from "./lib/server-cards-server";
 import { trends } from "./lib/trends";
 import {
   CommunityFeedColumn,
@@ -26,17 +28,10 @@ const FALLBACK_ANNOUNCEMENTS: TickerItem[] = [
   { label: "Yeni sezon yakında başlıyor.", href: "/topluluk", tag: "Duyuru" },
 ];
 
-// Sunucu adı + anlık oyuncu sayısı -- üstteki karma şeritte ve "Şu an
-// gündemde" bandında kullanılıyor.
-const SERVER_HIGHLIGHTS: TickerItem[] = [
-  { label: "TMP Anaakım — 42/100 oyuncu", href: "/sunucular", tag: "Sunucu" },
-  { label: "TMP SkyBlock — 76/150 oyuncu", href: "/sunucular", tag: "Sunucu" },
-  { label: "TMP Faction — 33/80 oyuncu", href: "/sunucular", tag: "Sunucu" },
-  { label: "TMP Modlu — 21/50 oyuncu", href: "/sunucular", tag: "Sunucu" },
-];
-
 // Sunucular kartındaki büyük "spotlight" döngüsü için -- sunucular tek
-// tek, reklam panosu gibi sırayla gösteriliyor.
+// tek, reklam panosu gibi sırayla gösteriliyor. Moderatörlerin /admin'den
+// eklediği sunucular (bkz. getDbServerCards) bu sabit listenin ÜSTÜNE
+// ekleniyor, yerine geçmiyor.
 const SERVER_CARDS: ServerCard[] = [
   { name: "TMP Anaakım", players: "42/100", fill: 42 },
   { name: "TMP SkyBlock", players: "76/150", fill: 51 },
@@ -52,6 +47,30 @@ const SERVER_CARDS: ServerCard[] = [
 export default async function Home() {
   const content = getSiteContent();
   const user = await getCurrentUser();
+  const dbServerCards = await getDbServerCards();
+  const allServerCards = [...dbServerCards, ...SERVER_CARDS];
+  const allDownloadItems = await getAllDownloadItems();
+
+  // Admin'in "Öne Çıkan Modlar" panelinde sırasını/rozetini seçtiği modlar
+  // -- boşsa panel eski davranışına (ilk 8 mod) düşer, bkz.
+  // mod-paketleri-slider-panel.tsx.
+  const featuredModItems = content.featuredMods
+    .map((entry) => {
+      const item = allDownloadItems.find((i) => i.slug === entry.slug);
+      return item ? { item, tag: entry.tag } : null;
+    })
+    .filter((v): v is { item: (typeof allDownloadItems)[number]; tag: typeof content.featuredMods[number]["tag"] } => v !== null);
+
+  // Sunucu adı + anlık oyuncu sayısı -- üstteki karma şeritte ve "Şu an
+  // gündemde" bandında kullanılıyor. allServerCards'tan üretiliyor ki
+  // moderatörün /admin'den eklediği sunucular da şeritte görünsün.
+  const SERVER_HIGHLIGHTS: TickerItem[] = allServerCards
+    .slice(0, 4)
+    .map((s) => ({
+      label: `${s.name} — ${s.players} oyuncu`,
+      href: "/sunucular",
+      tag: "Sunucu",
+    }));
 
   const announcements: TickerItem[] =
     content.infoCards.length > 0
@@ -62,6 +81,12 @@ export default async function Home() {
         }))
       : FALLBACK_ANNOUNCEMENTS;
 
+  // Admin'in eklediği özel mesajlar otomatik karışımın BAŞINA ekleniyor --
+  // bkz. src/app/lib/content.ts TickerConfig.
+  const customTickerItems: TickerItem[] = content.ticker.customMessages.map(
+    (m) => ({ label: m.label, href: m.href || "/", tag: "Duyuru" }),
+  );
+
   const trendItems: TickerItem[] = trends.slice(0, 6).map((trend) => ({
     label: `#${trend.topic}`,
     href: `/topluluk/etiket/${encodeURIComponent(trend.topic)}`,
@@ -71,6 +96,7 @@ export default async function Home() {
   // Sitenin en üstü, en sürekli görünen bölgesi -- sadece duyuru değil,
   // gündem ve sunucu bilgisiyle karışık, hep hareket eden tek bir şerit.
   const topTickerItems: TickerItem[] = [
+    ...customTickerItems,
     announcements[0],
     trendItems[0],
     SERVER_HIGHLIGHTS[0],
@@ -78,6 +104,9 @@ export default async function Home() {
     trendItems[1],
     SERVER_HIGHLIGHTS[1],
   ].filter(Boolean);
+
+  const tickerLabel = content.ticker.mode === "son-dakika" ? "Son Dakika" : "Canlı";
+  const isTickerPinned = content.ticker.pinned && content.ticker.pinnedMessage.trim().length > 0;
 
   // Büyük Topluluk kartının içinde akan, o anki olaylar/gündem.
   const toplulukEvents: TickerItem[] = [
@@ -112,14 +141,23 @@ export default async function Home() {
         <div className="mx-auto flex w-[calc(100%-2rem)] items-center gap-3 sm:w-[calc(100%-5rem)]">
           <span className="ml-2 flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide sm:ml-16">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-            Canlı
+            {tickerLabel}
           </span>
-          <NewsTicker items={topTickerItems} className="flex-1" />
+          {isTickerPinned ? (
+            <Link
+              href={content.ticker.pinnedHref || "/"}
+              className="flex-1 truncate text-sm font-medium hover:underline"
+            >
+              {content.ticker.pinnedMessage}
+            </Link>
+          ) : (
+            <NewsTicker items={topTickerItems} className="flex-1" />
+          )}
         </div>
       </div>
 
       <section className="relative z-10 flex w-full items-center justify-center pb-10 pt-4">
-        <HeroSlider />
+        <HeroSlider content={content.hero} />
       </section>
 
       <CommunitySlider />
@@ -197,7 +235,7 @@ export default async function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-red-950/85 via-red-900/55 to-red-800/25" />
 
               <ServerSpotlight
-                items={SERVER_CARDS}
+                items={allServerCards}
                 className="relative z-10 min-h-0 flex-1"
               />
 
@@ -206,14 +244,18 @@ export default async function Home() {
                   Sunucular
                 </h3>
                 <span className="font-sans text-xs text-white/70 sm:text-sm">
-                  {SERVER_CARDS.length} sunucu
+                  {allServerCards.length} sunucu
                 </span>
               </div>
             </Link>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <ModPaketleriSliderPanel className="h-72" />
+            <ModPaketleriSliderPanel
+              className="h-72"
+              allItems={allDownloadItems}
+              featured={featuredModItems}
+            />
             <IcerikSliderPanel className="h-72" />
           </div>
         </div>

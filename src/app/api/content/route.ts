@@ -36,6 +36,19 @@ export async function POST(request: Request) {
     contact: moderator.permissions.includes("links")
       ? body.contact
       : current.contact,
+    specialOccasion: moderator.permissions.includes("occasion")
+      ? body.specialOccasion
+      : current.specialOccasion,
+    ticker: moderator.permissions.includes("ticker")
+      ? body.ticker
+      : current.ticker,
+    hero: moderator.permissions.includes("hero") ? body.hero : current.hero,
+    featuredMods: moderator.permissions.includes("panels")
+      ? body.featuredMods
+      : current.featuredMods,
+    toplulukHero: moderator.permissions.includes("topluluk_hero")
+      ? body.toplulukHero
+      : current.toplulukHero,
   };
 
   saveSiteContent(next);

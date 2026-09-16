@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import Logo, { InlineLogo } from "./logo";
+import { useEffect, useState } from "react";
+import type { HeroContent } from "./lib/content";
+import Logo from "./logo";
 
 // Önceden burada otomatik dönen tek-mesajlı bir carousel vardı (4 slayt,
 // 4.5sn'de bir geçiş). Carousel'lar üzerine yapılan bağımsız araştırma
@@ -8,54 +12,34 @@ import Logo, { InlineLogo } from "./logo";
 // ilk slayta tıklıyor -- yani "aynı anda tek mesaj" tasarımı pratikte
 // "genelde sadece ilk mesaj görülüyor" anlamına geliyor. F-pattern göz
 // tarama araştırması da en "sıcak" bölgenin sol-üst olduğunu, sağa/aşağı
-// gittikçe soğuduğunu gösteriyor. Bu yüzden 4 mesajın hepsi artık AYNI ANDA,
-// statik bir mozaikte gösteriliyor -- en önemlisi (marka girişi) sol üstte
-// büyük, diğer üçü sağda daha küçük ve gerçek sayfalara tıklanabilir.
-const featured = {
-  id: "hosgeldin",
-  title: (
-    <>
-      <InlineLogo />
-      &apos;a Hoş Geldin
-    </>
-  ),
-  body: "Mod, modpack, sunucu ve topluluk — Minecraft dünyanın tek adresi.",
-  image: "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/logo.16.png",
-  href: "/sosyal-medya",
-};
+// gittikçe soğuduğunu gösteriyor. Bu yüzden 3 küçük kart hep AYNI ANDA,
+// statik bir mozaikte gösteriliyor. Büyük "Hoşgeldin" kartı BUNUN
+// istisnası -- admin'den birden fazla görsel eklenebiliyor, o zaman
+// kendi süresiyle (featuredIntervalMs) dönen küçük bir galeriye dönüşüyor
+// (tek görsel varsa hiç dönmüyor, eski statik davranış).
+export default function HeroSlider({ content }: { content: HeroContent }) {
+  const { featuredSlides, featuredIntervalMs, secondary } = content;
+  const [index, setIndex] = useState(0);
 
-const secondary = [
-  {
-    id: "modlarini-bul",
-    title: "Modlarını Bul",
-    body: "Yüzlerce mod, sürüm ve loader'a göre filtrelenmiş.",
-    image: "/modlarini-bul-bg.png",
-    href: "/mod-paketleri",
-  },
-  {
-    id: "toplulukla-bulus",
-    title: "Toplulukla Buluş",
-    body: "Sorularını sor, projelerini paylaş.",
-    image: "/toplulukla-bulus-bg.png",
-    href: "/topluluk",
-  },
-  {
-    id: "kendi-dunyani-kur",
-    title: "Kendi Dünyanı Kur",
-    body: "Build rehberleri ve ilham verici projeler.",
-    image: "/kendi-dunyani-kur-bg.png",
-    href: "/projeler",
-  },
-];
+  useEffect(() => {
+    if (featuredSlides.length < 2) return;
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % featuredSlides.length),
+      Math.max(1500, featuredIntervalMs),
+    );
+    return () => clearInterval(id);
+  }, [featuredSlides.length, featuredIntervalMs]);
 
-export default function HeroSlider() {
+  const featured = featuredSlides[index % featuredSlides.length] ?? featuredSlides[0];
+  if (!featured) return null;
+
   return (
     <div className="grid h-auto w-[calc(100%-2rem)] grid-cols-1 gap-3 sm:h-[52vh] sm:w-[calc(100%-5rem)] sm:grid-cols-[1.6fr_1fr]">
       <Link
         href={featured.href}
         className="group relative flex h-56 flex-col items-start justify-end gap-2 overflow-hidden rounded-3xl p-6 shadow-2xl sm:h-full sm:p-10"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- Cloudflare R2-hosted brand image */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
         <img
           src={featured.image}
           alt=""
@@ -69,6 +53,19 @@ export default function HeroSlider() {
           {featured.body}
         </p>
 
+        {featuredSlides.length > 1 && (
+          <div className="relative z-10 mt-1 flex gap-1.5">
+            {featuredSlides.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index % featuredSlides.length ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="absolute bottom-4 right-4 hidden flex-col items-end whitespace-nowrap text-white sm:flex">
           <Logo compact />
           <span className="mt-1 font-sans text-xs text-white/70">
@@ -78,13 +75,13 @@ export default function HeroSlider() {
       </Link>
 
       <div className="grid grid-cols-1 gap-3 sm:h-full sm:grid-rows-3">
-        {secondary.map((slide) => (
+        {secondary.map((slide, i) => (
           <Link
-            key={slide.id}
+            key={i}
             href={slide.href}
             className="group relative flex h-28 flex-col items-start justify-end gap-1 overflow-hidden rounded-2xl p-4 shadow-lg sm:h-full"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- Cloudflare R2-hosted brand image */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
             <img
               src={slide.image}
               alt=""

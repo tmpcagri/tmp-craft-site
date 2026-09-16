@@ -2,11 +2,15 @@
   "navbar": {
     "logoText": "TMP Craft"
   },
-  "contact": {
-    "whatsapp": "",
-    "email": "destek.tmpcraft@gmail.com"
-  },
-  "infoCards": [],
+  "infoCards": [
+    {
+      "title": "Yeni Kart",
+      "body": "Açıklama metni.",
+      "span": "",
+      "imageUrl": "",
+      "linkUrl": "#"
+    }
+  ],
   "footerLinks": [
     {
       "label": "Mod Paketleri",
@@ -147,6 +151,81 @@
       "platform": "Twitch",
       "note": "İlk canlı yayınına hazırlanıyor",
       "tier": "newcomer"
+    }
+  ],
+  "contact": {
+    "whatsapp": "",
+    "email": "destek.tmpcraft@gmail.com"
+  },
+  "specialOccasion": {
+    "manualTheme": "none",
+    "autoScheduleEnabled": false,
+    "schedule": [
+      {
+        "theme": "resmi",
+        "startDate": "",
+        "endDate": "",
+        "label": "Yeni dönem"
+      }
+    ],
+    "backgroundImageUrl": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/icerikler/ozel-gunler/arka-plan/gorseller/1789475172150-gemini-generated-image-orj25jorj25jorj2.jpeg",
+    "backgroundOpacity": 0.1
+  },
+  "ticker": {
+    "mode": "canli",
+    "pinned": false,
+    "pinnedMessage": "Bu site şuanda test aşamasındadır. Lütfen gördüğünüz herhangi bir hatayı bize mail üzerinden bildiriniz.Teşekkür ederiz. TMP CRAFT Moderatör ve moderasyon ekibi",
+    "pinnedHref": "",
+    "customMessages": []
+  },
+  "hero": {
+    "featuredSlides": [
+      {
+        "title": "TMP Craft'a Hoş Geldin",
+        "body": "Mod, modpack, sunucu ve topluluk — Minecraft dünyanın tek adresi.",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/logo.16.png",
+        "href": "/sosyal-medya"
+      }
+    ],
+    "featuredIntervalMs": 5000,
+    "secondary": [
+      {
+        "title": "Modlarını Bul",
+        "body": "Yüzlerce mod, sürüm ve loader'a göre filtrelenmiş.",
+        "image": "/modlarini-bul-bg.png",
+        "href": "/mod-paketleri"
+      },
+      {
+        "title": "Toplulukla Buluş",
+        "body": "Sorularını sor, projelerini paylaş.",
+        "image": "/toplulukla-bulus-bg.png",
+        "href": "/topluluk"
+      },
+      {
+        "title": "Kendi Dünyanı Kur",
+        "body": "Build rehberleri ve ilham verici projeler.",
+        "image": "/kendi-dunyani-kur-bg.png",
+        "href": "/projeler"
+      }
+    ]
+  },
+  "featuredMods": [],
+  "toplulukHero": [
+    {
+      "title": "Yeni sezon başladı!",
+      "body": "Sezon boyunca sürecek görevler ve ödüller için etkinlik başlığına göz at."
+    },
+    {
+      "title": "Tasarım yarışması sürüyor",
+      "body": "Kendi resource pack'ini paylaş, topluluk oylasın."
+    },
+    {
+      "title": "Haftalık canlı yayın",
+      "body": "Cuma akşamı topluluk sunucusunda buluşuyoruz."
+    },
+    {
+      "title": "Yeni başlayanlar rehberi",
+      "body": "İlk gününde ne yapman gerektiğini öğren, topluluğa hızlı katıl."
     }
   ]
 }

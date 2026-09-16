@@ -31,11 +31,17 @@ export default async function ToplulukPage({
       />
       <QuickTopicLinks />
 
-      <div className="relative z-10 flex flex-1 flex-col lg:flex-row lg:items-start">
+      {/* Sabit (fixed) Navbar + QuickTopicLinks'in altından temiz başlaması
+          için üst boşluk BURADA, dış konteynerde -- eskiden sadece
+          <main>'in kendisindeydi, bu yüzden mobilde sıralama değişip
+          (order-first) bir sidebar en başa geçtiğinde o sidebar hiç üst
+          boşluk almadan direkt sabit şeritlerin altına giriyor, kaydırınca
+          da üstlerinden geçip görsel olarak üst üste biniyordu. */}
+      <div className="relative z-10 flex flex-1 flex-col gap-4 pt-28 sm:pt-32 lg:flex-row lg:items-start lg:gap-0 lg:pt-40">
         <GundemSidebar />
 
-        <main className="flex w-full flex-1 flex-col gap-6 px-6 pb-16 pt-28 sm:px-10 sm:pt-32 lg:px-10 lg:pt-40">
-          <ToplulukHero />
+        <main className="flex w-full flex-1 flex-col gap-6 px-6 pb-16 sm:px-10 lg:px-10">
+          <ToplulukHero slides={content.toplulukHero} />
         </main>
 
         <OnerilenYayincilarSidebar creators={content.recommendedCreators} />
