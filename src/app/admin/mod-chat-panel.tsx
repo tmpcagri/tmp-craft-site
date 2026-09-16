@@ -94,32 +94,30 @@ export default function ModChatPanel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
-        Moderatör Sohbeti
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
+          Moderatör Sohbeti
+        </p>
 
-      {accessibleChannels.length > 1 && (
-        <div className="flex flex-wrap gap-1">
-          {MOD_CHAT_CHANNELS.filter((c) => accessibleChannels.includes(c.id)).map(
-            (c) => (
-              <button
-                key={c.id}
-                onClick={() => {
-                  setChannel(c.id);
-                  setMessages(null);
-                }}
-                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition ${
-                  channel === c.id
-                    ? "bg-black text-white dark:bg-white dark:text-black"
-                    : "bg-black/5 text-black/60 hover:bg-black/10 dark:bg-white/10 dark:text-white/60 dark:hover:bg-white/15"
-                }`}
-              >
-                {c.label}
-              </button>
-            ),
-          )}
-        </div>
-      )}
+        {accessibleChannels.length > 1 && (
+          <select
+            value={channel}
+            onChange={(e) => {
+              setChannel(e.target.value as ModChatChannel);
+              setMessages(null);
+            }}
+            className="rounded-full border border-black/10 bg-white/40 px-2.5 py-1 text-xs font-medium outline-none dark:border-white/10 dark:bg-black/30"
+          >
+            {MOD_CHAT_CHANNELS.filter((c) => accessibleChannels.includes(c.id)).map(
+              (c) => (
+                <option key={c.id} value={c.id}>
+                  {c.label}
+                </option>
+              ),
+            )}
+          </select>
+        )}
+      </div>
 
       <div
         ref={listRef}

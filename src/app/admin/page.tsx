@@ -70,12 +70,16 @@ export default function AdminPage() {
     );
   }
 
+  const cardClass =
+    "rounded-3xl border border-black/10 bg-[#fafafa] dark:border-white/10 dark:bg-white/5";
+
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] font-sans text-black dark:bg-black dark:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] p-4 font-sans text-black dark:bg-black dark:text-white sm:p-6 lg:p-8">
       <Watermark text={moderator.id} />
 
-      <div className="flex min-h-screen w-full flex-col sm:flex-row">
-        <aside className="flex w-full shrink-0 flex-col gap-6 border-b border-black/10 bg-[#fafafa] px-6 py-6 sm:w-64 sm:min-h-screen sm:border-b-0 sm:border-r sm:px-5 dark:border-white/10 dark:bg-white/5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        {/* Sol: kimlik kartı (foto/ad/yaş/rol/QR/kod) + bekleyen yetkiler */}
+        <div className={`flex w-full flex-col gap-4 p-5 lg:w-72 lg:shrink-0 ${cardClass}`}>
           <IdentityPanel
             code={moderator.id}
             username={moderator.username}
@@ -86,28 +90,29 @@ export default function AdminPage() {
 
           <PendingGrantsCard onAccepted={loadSession} />
 
+          <Link
+            href="/"
+            className="text-xs text-black/60 underline underline-offset-4 hover:text-black dark:text-white/60 dark:hover:text-white"
+          >
+            ← Siteye dön
+          </Link>
+        </div>
+
+        {/* Sağ: moderatör sohbeti, kendi bölgesinde */}
+        <div className={`flex h-[28rem] min-w-0 w-full flex-col p-5 lg:flex-1 ${cardClass}`}>
           <ModChatPanel
             selfId={moderator.id}
             isOwner={moderator.isOwner}
             permissions={moderator.permissions}
           />
-
-          <div className="flex flex-col gap-3">
-            <Link
-              href="/"
-              className="text-xs text-black/60 underline underline-offset-4 hover:text-black dark:text-white/60 dark:hover:text-white"
-            >
-              ← Siteye dön
-            </Link>
-          </div>
-        </aside>
-
-        <main className="flex min-w-0 flex-1 items-center justify-center px-6 py-8 sm:px-10">
-          <p className="text-sm text-black/60 dark:text-white/60">
-            Yeni panel tasarımı yakında.
-          </p>
-        </main>
+        </div>
       </div>
+
+      <main className={`mt-4 flex min-h-48 w-full items-center justify-center p-8 ${cardClass}`}>
+        <p className="text-sm text-black/60 dark:text-white/60">
+          Yeni panel tasarımı yakında.
+        </p>
+      </main>
     </div>
   );
 }
