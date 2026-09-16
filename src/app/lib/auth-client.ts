@@ -23,14 +23,3 @@ export async function signInWithPassword(email: string, password: string) {
   const supabase = createClient();
   return supabase.auth.signInWithPassword({ email, password });
 }
-
-export async function signUpWithPassword(email: string, password: string) {
-  const supabase = createClient();
-  return supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${location.origin}/auth/callback`,
-    },
-  });
-}

@@ -25,6 +25,24 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // İlk giriş (profilde doğum tarihi hiç girilmemiş) ise, nereden
+      // geldiğine bakmadan doğrudan /hesap'a gönder -- OnboardingModal
+      // (Navbar'daki AccountButton üzerinden, doğum tarihi boşken her
+      // sayfada zaten açılıyor) üstte açılırken kullanıcı arkada kendi
+      // profil sayfasını görüyor, tamamlayınca zaten orada oluyor.
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("birth_date")
+          .eq("id", user.id)
+          .single();
+        if (profile && !profile.birth_date) {
+          return NextResponse.redirect(`${origin}/hesap`);
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
