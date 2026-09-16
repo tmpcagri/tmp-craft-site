@@ -84,7 +84,7 @@ export default async function Home() {
   // Admin'in eklediği özel mesajlar otomatik karışımın BAŞINA ekleniyor --
   // bkz. src/app/lib/content.ts TickerConfig.
   const customTickerItems: TickerItem[] = content.ticker.customMessages.map(
-    (m) => ({ label: m.label, href: m.href || "/", tag: "Duyuru" }),
+    (m) => ({ label: m.label, href: m.href || "/", tag: "Duyuru", bold: m.bold }),
   );
 
   const trendItems: TickerItem[] = trends.slice(0, 6).map((trend) => ({
@@ -105,7 +105,7 @@ export default async function Home() {
     SERVER_HIGHLIGHTS[1],
   ].filter(Boolean);
 
-  const tickerLabel = content.ticker.mode === "son-dakika" ? "Son Dakika" : "Canlı";
+  const tickerLabel = content.ticker.badgeLabel.trim() || "CANLI";
   const isTickerPinned = content.ticker.pinned && content.ticker.pinnedMessage.trim().length > 0;
 
   // Büyük Topluluk kartının içinde akan, o anki olaylar/gündem.
@@ -139,14 +139,14 @@ export default async function Home() {
           bilgisiyle karışık, hep hareket eden tek bir akış. */}
       <div className="relative z-10 w-full border-b border-black/10 bg-white/80 py-2 pt-20 text-black backdrop-blur-xl dark:border-red-900/40 dark:bg-black/70 dark:text-white">
         <div className="mx-auto flex w-[calc(100%-2rem)] items-center gap-3 sm:w-[calc(100%-5rem)]">
-          <span className="ml-2 flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide sm:ml-16">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+          <span className="ml-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-red-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide sm:ml-16">
+            <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-white" />
             {tickerLabel}
           </span>
           {isTickerPinned ? (
             <Link
               href={content.ticker.pinnedHref || "/"}
-              className="flex-1 truncate text-sm font-medium hover:underline"
+              className={`flex-1 truncate text-sm hover:underline ${content.ticker.pinnedBold ? "font-bold" : "font-medium"}`}
             >
               {content.ticker.pinnedMessage}
             </Link>

@@ -9,7 +9,7 @@ export const TAB_LABELS: Record<ModeratorTab, string> = {
   cards: "Ana Sayfa — Duyuru Kartları",
   occasion: "Ana Sayfa — Özel Günler Teması",
   ticker: "Ana Sayfa — CANLI Şeridi",
-  hero: "Ana Sayfa — Hero Kartları",
+  hero: "Ana Sayfa — Kayan Kart",
   panels: "Ana Sayfa — Öne Çıkan Modlar",
   mods: "Mod Paketleri — Mod/Shader Yükle",
   servers: "Sunucular — Sunucu Kartları",

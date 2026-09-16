@@ -169,12 +169,14 @@
       }
     ],
     "backgroundImageUrl": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/icerikler/ozel-gunler/arka-plan/gorseller/1789475172150-gemini-generated-image-orj25jorj25jorj2.jpeg",
-    "backgroundOpacity": 0.1
+    "backgroundOpacity": 0.1,
+    "mourningIconUrl": ""
   },
   "ticker": {
-    "mode": "canli",
+    "badgeLabel": "CANLI YAYIN",
     "pinned": false,
     "pinnedMessage": "Bu site şuanda test aşamasındadır. Lütfen gördüğünüz herhangi bir hatayı bize mail üzerinden bildiriniz.Teşekkür ederiz. TMP CRAFT Moderatör ve moderasyon ekibi",
+    "pinnedBold": false,
     "pinnedHref": "",
     "customMessages": []
   },

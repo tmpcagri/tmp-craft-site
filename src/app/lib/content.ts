@@ -54,20 +54,26 @@ export type SpecialOccasion = {
   schedule: ScheduledOccasion[];
   backgroundImageUrl: string;
   backgroundOpacity: number; // 0-1
+  // Yas Modu admin kontrolündeki büyük kurdele ikonu -- logo.tsx'teki
+  // OccasionBadge'in sabit SVG'sinden bağımsız, sadece moderatör panelinde
+  // gösteriliyor. Boşsa panelde yer tutucu bir kurdele SVG'si görünür.
+  mourningIconUrl: string;
 };
 
-// CANLI şeridi -- "son dakika" moduna geçebilir (etiket değişir), ya da
-// tek bir mesaj döngü olmadan sabit kalabilir (acil bir duyuru için).
-// customMessages otomatik üretilen duyuru/gündem/sunucu karışımının
-// BAŞINA ekleniyor (bkz. src/app/page.tsx).
-export type TickerMode = "canli" | "son-dakika";
-
+// CANLI şeridi -- soldaki kırmızı rozet artık admin'den serbest metin
+// (bkz. moderator/ticker-panel.tsx TICKER_BADGE_MAX_LENGTH), eskiden
+// "canli"/"son-dakika" arasında sabit iki seçenekti. Rozet, dönen/sabit
+// modundan bağımsız her zaman gösterilir -- pinned sadece geri kalan
+// içeriğin dönüp dönmediğini belirler. Sabit mesaj ve özel mesajlar ayrı
+// ayrı kalın işaretlenebilir. customMessages otomatik üretilen duyuru/
+// gündem/sunucu karışımının BAŞINA ekleniyor (bkz. src/app/page.tsx).
 export type TickerConfig = {
-  mode: TickerMode;
+  badgeLabel: string;
   pinned: boolean;
   pinnedMessage: string;
+  pinnedBold: boolean;
   pinnedHref: string;
-  customMessages: { label: string; href: string; tag: string }[];
+  customMessages: { label: string; href: string; tag: string; bold: boolean }[];
 };
 
 // Anasayfa hero'sundaki büyük "Hoşgeldin" kartı BİRDEN FAZLA görsel

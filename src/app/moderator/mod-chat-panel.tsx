@@ -39,7 +39,11 @@ export default function ModChatPanel({
   permissions: ModeratorTab[];
 }) {
   const accessibleChannels = getAccessibleModChatChannels({ isOwner, permissions });
-  const [channel, setChannel] = useState<ModChatChannel>(
+  // "ozel" gerçek bir ModChatChannel değil -- paylaşımlı bir oda değil,
+  // kişiye özel bir hedef gerektiriyor. Seçilince mesaj akışı yerine
+  // mevcut /mesajlar'a yönlendiren bir kart gösteriliyor (bkz. altta),
+  // ayrı bir 1:1 sistemi burada yeniden kurmuyoruz.
+  const [channel, setChannel] = useState<ModChatChannel | "ozel">(
     accessibleChannels[0] ?? "genel",
   );
   const [messages, setMessages] = useState<ModChatMessage[] | null>(null);
@@ -49,6 +53,7 @@ export default function ModChatPanel({
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (channel === "ozel") return;
     let cancelled = false;
 
     const load = () => {
@@ -75,7 +80,7 @@ export default function ModChatPanel({
 
   const send = async () => {
     const content = draft.trim();
-    if (!content || sending) return;
+    if (!content || sending || channel === "ozel") return;
     setSending(true);
     setError("");
     try {
@@ -92,105 +97,128 @@ export default function ModChatPanel({
 
   if (accessibleChannels.length === 0) return null;
 
+  const currentChannelLabel =
+    channel === "ozel"
+      ? "Özel"
+      : (MOD_CHAT_CHANNELS.find((c) => c.id === channel)?.label ?? "");
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
-          Moderatör Sohbeti
+        {/* Sabit "Moderatör Sohbeti" yazısı yerine, ana paneldeki bölüm
+            başlığıyla (page.tsx'teki activeLabel) aynı mantık: seçili
+            kanalın adı büyük harfle gösteriliyor. */}
+        <p className="text-sm font-bold uppercase tracking-wide">
+          {currentChannelLabel}
         </p>
 
-        {accessibleChannels.length > 1 && (
-          <select
-            value={channel}
-            onChange={(e) => {
-              setChannel(e.target.value as ModChatChannel);
-              setMessages(null);
-            }}
-            className="rounded-full border border-black/10 bg-white/40 px-2.5 py-1 text-xs font-medium outline-none dark:border-white/10 dark:bg-black/30"
-          >
-            {MOD_CHAT_CHANNELS.filter((c) => accessibleChannels.includes(c.id)).map(
-              (c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ),
-            )}
-          </select>
-        )}
-      </div>
-
-      <div
-        ref={listRef}
-        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-black/5 p-3 dark:bg-white/5"
-      >
-        {messages === null ? (
-          <p className="text-xs text-black/50 dark:text-white/50">Yükleniyor...</p>
-        ) : messages.length === 0 ? (
-          <p className="text-xs text-black/50 dark:text-white/50">
-            Henüz mesaj yok.
-          </p>
-        ) : (
-          messages.map((m) => (
-            <div key={m.id} className="flex items-start gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10 text-[10px] font-semibold dark:bg-white/10">
-                {m.senderAvatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- dış OAuth avatar URL'i
-                  <img
-                    src={m.senderAvatarUrl}
-                    alt={m.senderUsername}
-                    referrerPolicy="no-referrer"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  m.senderUsername.slice(0, 1).toUpperCase()
-                )}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="flex items-baseline gap-1.5">
-                  {m.senderId && m.senderId !== selfId ? (
-                    <Link
-                      href={`/mesajlar?to=${m.senderId}`}
-                      className="truncate text-xs font-semibold hover:underline"
-                      title="Özel mesaj gönder"
-                    >
-                      {m.senderUsername}
-                    </Link>
-                  ) : (
-                    <span className="truncate text-xs font-semibold text-black dark:text-white">
-                      {m.senderUsername}
-                    </span>
-                  )}
-                  <span className="shrink-0 text-[10px] text-black/40 dark:text-white/40">
-                    {formatTime(m.createdAt)}
-                  </span>
-                </p>
-                <p className="break-words text-sm">{m.content}</p>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
-
-      <div className="flex items-center gap-2">
-        <input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") send();
+        <select
+          value={channel}
+          onChange={(e) => {
+            setChannel(e.target.value as ModChatChannel | "ozel");
+            setMessages(null);
           }}
-          placeholder="Mesaj yaz..."
-          className="min-w-0 flex-1 rounded-full border border-black/10 bg-white/40 px-3 py-1.5 text-sm outline-none dark:border-white/10 dark:bg-black/30"
-        />
-        <button
-          onClick={send}
-          disabled={sending || !draft.trim()}
-          className="rounded-full bg-black px-3.5 py-1.5 text-sm font-medium text-white transition disabled:opacity-40 dark:bg-white dark:text-black"
+          className="rounded-full border border-black/10 bg-white/40 px-2.5 py-1 text-xs font-medium outline-none dark:border-white/10 dark:bg-black/30"
         >
-          Gönder
-        </button>
+          {MOD_CHAT_CHANNELS.filter((c) => accessibleChannels.includes(c.id)).map(
+            (c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ),
+          )}
+          <option value="ozel">Özel</option>
+        </select>
       </div>
+
+      {channel === "ozel" ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl bg-black/5 p-4 text-center dark:bg-white/5">
+          <p className="text-xs text-black/60 dark:text-white/60">
+            Özel (birebir) konuşmalar mesajlar sayfasında yapılıyor.
+          </p>
+          <Link
+            href="/mesajlar"
+            className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
+          >
+            Mesajlara git →
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div
+            ref={listRef}
+            className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-2xl bg-black/5 p-3 dark:bg-white/5"
+          >
+            {messages === null ? (
+              <p className="text-xs text-black/50 dark:text-white/50">Yükleniyor...</p>
+            ) : messages.length === 0 ? (
+              <p className="text-xs text-black/50 dark:text-white/50">
+                Henüz mesaj yok.
+              </p>
+            ) : (
+              messages.map((m) => (
+                <div key={m.id} className="flex items-start gap-2">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/10 text-[10px] font-semibold dark:bg-white/10">
+                    {m.senderAvatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- dış OAuth avatar URL'i
+                      <img
+                        src={m.senderAvatarUrl}
+                        alt={m.senderUsername}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      m.senderUsername.slice(0, 1).toUpperCase()
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-baseline gap-1.5">
+                      {m.senderId && m.senderId !== selfId ? (
+                        <Link
+                          href={`/mesajlar?to=${m.senderId}`}
+                          className="truncate text-xs font-semibold hover:underline"
+                          title="Özel mesaj gönder"
+                        >
+                          {m.senderUsername}
+                        </Link>
+                      ) : (
+                        <span className="truncate text-xs font-semibold text-black dark:text-white">
+                          {m.senderUsername}
+                        </span>
+                      )}
+                      <span className="shrink-0 text-[10px] text-black/40 dark:text-white/40">
+                        {formatTime(m.createdAt)}
+                      </span>
+                    </p>
+                    <p className="break-words text-sm">{m.content}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+
+          <div className="flex items-center gap-2">
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") send();
+              }}
+              placeholder="Mesaj yaz..."
+              className="min-w-0 flex-1 rounded-full border border-black/10 bg-white/40 px-3 py-1.5 text-sm outline-none dark:border-white/10 dark:bg-black/30"
+            />
+            <button
+              onClick={send}
+              disabled={sending || !draft.trim()}
+              className="rounded-full bg-black px-3.5 py-1.5 text-sm font-medium text-white transition disabled:opacity-40 dark:bg-white dark:text-black"
+            >
+              Gönder
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

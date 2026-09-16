@@ -8,6 +8,7 @@ export type TickerItem = {
   label: string;
   href: string;
   tag?: string;
+  bold?: boolean;
 };
 
 export default function NewsTicker({
@@ -54,14 +55,14 @@ export default function NewsTicker({
                 href={item.href}
                 aria-hidden={i >= items.length}
                 tabIndex={i >= items.length ? -1 : undefined}
-                className="flex shrink-0 items-center gap-2 font-sans text-sm font-medium transition hover:opacity-70"
+                className={`flex shrink-0 items-center gap-2 font-sans text-sm transition hover:opacity-70 ${item.bold ? "font-bold" : "font-medium"}`}
               >
                 {content}
               </Link>
             ) : (
               <span
                 aria-hidden={i >= items.length}
-                className="flex shrink-0 items-center gap-2 font-sans text-sm font-medium"
+                className={`flex shrink-0 items-center gap-2 font-sans text-sm ${item.bold ? "font-bold" : "font-medium"}`}
               >
                 {content}
               </span>

@@ -8,20 +8,24 @@ import Watermark from "../watermark";
 import IdentityPanel from "./identity-panel";
 import ModChatPanel from "./mod-chat-panel";
 import ModPaketleriPanel from "./mod-paketleri-panel";
+import OccasionPanel from "./occasion-panel";
 import PendingGrantsCard from "./pending-grants-card";
 import SectionSwitcher from "./section-switcher";
 import SunucularPanel from "./sunucular-panel";
+import TickerPanel from "./ticker-panel";
 import ToplulukPanel from "./topluluk-panel";
 
 // Bir yaprağa (leafId) karşılık gelen gerçek ayar ekranı -- henüz
-// taşınmamış olanlar (özel günler/ticker/hero/panels/cards/creators/
-// topluluk_hero/links gibi eski admin/page.tsx'in inline JSX'iyle
-// yazılmıştı, wipe'ta silindi) placeholder'a düşer. mods/servers/articles
-// zaten bağımsız bileşen olarak var olduğu için doğrudan bağlandı.
+// taşınmamış olanlar (hero/panels/cards/creators/topluluk_hero/links gibi
+// eski admin/page.tsx'in inline JSX'iyle yazılmıştı, wipe'ta silindi)
+// placeholder'a düşer. mods/servers/articles/occasion/ticker zaten
+// bağımsız bileşen olarak var olduğu için doğrudan bağlandı.
 function LeafContent({ leafId }: { leafId: string | null }) {
   if (leafId === "mods") return <ModPaketleriPanel />;
   if (leafId === "servers") return <SunucularPanel />;
   if (leafId === "articles") return <ToplulukPanel />;
+  if (leafId === "occasion") return <OccasionPanel />;
+  if (leafId === "ticker") return <TickerPanel />;
   return (
     <div className="flex flex-1 items-center justify-center">
       <p className="text-sm text-black/60 dark:text-white/60">
