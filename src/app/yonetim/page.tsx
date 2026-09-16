@@ -3,19 +3,17 @@
 import { useEffect, useState } from "react";
 import type { ManagedUser } from "@/app/lib/users";
 import type { ModeratorSession, ModeratorTab } from "@/app/lib/permissions";
+import {
+  cancelPermissionGrant,
+  createPermissionGrant,
+  getAllPendingGrants,
+  type PermissionGrant,
+} from "@/app/lib/permission-grants";
+import { ALL_MODERATOR_TABS, TAB_LABELS } from "@/app/lib/permission-tabs";
 import HillsBackground from "../hills-background";
 import Logo from "../logo";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
-
-const permissionTabs: { id: ModeratorTab; label: string }[] = [
-  { id: "cards", label: "Ana Sayfa — Duyuru Kartları" },
-  { id: "mods", label: "Mod Paketleri — Mod/Shader Yükle" },
-  { id: "servers", label: "Sunucular — Sunucu Kartları" },
-  { id: "creators", label: "Topluluk — Önerilen Yayıncılar" },
-  { id: "articles", label: "Topluluk — Makaleler" },
-  { id: "links", label: "Site — Footer / Menü Linkleri" },
-];
 
 function formatDateTime(iso: string): string {
   const date = new Date(iso);
@@ -51,6 +49,7 @@ function isBanned(user: ManagedUser): boolean {
 export default function YonetimPage() {
   const [owner, setOwner] = useState<ModeratorSession | undefined>(undefined);
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
+  const [pendingGrants, setPendingGrants] = useState<PermissionGrant[]>([]);
   const [status, setStatus] = useState("");
   const [banDurations, setBanDurations] = useState<Record<string, string>>({});
   const [banReasons, setBanReasons] = useState<Record<string, string>>({});
@@ -67,6 +66,14 @@ export default function YonetimPage() {
       .then((res) => res.json())
       .then(setOwner);
   }, []);
+
+  const loadPendingGrants = () => {
+    getAllPendingGrants()
+      .then(setPendingGrants)
+      .catch(() => {});
+  };
+
+  useEffect(loadPendingGrants, []);
 
   if (!users || owner === undefined) {
     return (
@@ -111,19 +118,37 @@ export default function YonetimPage() {
     setUsers(users.map((u) => (u.id === userId ? { ...u, roleLabel } : u)));
   };
 
-  const togglePermission = (userId: string, tab: ModeratorTab) => {
+  // Yetki ALMA artık doğrudan olmuyor -- yeni bir tab için istek açılır,
+  // hedef kullanıcı /admin'den "Kabul Et" demeden fiilen verilmez (bkz.
+  // migration 0025). Yetki GERİ ALMA (zaten sahip olduğu bir tab'ı
+  // kaldırmak) onay gerektirmiyor, eskisi gibi anında yerel state'te
+  // değişip "Kaydet" ile kalıcılaşıyor.
+  const revokePermission = (userId: string, tab: ModeratorTab) => {
     setUsers(
-      users.map((u) => {
-        if (u.id !== userId) return u;
-        const has = u.permissions.includes(tab);
-        return {
-          ...u,
-          permissions: has
-            ? u.permissions.filter((p) => p !== tab)
-            : [...u.permissions, tab],
-        };
-      }),
+      users.map((u) =>
+        u.id === userId
+          ? { ...u, permissions: u.permissions.filter((p) => p !== tab) }
+          : u,
+      ),
     );
+  };
+
+  const requestGrant = async (userId: string, tab: ModeratorTab) => {
+    try {
+      await createPermissionGrant(userId, tab);
+      loadPendingGrants();
+    } catch {
+      setActionStatus({ ...actionStatus, [userId]: "İstek gönderilemedi" });
+    }
+  };
+
+  const cancelGrant = async (grantId: string, userId: string) => {
+    try {
+      await cancelPermissionGrant(grantId);
+      loadPendingGrants();
+    } catch {
+      setActionStatus({ ...actionStatus, [userId]: "İptal edilemedi" });
+    }
   };
 
   const ban = async (userId: string) => {
@@ -283,20 +308,48 @@ export default function YonetimPage() {
               <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
                 Yetkiler
               </p>
+              <p className="-mt-1 text-xs opacity-50">
+                Sahip olduğu bir yetkiye tıklamak anında kaldırır (Kaydet ile
+                kalıcılaşır). Sahip olmadığı bir yetkiye tıklamak, kabul etmesi
+                gereken bir istek açar (aşağıda &quot;bekliyor&quot;) --
+                fiilen hemen verilmez.
+              </p>
               <div className="flex flex-wrap gap-2">
-                {permissionTabs.map((tab) => {
-                  const active = user.permissions.includes(tab.id);
+                {ALL_MODERATOR_TABS.map((tab) => {
+                  const active = user.permissions.includes(tab);
+                  const pendingGrant = pendingGrants.find(
+                    (g) => g.targetUserId === user.id && g.tab === tab,
+                  );
+                  if (active) {
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => revokePermission(user.id, tab)}
+                        className="rounded-full bg-black px-4 py-1.5 text-xs font-semibold text-white transition dark:bg-white dark:text-black"
+                      >
+                        {TAB_LABELS[tab]}
+                      </button>
+                    );
+                  }
+                  if (pendingGrant) {
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => cancelGrant(pendingGrant.id, user.id)}
+                        title="İsteği iptal et"
+                        className="rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 transition dark:text-amber-400"
+                      >
+                        {TAB_LABELS[tab]} (bekliyor)
+                      </button>
+                    );
+                  }
                   return (
                     <button
-                      key={tab.id}
-                      onClick={() => togglePermission(user.id, tab.id)}
-                      className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
-                        active
-                          ? "bg-black text-white dark:bg-white dark:text-black"
-                          : "border border-black/10 bg-white/40 dark:border-white/10 dark:bg-black/30"
-                      }`}
+                      key={tab}
+                      onClick={() => requestGrant(user.id, tab)}
+                      className="rounded-full border border-black/10 bg-white/40 px-4 py-1.5 text-xs font-semibold transition hover:bg-black/5 dark:border-white/10 dark:bg-black/30 dark:hover:bg-white/10"
                     >
-                      {tab.label}
+                      {TAB_LABELS[tab]}
                     </button>
                   );
                 })}

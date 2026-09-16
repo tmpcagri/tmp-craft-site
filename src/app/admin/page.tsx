@@ -7,6 +7,7 @@ import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
 import IdentityPanel from "./identity-panel";
 import ModChatPanel from "./mod-chat-panel";
+import PendingGrantsCard from "./pending-grants-card";
 
 export default function AdminPage() {
   const [moderator, setModerator] = useState<ModeratorSession | undefined>(
@@ -14,7 +15,7 @@ export default function AdminPage() {
   );
   const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
+  const loadSession = () => {
     fetch("/api/session")
       .then((res) => {
         if (!res.ok) throw new Error("session fetch failed");
@@ -22,7 +23,9 @@ export default function AdminPage() {
       })
       .then((session: ModeratorSession) => setModerator(session))
       .catch(() => setLoadError(true));
-  }, []);
+  };
+
+  useEffect(loadSession, []);
 
   if (loadError) {
     return (
@@ -80,6 +83,8 @@ export default function AdminPage() {
             birthDate={moderator.birthDate}
             roleLabel={moderator.roleLabel}
           />
+
+          <PendingGrantsCard onAccepted={loadSession} />
 
           <ModChatPanel
             selfId={moderator.id}
