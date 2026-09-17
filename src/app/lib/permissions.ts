@@ -6,6 +6,7 @@ export type ModeratorTab =
   | "creators"
   | "articles"
   | "mods"
+  | "mod_paketleri_sayfa"
   | "servers"
   | "occasion"
   | "ticker"
@@ -30,6 +31,7 @@ const ALL_TABS: ModeratorTab[] = [
   "creators",
   "articles",
   "mods",
+  "mod_paketleri_sayfa",
   "servers",
   "occasion",
   "ticker",

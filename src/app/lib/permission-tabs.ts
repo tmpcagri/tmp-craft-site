@@ -13,6 +13,7 @@ export const TAB_LABELS: Record<ModeratorTab, string> = {
   panels: "Ana Sayfa — Öne Çıkan Modlar",
   guides: "Ana Sayfa — Build/Farm Kartları",
   mods: "Mod Paketleri — Mod/Shader Yükle",
+  mod_paketleri_sayfa: "Mod Paketleri — Sayfa Ayarları",
   servers: "Sunucular — Sunucu Kartları",
   creators: "Topluluk — Önerilen Yayıncılar",
   articles: "Topluluk — Makaleler",

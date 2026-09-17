@@ -29,9 +29,11 @@ export default async function ToplulukPage({
         notifications={<ToplulukNotifications />}
       />
 
-      <div className="relative z-10 flex flex-1 flex-col gap-6 px-6 pb-16 pt-20 sm:px-10 lg:px-10">
-        <ToplulukTabs />
+      <ToplulukTabs />
 
+      {/* Sabit (fixed) Navbar + ToplulukTabs'ın altından temiz başlaması
+          için üst boşluk BURADA, dış konteynerde. */}
+      <div className="relative z-10 flex flex-1 flex-col gap-6 px-6 pb-16 pt-28 sm:px-10 sm:pt-32 lg:px-10 lg:pt-40">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-6">
           <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6">
             <ToplulukAdCard />

@@ -24,7 +24,13 @@ function toggle<T>(list: T[], value: T): T[] {
     : [...list, value];
 }
 
-export default function ModPaketleriFilters({ items: downloadItems }: { items: DownloadItem[] }) {
+export default function ModPaketleriFilters({
+  items: downloadItems,
+  categoryOrder = DOWNLOAD_CATEGORIES,
+}: {
+  items: DownloadItem[];
+  categoryOrder?: DownloadCategory[];
+}) {
   const searchParams = useSearchParams();
 
   const dependableNames = Array.from(
@@ -94,7 +100,7 @@ export default function ModPaketleriFilters({ items: downloadItems }: { items: D
     });
   }, [downloadItems, gameVersions, loaders, categories, environments, licenses, dependsOn, exclusions]);
 
-  const groups = DOWNLOAD_CATEGORIES.map((category) => ({
+  const groups = categoryOrder.map((category) => ({
     category,
     items: results.filter((item) => item.category === category),
   })).filter((g) => g.items.length > 0);
@@ -154,7 +160,7 @@ export default function ModPaketleriFilters({ items: downloadItems }: { items: D
         >
           Tümü
         </FilterPill>
-        {DOWNLOAD_CATEGORIES.map((category) => (
+        {categoryOrder.map((category) => (
           <FilterPill
             key={category}
             active={activeCategory === category}

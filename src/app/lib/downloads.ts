@@ -17,6 +17,19 @@ export const DOWNLOAD_CATEGORIES: DownloadCategory[] = [
   "Servers",
 ];
 
+// Moderatörün kaydettiği sıralama (content.modPaketleriPage.categoryOrder)
+// bilinmeyen/eksik değerler içerebilir -- yeni bir DOWNLOAD_CATEGORIES
+// üyesi eklendi ama sıraya henüz girmedi, ya da JSON elle bozuldu. Bilinen
+// kategorileri verilen sırayla önce koy, eksik kalanları sabit sıradaki
+// haliyle sona ekle, tanınmayanları at.
+export function normalizeCategoryOrder(order: string[]): DownloadCategory[] {
+  const known = order.filter((c): c is DownloadCategory =>
+    DOWNLOAD_CATEGORIES.includes(c as DownloadCategory),
+  );
+  const missing = DOWNLOAD_CATEGORIES.filter((c) => !known.includes(c));
+  return [...known, ...missing];
+}
+
 export const CATEGORY_TR: Record<DownloadCategory, string> = {
   Mods: "Modlar",
   "Resource Packs": "Doku Paketleri",
@@ -56,6 +69,15 @@ export type DownloadItem = {
   authorLink?: string;
   /** Tanıtım/inceleme videosu -- doluysa detay sayfasında gömülü YouTube player gösterilir. */
   youtubeUrl?: string;
+  /** Detay sayfası hero bandının arka planı -- yalnızca DB paketlerinde (mod_packages) olur, statik seed'de yok. */
+  backgroundImage?: string;
+  /** Ek içerik/galeri görselleri, sıralı. */
+  galleryImages?: string[];
+  /** description'ın ötesinde uzun detay metni. */
+  bodyText?: string;
+  /** Şematik/Litematica indirme linkleri -- bkz. projeler/schematic-download-button.tsx. */
+  schematicJavaUrl?: string;
+  schematicBedrockUrl?: string;
 };
 
 const raw: Omit<DownloadItem, "slug">[] = [

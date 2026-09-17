@@ -17,7 +17,8 @@ export default function ImageUpload({
     | "ozel-gunler"
     | "projeler"
     | "ana-sayfa"
-    | "ana-sayfa-hero";
+    | "ana-sayfa-hero"
+    | "ana-sayfa-panels";
   slug: string;
   value: string | null;
   onChange: (url: string) => void;

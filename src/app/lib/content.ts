@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import type { DownloadCategory } from "./downloads";
 
 const DATA_PATH = path.join(process.cwd(), "src/data/site-content.json");
 
@@ -150,6 +151,18 @@ export type HomeGalleryCard = {
   href: string;
 };
 
+// Mod Paketleri listeleme sayfasının (üst) ayarları -- kategori TÜRLERİ
+// (DownloadCategory, lib/downloads.ts) kod genelinde exhaustive
+// kullanıldığı için moderatörce eklenip çıkarılamıyor, sadece hangi sırada
+// gösterilecekleri değişebiliyor. categoryOrder eksik/bozuksa (yeni bir
+// kategori eklendi ama henüz sıraya girmedi, ya da JSON elle bozuldu)
+// okuma tarafı DOWNLOAD_CATEGORIES ile normalize eder -- bkz.
+// mod-paketleri/page.tsx.
+export type ModPaketleriPageSettings = {
+  backgroundImageUrl: string;
+  categoryOrder: DownloadCategory[];
+};
+
 export type SiteContent = {
   navbar: {
     logoText: string;
@@ -164,6 +177,7 @@ export type SiteContent = {
   featuredMods: CuratedCardEntry[];
   featuredGuides: CuratedCardEntry[];
   toplulukHero: ToplulukHeroSlide[];
+  modPaketleriPage: ModPaketleriPageSettings;
   homeCards: {
     topluluk: HomeGalleryCard;
     sunucular: HomeGalleryCard;

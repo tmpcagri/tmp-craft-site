@@ -37,13 +37,17 @@ export const MODERATOR_MENU: ModeratorMenuGroup[] = [
       { type: "leaf", id: "ticker", label: "CANLI Şeridi", tab: "ticker" },
       { type: "leaf", id: "hero", label: "Kayan Kart", tab: "hero" },
       { type: "leaf", id: "panels", label: "Öne Çıkan Modlar", tab: "panels" },
+      { type: "leaf", id: "guides", label: "Öne Çıkan Build/Farm Rehberleri", tab: "guides" },
     ],
   },
   {
     type: "group",
     id: "mod-paketleri",
     label: "Mod Paketleri",
-    children: [{ type: "leaf", id: "mods", label: "Mod / Shader Yükle", tab: "mods" }],
+    children: [
+      { type: "leaf", id: "mod_paketleri_sayfa", label: "Sayfa Ayarları", tab: "mod_paketleri_sayfa" },
+      { type: "leaf", id: "mods", label: "Mod / Shader Yükle", tab: "mods" },
+    ],
   },
   {
     type: "group",

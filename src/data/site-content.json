@@ -269,5 +269,9 @@
       "intervalMs": 5000,
       "href": "/sunucular"
     }
+  },
+  "modPaketleriPage": {
+    "backgroundImageUrl": "",
+    "categoryOrder": ["Mods", "Resource Packs", "Data Packs", "Shaders", "Modpacks", "Plugins", "Servers"]
   }
 }

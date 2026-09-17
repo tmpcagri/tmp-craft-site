@@ -25,6 +25,11 @@ export type ModPackageRow = {
   icon_image: string | null;
   author_link: string | null;
   youtube_url: string | null;
+  background_image: string | null;
+  gallery_images: string[];
+  body_text: string | null;
+  schematic_java_url: string | null;
+  schematic_bedrock_url: string | null;
   created_at: string;
 };
 
@@ -44,6 +49,11 @@ export function toDownloadItem(row: ModPackageRow): DownloadItem {
     iconImage: row.icon_image ?? undefined,
     authorLink: row.author_link ?? undefined,
     youtubeUrl: row.youtube_url ?? undefined,
+    backgroundImage: row.background_image ?? undefined,
+    galleryImages: row.gallery_images ?? [],
+    bodyText: row.body_text ?? undefined,
+    schematicJavaUrl: row.schematic_java_url ?? undefined,
+    schematicBedrockUrl: row.schematic_bedrock_url ?? undefined,
   };
 }
 
@@ -81,6 +91,11 @@ export type ModPackageInput = {
   iconImage: string | null;
   authorLink: string | null;
   youtubeUrl: string | null;
+  backgroundImage: string | null;
+  galleryImages: string[];
+  bodyText: string | null;
+  schematicJavaUrl: string | null;
+  schematicBedrockUrl: string | null;
 };
 
 export async function createModPackage(input: ModPackageInput): Promise<string> {
@@ -104,6 +119,11 @@ export async function createModPackage(input: ModPackageInput): Promise<string> 
     icon_image: input.iconImage,
     author_link: input.authorLink,
     youtube_url: input.youtubeUrl,
+    background_image: input.backgroundImage,
+    gallery_images: input.galleryImages,
+    body_text: input.bodyText,
+    schematic_java_url: input.schematicJavaUrl,
+    schematic_bedrock_url: input.schematicBedrockUrl,
     created_by: user?.id ?? null,
   });
   if (error) throw error;
@@ -129,6 +149,12 @@ export async function updateModPackage(
   if (patch.iconImage !== undefined) dbPatch.icon_image = patch.iconImage;
   if (patch.authorLink !== undefined) dbPatch.author_link = patch.authorLink;
   if (patch.youtubeUrl !== undefined) dbPatch.youtube_url = patch.youtubeUrl;
+  if (patch.backgroundImage !== undefined) dbPatch.background_image = patch.backgroundImage;
+  if (patch.galleryImages !== undefined) dbPatch.gallery_images = patch.galleryImages;
+  if (patch.bodyText !== undefined) dbPatch.body_text = patch.bodyText;
+  if (patch.schematicJavaUrl !== undefined) dbPatch.schematic_java_url = patch.schematicJavaUrl;
+  if (patch.schematicBedrockUrl !== undefined)
+    dbPatch.schematic_bedrock_url = patch.schematicBedrockUrl;
 
   const { error } = await supabase
     .from("mod_packages")

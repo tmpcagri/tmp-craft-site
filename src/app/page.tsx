@@ -9,6 +9,7 @@ import HillsBackground from "./hills-background";
 import { getCurrentUser } from "./lib/auth";
 import { getSiteContent } from "./lib/content";
 import { getAllDownloadItems } from "./lib/downloads-server";
+import { guides } from "./lib/guides";
 import { getDbServerCards } from "./lib/server-cards-server";
 import { trends } from "./lib/trends";
 import {
@@ -20,6 +21,7 @@ import {
 import ModPaketleriSliderPanel, { type FeaturedModCard } from "./mod-paketleri-slider-panel";
 import Navbar from "./navbar";
 import NewsTicker, { type TickerItem } from "./news-ticker";
+import ProjelerSliderPanel, { type FeaturedGuideCard } from "./projeler-slider-panel";
 import ServerSpotlight, { type ServerCard } from "./server-spotlight";
 
 const FALLBACK_ANNOUNCEMENTS: TickerItem[] = [
@@ -63,6 +65,20 @@ export default async function Home() {
       return entry;
     })
     .filter((v): v is FeaturedModCard => v !== null);
+
+  // Admin'in "Öne Çıkan Build/Farm Rehberleri" panelinde sırasını/rozetini
+  // seçtiği rehberler -- boşsa panel eski davranışına (en çok görüntülenen
+  // 8 rehber) düşer, bkz. projeler-slider-panel.tsx. guides.ts tamamen
+  // statik olduğu için (mod paketlerinin aksine) DB'den arama yok.
+  const featuredGuideItems = content.featuredGuides
+    .map((entry): FeaturedGuideCard | null => {
+      if (entry.mode === "existing") {
+        const item = guides.find((g) => g.slug === entry.slug);
+        return item ? { mode: "existing", item, tag: entry.tag } : null;
+      }
+      return entry;
+    })
+    .filter((v): v is FeaturedGuideCard => v !== null);
 
   // Sunucu adı + anlık oyuncu sayısı -- üstteki karma şeritte ve "Şu an
   // gündemde" bandında kullanılıyor. allServerCards'tan üretiliyor ki
@@ -257,12 +273,13 @@ export default async function Home() {
           {/* İçeriklerimiz kayan bandı patronun isteğiyle şimdilik
               kaldırıldı (2026-09-17) -- bileşen (icerik-slider-panel.tsx)
               silinmedi, ileride geri eklenecek. */}
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <ModPaketleriSliderPanel
               className="h-72"
               allItems={allDownloadItems}
               featured={featuredModItems}
             />
+            <ProjelerSliderPanel className="h-72" featured={featuredGuideItems} />
           </div>
         </div>
       </AtmosphereSection>

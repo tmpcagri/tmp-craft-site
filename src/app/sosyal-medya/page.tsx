@@ -92,16 +92,18 @@ export default async function SosyalMedyaPage() {
       <AdSlot side="left" />
       <AdSlot side="right" />
 
-      <div className="flex-1 px-6 pb-24 pt-20 sm:px-10">
+      <div className="flex-1 px-6 pb-24 pt-16 sm:px-10">
         <div className="mx-auto max-w-5xl">
           <BackButton />
 
-          <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-[0.2em] text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400">
-            SOSYAL MEDYA
-          </span>
-          <h1 className="mt-4 font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
-            Bizi Sosyal Medyada Takip Et
-          </h1>
+          <div className="text-center">
+            <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-[0.2em] text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400">
+              SOSYAL MEDYA
+            </span>
+            <h1 className="mt-4 font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
+              Bizi Sosyal Medyada Takip Et
+            </h1>
+          </div>
 
           {/* Sosyal medya düğmeleri sayfanın solunda sabit, dar bir
               sütunda duruyor -- masaüstünde içerik vitrini sağda,

@@ -4,7 +4,7 @@ import { buildUploadKey, uploadToR2 } from "@/app/lib/r2";
 
 const SECTION_PERMISSION: Record<
   string,
-  "mods" | "servers" | "occasion" | "guides" | "cards" | "hero"
+  "mods" | "servers" | "occasion" | "guides" | "cards" | "hero" | "panels"
 > = {
   "mod-paketleri": "mods",
   sunucular: "servers",
@@ -12,6 +12,7 @@ const SECTION_PERMISSION: Record<
   projeler: "guides",
   "ana-sayfa": "cards",
   "ana-sayfa-hero": "hero",
+  "ana-sayfa-panels": "panels",
 };
 
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB

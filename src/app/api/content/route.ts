@@ -55,6 +55,9 @@ export async function POST(request: Request) {
     homeCards: moderator.permissions.includes("cards")
       ? body.homeCards
       : current.homeCards,
+    modPaketleriPage: moderator.permissions.includes("mod_paketleri_sayfa")
+      ? body.modPaketleriPage
+      : current.modPaketleriPage,
   };
 
   saveSiteContent(next);

@@ -8,6 +8,7 @@ import { getAllDownloadItems } from "../../lib/downloads-server";
 import { getYouTubeEmbedUrl } from "../../lib/youtube";
 import { InlineLogo } from "../../logo";
 import Navbar from "../../navbar";
+import SchematicDownloadButton from "../../projeler/schematic-download-button";
 import ModPaketiActions from "./mod-paketi-actions";
 import ModPaketiComments from "./mod-paketi-comments";
 import ModPaketiQr from "./mod-paketi-qr";
@@ -43,6 +44,7 @@ export default async function ModPaketiPage({
   const user = await getCurrentUser();
   const licenseUrl = LICENSE_URLS[item.license];
   const youtubeEmbedUrl = item.youtubeUrl ? getYouTubeEmbedUrl(item.youtubeUrl) : null;
+  const hasSchematicDownload = Boolean(item.schematicJavaUrl || item.schematicBedrockUrl);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
@@ -63,6 +65,18 @@ export default async function ModPaketiPage({
           >
             ← Tüm paketler
           </Link>
+
+          {item.backgroundImage && (
+            <div className="relative mt-6 h-48 w-full overflow-hidden rounded-3xl shadow-xl sm:h-64">
+              {/* eslint-disable-next-line @next/next/no-img-element -- moderatör tarafından R2'ye yüklenen arka plan görseli */}
+              <img
+                src={item.backgroundImage}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            </div>
+          )}
 
           <div className="mt-6 grid grid-cols-1 items-start gap-8 [grid-template-areas:'main'_'sidebar'] lg:grid-cols-[300px_1fr] lg:[grid-template-areas:'sidebar_main']">
             {/* Sidebar: küçük görsel + paylaşım QR'ı, yapımcı/lisans/
@@ -195,6 +209,18 @@ export default async function ModPaketiPage({
                 slug={item.slug}
                 hasDependencies={item.dependsOn.length > 0}
               />
+
+              {hasSchematicDownload && (
+                <div className="flex flex-col gap-2 rounded-2xl border border-black/10 p-4 text-center dark:border-white/10">
+                  <p className="font-sans text-sm font-semibold text-black dark:text-white">
+                    Şematik Dosyası
+                  </p>
+                  <SchematicDownloadButton
+                    javaUrl={item.schematicJavaUrl ?? null}
+                    bedrockUrl={item.schematicBedrockUrl ?? null}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Main: başlık + açıklama + (varsa) tanıtım videosu — geniş,
@@ -220,6 +246,26 @@ export default async function ModPaketiPage({
                     allowFullScreen
                     className="h-full w-full"
                   />
+                </div>
+              )}
+
+              {item.bodyText && (
+                <p className="max-w-2xl whitespace-pre-wrap text-base leading-relaxed text-black/70 dark:text-white/70">
+                  {item.bodyText}
+                </p>
+              )}
+
+              {item.galleryImages && item.galleryImages.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {item.galleryImages.map((url, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element -- moderatör tarafından R2'ye yüklenen galeri görseli
+                    <img
+                      key={`${url}-${i}`}
+                      src={url}
+                      alt=""
+                      className="aspect-video w-full rounded-2xl border border-black/10 object-cover dark:border-white/10"
+                    />
+                  ))}
                 </div>
               )}
             </div>

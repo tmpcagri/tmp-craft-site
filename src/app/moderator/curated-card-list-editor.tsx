@@ -26,7 +26,7 @@ export default function CuratedCardListEditor({
   onChange: (entries: CuratedCardEntry[]) => void;
   existingOptions: { slug: string; label: string }[];
   existingOptionsLoading: boolean;
-  imageUploadSection: "mod-paketleri" | "projeler";
+  imageUploadSection: "ana-sayfa-panels" | "projeler";
   imageUploadSlugPrefix: string;
 }) {
   const update = (i: number, patch: Partial<CuratedCardEntry>) => {

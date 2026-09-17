@@ -22,7 +22,7 @@ export default async function ProjelerPage() {
         user={user}
       />
 
-      <div className="relative flex-1 px-6 pb-24 pt-20 sm:px-10">
+      <div className="relative flex-1 px-6 pb-24 pt-16 sm:px-10">
         <div
           aria-hidden
           className="pointer-events-none absolute -left-24 -top-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl"
@@ -34,7 +34,7 @@ export default async function ProjelerPage() {
 
         <BackButton />
 
-        <div className="relative">
+        <div className="relative text-center">
           <span className="inline-flex items-center rounded-full bg-amber-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-[0.2em] text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
             PROJELER
           </span>
@@ -42,7 +42,7 @@ export default async function ProjelerPage() {
             Build ve Farm Rehberi
           </h1>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-xs text-black/50 dark:text-white/50">
+          <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-black/50 dark:text-white/50">
             <span className="rounded-full bg-black/5 px-3 py-1 dark:bg-white/10">
               {guides.length} rehber
             </span>

@@ -25,13 +25,7 @@ export default function EgitimlerSliderPanel({
     <div
       className={`relative flex flex-col overflow-hidden rounded-3xl shadow-xl ${className}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- static brand background asset */}
-      <img
-        src="/egitimler-bg.png"
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-950/85 via-blue-900/70 to-sky-900/50" />
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-950 via-blue-900 to-sky-900" />
 
       <Link
         href="/egitimler"
