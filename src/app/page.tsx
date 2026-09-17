@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AtmosphereBackground, AtmosphereSection } from "./atmosphere";
+import BackgroundGallery from "./background-gallery";
 import BackgroundTexture from "./background-texture";
 import CommunitySlider from "./community-slider";
 import Footer from "./footer";
@@ -189,14 +190,12 @@ export default async function Home() {
         <div className="flex w-[calc(100%-2rem)] flex-col gap-3 sm:w-[calc(100%-5rem)]">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.6fr_1fr]">
             <Link
-              href="/topluluk"
+              href={content.homeCards.topluluk.href}
               className="group relative flex h-80 flex-col items-start justify-end gap-2 overflow-hidden rounded-3xl p-6 shadow-2xl sm:h-[32rem] sm:p-8"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- static brand background asset */}
-              <img
-                src="/topluluk-bg.png"
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              <BackgroundGallery
+                images={content.homeCards.topluluk.images}
+                intervalMs={content.homeCards.topluluk.intervalMs}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/25" />
               <AvatarBubbles className="inset-0" />
@@ -214,10 +213,10 @@ export default async function Home() {
                 Topluluk
               </span>
               <h2 className="relative z-10 font-sans text-2xl font-bold text-white sm:text-4xl">
-                Topluluk&apos;ta Neler Oluyor
+                {content.homeCards.topluluk.title}
               </h2>
               <p className="relative z-10 max-w-md font-sans text-sm text-white/80 sm:text-base">
-                2.400+ üye, 180+ açık konu — gündemi kaçırma.
+                {content.homeCards.topluluk.body}
               </p>
               <div className="relative z-10 mt-2 w-full border-t border-white/20 pt-2">
                 <NewsTicker items={toplulukEvents} linked={false} />
@@ -225,14 +224,12 @@ export default async function Home() {
             </Link>
 
             <Link
-              href="/sunucular"
+              href={content.homeCards.sunucular.href}
               className="group relative flex h-80 flex-col overflow-hidden rounded-2xl p-5 shadow-lg sm:h-[32rem]"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- static brand background asset */}
-              <img
-                src="/sunucular-bg.png"
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              <BackgroundGallery
+                images={content.homeCards.sunucular.images}
+                intervalMs={content.homeCards.sunucular.intervalMs}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-red-950/85 via-red-900/55 to-red-800/25" />
 
@@ -243,12 +240,17 @@ export default async function Home() {
 
               <div className="relative z-10 mt-3 flex shrink-0 items-baseline gap-2">
                 <h3 className="font-sans text-lg font-bold text-white sm:text-xl">
-                  Sunucular
+                  {content.homeCards.sunucular.title}
                 </h3>
                 <span className="font-sans text-xs text-white/70 sm:text-sm">
                   {allServerCards.length} sunucu
                 </span>
               </div>
+              {content.homeCards.sunucular.body && (
+                <p className="relative z-10 mt-1 font-sans text-xs text-white/70 sm:text-sm">
+                  {content.homeCards.sunucular.body}
+                </p>
+              )}
             </Link>
           </div>
 

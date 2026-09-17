@@ -52,6 +52,9 @@ export async function POST(request: Request) {
     toplulukHero: moderator.permissions.includes("topluluk_hero")
       ? body.toplulukHero
       : current.toplulukHero,
+    homeCards: moderator.permissions.includes("cards")
+      ? body.homeCards
+      : current.homeCards,
   };
 
   saveSiteContent(next);

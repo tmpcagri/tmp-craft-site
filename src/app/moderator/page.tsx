@@ -5,6 +5,8 @@ import type { ModeratorSession } from "@/app/lib/permissions";
 import { MODERATOR_MENU, pruneMenu, resolveMenuLevels } from "@/app/lib/moderator-menu";
 import ModeratorAuthGate from "../moderator-auth-gate";
 import Watermark from "../watermark";
+import CardsPanel from "./cards-panel";
+import HeroPanel from "./hero-panel";
 import IdentityPanel from "./identity-panel";
 import ModChatPanel from "./mod-chat-panel";
 import ModPaketleriPanel from "./mod-paketleri-panel";
@@ -16,16 +18,26 @@ import TickerPanel from "./ticker-panel";
 import ToplulukPanel from "./topluluk-panel";
 
 // Bir yaprağa (leafId) karşılık gelen gerçek ayar ekranı -- henüz
-// taşınmamış olanlar (hero/panels/cards/creators/topluluk_hero/links gibi
-// eski admin/page.tsx'in inline JSX'iyle yazılmıştı, wipe'ta silindi)
-// placeholder'a düşer. mods/servers/articles/occasion/ticker zaten
-// bağımsız bileşen olarak var olduğu için doğrudan bağlandı.
-function LeafContent({ leafId }: { leafId: string | null }) {
+// taşınmamış olanlar (panels/creators/topluluk_hero/links gibi eski
+// admin/page.tsx'in inline JSX'iyle yazılmıştı, wipe'ta silindi)
+// placeholder'a düşer. mods/servers/articles/occasion/ticker/cards/hero
+// zaten bağımsız bileşen olarak var olduğu için doğrudan bağlandı. "cards"
+// (Duyuru Kartları) kendi içinde 1-4 numaralı seçenekler için "hero"
+// yaprağına atlıyor (bkz. onNavigateToHero).
+function LeafContent({
+  leafId,
+  onNavigateToHero,
+}: {
+  leafId: string | null;
+  onNavigateToHero: () => void;
+}) {
   if (leafId === "mods") return <ModPaketleriPanel />;
   if (leafId === "servers") return <SunucularPanel />;
   if (leafId === "articles") return <ToplulukPanel />;
   if (leafId === "occasion") return <OccasionPanel />;
   if (leafId === "ticker") return <TickerPanel />;
+  if (leafId === "cards") return <CardsPanel onNavigateToHero={onNavigateToHero} />;
+  if (leafId === "hero") return <HeroPanel />;
   return (
     <div className="flex flex-1 items-center justify-center">
       <p className="text-sm text-black/60 dark:text-white/60">
@@ -143,7 +155,10 @@ export default function AdminPage() {
         <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
           <h1 className="shrink-0 text-center text-lg font-bold">{activeLabel}</h1>
           <div className="mt-4 flex flex-1 flex-col overflow-y-auto">
-            <LeafContent leafId={leafId} />
+            <LeafContent
+              leafId={leafId}
+              onNavigateToHero={() => setMenuPath(["ana-sayfa", "hero"])}
+            />
           </div>
         </main>
 

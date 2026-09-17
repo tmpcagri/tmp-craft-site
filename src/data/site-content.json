@@ -217,19 +217,19 @@
       {
         "title": "Modlarını Bul",
         "body": "Yüzlerce mod, sürüm ve loader'a göre filtrelenmiş.",
-        "image": "/modlarini-bul-bg.png",
+        "image": "",
         "href": "/mod-paketleri"
       },
       {
         "title": "Toplulukla Buluş",
         "body": "Sorularını sor, projelerini paylaş.",
-        "image": "/toplulukla-bulus-bg.png",
+        "image": "",
         "href": "/topluluk"
       },
       {
         "title": "Kendi Dünyanı Kur",
         "body": "Build rehberleri ve ilham verici projeler.",
-        "image": "/kendi-dunyani-kur-bg.png",
+        "image": "",
         "href": "/projeler"
       }
     ]
@@ -253,5 +253,21 @@
       "title": "Yeni başlayanlar rehberi",
       "body": "İlk gününde ne yapman gerektiğini öğren, topluluğa hızlı katıl."
     }
-  ]
+  ],
+  "homeCards": {
+    "topluluk": {
+      "title": "Topluluk'ta Neler Oluyor",
+      "body": "2.400+ üye, 180+ açık konu — gündemi kaçırma.",
+      "images": ["/topluluk-bg.png"],
+      "intervalMs": 5000,
+      "href": "/topluluk"
+    },
+    "sunucular": {
+      "title": "Sunucular",
+      "body": "",
+      "images": ["/sunucular-bg.png"],
+      "intervalMs": 5000,
+      "href": "/sunucular"
+    }
+  }
 }

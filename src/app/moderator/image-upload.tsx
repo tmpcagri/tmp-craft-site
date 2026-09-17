@@ -11,7 +11,13 @@ export default function ImageUpload({
   value,
   onChange,
 }: {
-  section: "mod-paketleri" | "sunucular" | "ozel-gunler" | "projeler";
+  section:
+    | "mod-paketleri"
+    | "sunucular"
+    | "ozel-gunler"
+    | "projeler"
+    | "ana-sayfa"
+    | "ana-sayfa-hero";
   slug: string;
   value: string | null;
   onChange: (url: string) => void;

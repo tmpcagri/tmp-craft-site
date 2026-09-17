@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { getCurrentModerator } from "@/app/lib/permissions";
 import { buildUploadKey, uploadToR2 } from "@/app/lib/r2";
 
-const SECTION_PERMISSION: Record<string, "mods" | "servers" | "occasion" | "guides"> = {
+const SECTION_PERMISSION: Record<
+  string,
+  "mods" | "servers" | "occasion" | "guides" | "cards" | "hero"
+> = {
   "mod-paketleri": "mods",
   sunucular: "servers",
   "ozel-gunler": "occasion",
   projeler: "guides",
+  "ana-sayfa": "cards",
+  "ana-sayfa-hero": "hero",
 };
 
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB

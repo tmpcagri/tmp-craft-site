@@ -135,6 +135,21 @@ export type ToplulukHeroSlide = {
   body: string;
 };
 
+// Anasayfanın ikinci katmanındaki Topluluk ve Sunucular kartları --
+// pozisyon/boyut sabit (Hero'nun secondary kartları gibi), ama başlık,
+// alt metin, link VE arka plan görseli (HeroSlide.image'ın çoklu hali)
+// tamamen düzenlenebilir. Tek görsel varsa statik davranır, 2+ varsa
+// kendi süresiyle (intervalMs) dönen bir galeriye dönüşür -- HeroContent
+// mantığının aynısı, ayrı bir tip çünkü bu ikisinin (Hero'nun sabit sayıda
+// featuredSlides/secondary'sinden farklı olarak) TEK bir slide'ı var.
+export type HomeGalleryCard = {
+  title: string;
+  body: string;
+  images: string[];
+  intervalMs: number;
+  href: string;
+};
+
 export type SiteContent = {
   navbar: {
     logoText: string;
@@ -149,6 +164,10 @@ export type SiteContent = {
   featuredMods: CuratedCardEntry[];
   featuredGuides: CuratedCardEntry[];
   toplulukHero: ToplulukHeroSlide[];
+  homeCards: {
+    topluluk: HomeGalleryCard;
+    sunucular: HomeGalleryCard;
+  };
 };
 
 export function getSiteContent(): SiteContent {

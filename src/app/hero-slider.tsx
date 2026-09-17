@@ -81,13 +81,19 @@ export default function HeroSlider({ content }: { content: HeroContent }) {
             href={slide.href}
             className="group relative flex h-28 flex-col items-start justify-end gap-1 overflow-hidden rounded-2xl p-4 shadow-lg sm:h-full"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
-            <img
-              src={slide.image}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20" />
+            {slide.image ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
+                <img
+                  src={slide.image}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/20" />
+              </>
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-950" />
+            )}
             <h2 className="relative font-sans text-base font-bold text-white sm:text-lg">
               {slide.title}
             </h2>
