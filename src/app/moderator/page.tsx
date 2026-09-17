@@ -21,22 +21,14 @@ import ToplulukPanel from "./topluluk-panel";
 // taşınmamış olanlar (panels/creators/topluluk_hero/links gibi eski
 // admin/page.tsx'in inline JSX'iyle yazılmıştı, wipe'ta silindi)
 // placeholder'a düşer. mods/servers/articles/occasion/ticker/cards/hero
-// zaten bağımsız bileşen olarak var olduğu için doğrudan bağlandı. "cards"
-// (Duyuru Kartları) kendi içinde 1-4 numaralı seçenekler için "hero"
-// yaprağına atlıyor (bkz. onNavigateToHero).
-function LeafContent({
-  leafId,
-  onNavigateToHero,
-}: {
-  leafId: string | null;
-  onNavigateToHero: () => void;
-}) {
+// zaten bağımsız bileşen olarak var olduğu için doğrudan bağlandı.
+function LeafContent({ leafId }: { leafId: string | null }) {
   if (leafId === "mods") return <ModPaketleriPanel />;
   if (leafId === "servers") return <SunucularPanel />;
   if (leafId === "articles") return <ToplulukPanel />;
   if (leafId === "occasion") return <OccasionPanel />;
   if (leafId === "ticker") return <TickerPanel />;
-  if (leafId === "cards") return <CardsPanel onNavigateToHero={onNavigateToHero} />;
+  if (leafId === "cards") return <CardsPanel />;
   if (leafId === "hero") return <HeroPanel />;
   return (
     <div className="flex flex-1 items-center justify-center">
@@ -155,10 +147,7 @@ export default function AdminPage() {
         <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
           <h1 className="shrink-0 text-center text-lg font-bold">{activeLabel}</h1>
           <div className="mt-4 flex flex-1 flex-col overflow-y-auto">
-            <LeafContent
-              leafId={leafId}
-              onNavigateToHero={() => setMenuPath(["ana-sayfa", "hero"])}
-            />
+            <LeafContent leafId={leafId} />
           </div>
         </main>
 

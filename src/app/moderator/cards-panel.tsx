@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import type { HomeGalleryCard, SiteContent } from "../lib/content";
 import ImageUpload from "./image-upload";
 
-// Anasayfadaki büyük+küçük mozaik kartlarının HEPSİ burada tek listede
-// gösteriliyor (patronun "6 seçenekli kart listesi" isteği), ama ilk 4'ü
-// (Hero'nun büyük slider'ı + 3 sabit-pozisyonlu küçük kartı) zaten "Kayan
-// Kart" sekmesinde (content.hero) tam olarak yönetiliyor -- burada
-// TEKRAR yazmak yerine oraya yönlendiriyoruz. Sadece Topluluk ve Sunucu
-// kartları (content.homeCards) gerçekten burada, inline düzenleniyor.
+// Anasayfadaki Topluluk ve Sunucu kartları (content.homeCards) burada
+// düzenleniyor -- büyük slider + 3 sabit küçük kart artık kendi "Kayan
+// Kart" sekmesinde (hero-panel.tsx) ayrı bir editöre sahip, o yüzden
+// burada tekrar yer almıyorlar.
 function GalleryCardForm({
   card,
   onChange,
@@ -125,14 +123,7 @@ function GalleryCardForm({
   );
 }
 
-const HERO_OPTIONS = [
-  "1. Büyük Üst Slider",
-  "2. Uzun 1. Kart",
-  "3. Uzun 2. Kart",
-  "4. Uzun 3. Kart",
-];
-
-export default function CardsPanel({ onNavigateToHero }: { onNavigateToHero: () => void }) {
+export default function CardsPanel() {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
@@ -180,24 +171,11 @@ export default function CardsPanel({ onNavigateToHero }: { onNavigateToHero: () 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs opacity-60">
-        Anasayfadaki 6 duyuru kartı: ilk 4&apos;ü (büyük slider + 3 uzun kart)
-        zaten &quot;Kayan Kart&quot; sekmesinden yönetiliyor, tıklayınca oraya
-        götürür. Topluluk ve Sunucu kartlarının başlık/alt metin/link/arka
-        plan görselleri ise doğrudan burada düzenlenir.
+        Topluluk ve Sunucu kartlarının başlık/alt metin/link/arka plan
+        görselleri burada düzenlenir.
       </p>
 
       <div className="flex flex-col gap-2">
-        {HERO_OPTIONS.map((label) => (
-          <button
-            key={label}
-            onClick={onNavigateToHero}
-            className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3 text-left text-sm font-medium transition hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.03]"
-          >
-            {label}
-            <span className="text-xs opacity-50">Kayan Kart&apos;a git →</span>
-          </button>
-        ))}
-
         <button
           onClick={() => setOpenId(openId === "topluluk" ? null : "topluluk")}
           className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
@@ -206,7 +184,7 @@ export default function CardsPanel({ onNavigateToHero }: { onNavigateToHero: () 
               : "border-black/10 hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.03]"
           }`}
         >
-          5. Topluluk Kartı
+          Topluluk Kartı
           <span className="text-xs opacity-50">{openId === "topluluk" ? "Kapat" : "Düzenle"}</span>
         </button>
         {openId === "topluluk" && (
@@ -225,7 +203,7 @@ export default function CardsPanel({ onNavigateToHero }: { onNavigateToHero: () 
               : "border-black/10 hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.03]"
           }`}
         >
-          6. Sunucu Kartı
+          Sunucu Kartı
           <span className="text-xs opacity-50">
             {openId === "sunucular" ? "Kapat" : "Düzenle"}
           </span>
