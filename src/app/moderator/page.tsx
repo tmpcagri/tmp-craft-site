@@ -154,14 +154,14 @@ export default function AdminPage() {
           <PendingGrantsCard onAccepted={loadSession} />
         </div>
 
-        <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-none lg:h-[42rem] ${cardClass}`}>
+        <main className={`order-last flex min-h-48 w-full flex-1 flex-col overflow-hidden p-8 lg:order-2 lg:h-[42rem] ${cardClass}`}>
           <h1 className="shrink-0 text-center text-lg font-bold">{activeLabel}</h1>
           <div className="mt-4 flex flex-1 flex-col overflow-y-auto">
             <LeafContent leafId={leafId} />
           </div>
         </main>
 
-        <div className={`flex h-[32rem] min-w-0 w-full flex-col p-5 lg:h-[42rem] lg:w-72 lg:shrink-0 ${cardClass}`}>
+        <div className={`flex h-[32rem] min-w-0 w-full flex-col p-5 lg:order-1 lg:h-[42rem] lg:w-72 lg:shrink-0 ${cardClass}`}>
           <ModChatPanel
             selfId={moderator.id}
             isOwner={moderator.isOwner}
