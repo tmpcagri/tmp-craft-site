@@ -6,6 +6,7 @@ import {
   ENVIRONMENTS,
   LICENSES,
   LOADERS,
+  downloadItems,
   type DownloadCategory,
   type Environment,
   type License,
@@ -15,10 +16,12 @@ import {
   createModPackage,
   deleteModPackage,
   listModPackages,
+  toDownloadItem,
   updateModPackage,
   type ModPackageRow,
 } from "../lib/mod-packages";
 import ImageUpload from "./image-upload";
+import ModPackageVersionsEditor from "./mod-package-versions-editor";
 
 const GRADIENTS = [
   "from-emerald-500 to-teal-700",
@@ -40,7 +43,7 @@ const emptyForm = {
   author: "",
   authorLink: "",
   youtubeUrl: "",
-  dependsOn: "",
+  dependsOn: [] as string[],
   bodyText: "",
   schematicJavaUrl: "",
   schematicBedrockUrl: "",
@@ -57,6 +60,22 @@ export default function ModPaketleriPanel() {
   const [saving, setSaving] = useState(false);
 
   const uploadSlug = editingSlug ?? (form.name.trim().toLowerCase().replace(/\s+/g, "-") || "yeni");
+
+  // Bağımlılık seçilebilecek her şey: statik seed + şu an yüklenmiş DB
+  // paketleri, kendisi hariç -- isim yerine slug'a bağlanıyor ki biri adını
+  // değiştirse bile link kopmasın (bkz. mod-paketleri/[slug]/page.tsx).
+  const availableDeps = [
+    ...downloadItems,
+    ...(items ?? []).map(toDownloadItem),
+  ].filter((d) => d.slug !== editingSlug);
+
+  const toggleDependency = (slug: string) =>
+    setForm((f) => ({
+      ...f,
+      dependsOn: f.dependsOn.includes(slug)
+        ? f.dependsOn.filter((s) => s !== slug)
+        : [...f.dependsOn, slug],
+    }));
 
   const addGalleryImage = () => setGalleryImages((g) => [...g, ""]);
   const updateGalleryImage = (i: number, url: string) =>
@@ -80,10 +99,7 @@ export default function ModPaketleriPanel() {
     setSaving(true);
     setStatus("");
     try {
-      const dependsOn = form.dependsOn
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const dependsOn = form.dependsOn;
       const authorLink = form.authorLink.trim() || null;
       const youtubeUrl = form.youtubeUrl.trim() || null;
       const bodyText = form.bodyText.trim() || null;
@@ -161,7 +177,7 @@ export default function ModPaketleriPanel() {
       author: item.author,
       authorLink: item.author_link ?? "",
       youtubeUrl: item.youtube_url ?? "",
-      dependsOn: item.depends_on.join(", "),
+      dependsOn: item.depends_on,
       bodyText: item.body_text ?? "",
       schematicJavaUrl: item.schematic_java_url ?? "",
       schematicBedrockUrl: item.schematic_bedrock_url ?? "",
@@ -301,15 +317,33 @@ export default function ModPaketleriPanel() {
               className="rounded-xl border border-black/10 bg-transparent px-3 py-2 outline-none dark:border-white/10"
             />
           </label>
-          <label className="col-span-full flex flex-col gap-1 text-sm">
-            Bağımlılıklar (virgülle ayrılmış isim listesi, opsiyonel)
-            <input
-              value={form.dependsOn}
-              onChange={(e) => setForm({ ...form, dependsOn: e.target.value })}
-              placeholder="Terra Forge, Beast Tamer"
-              className="rounded-xl border border-black/10 bg-transparent px-3 py-2 outline-none dark:border-white/10"
-            />
-          </label>
+          <div className="col-span-full flex flex-col gap-1.5 text-sm">
+            <p>Bağımlılıklar (opsiyonel)</p>
+            <div className="flex flex-wrap gap-1.5">
+              {availableDeps.length === 0 ? (
+                <p className="text-xs opacity-50">Henüz seçilebilecek başka öğe yok.</p>
+              ) : (
+                availableDeps.map((d) => {
+                  const active = form.dependsOn.includes(d.slug);
+                  return (
+                    <button
+                      key={d.slug}
+                      type="button"
+                      onClick={() => toggleDependency(d.slug)}
+                      aria-pressed={active}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        active
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "border-black/10 text-black/60 hover:bg-black/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10"
+                      }`}
+                    >
+                      {d.name}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
           <label className="col-span-full flex flex-col gap-1 text-sm">
             Detay Metni (opsiyonel, açıklamanın ötesinde uzun anlatım)
             <textarea
@@ -407,6 +441,15 @@ export default function ModPaketleriPanel() {
           </div>
         </div>
       </div>
+
+      {editingSlug && (
+        <div>
+          <h3 className="mb-3 font-sans text-sm font-bold text-black dark:text-white">
+            Sürüm / Loader İndirme Linkleri
+          </h3>
+          <ModPackageVersionsEditor slug={editingSlug} />
+        </div>
+      )}
 
       <div>
         <h3 className="mb-3 font-sans text-sm font-bold text-black dark:text-white">

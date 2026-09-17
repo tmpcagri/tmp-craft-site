@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import type { Loader } from "../../lib/downloads";
 import { signInWithGoogle } from "../../lib/auth-client";
 import {
   getDownloadCount,
@@ -12,13 +13,27 @@ import {
   setEngagement,
 } from "../../lib/mod-engagement";
 import { createClient } from "../../lib/supabase/client";
+import { useOutsideClick } from "../../lib/use-outside-click";
+
+type VersionOption = { gameVersion: string; loader: Loader; downloadUrl: string };
+type DependencyVersions = { slug: string; name: string; versions: VersionOption[] };
 
 export default function ModPaketiActions({
   slug,
   hasDependencies,
+  versions = [],
+  dependencies = [],
 }: {
   slug: string;
   hasDependencies: boolean;
+  // Moderatörün bu paket için girdiği sürüm+loader+link satırları -- boşsa
+  // (statik seed, ya da moderatör henüz hiç satır eklemediyse) eski
+  // tek-buton "henüz hazır değil" davranışına düşülür.
+  versions?: VersionOption[];
+  // Bağımlılıkların KENDİ sürüm satırları -- "Bağımlılıklarla Birlikte
+  // İndir" seçili kombinasyonda her bağımlılığın da linki var mı diye buna
+  // bakıyor.
+  dependencies?: DependencyVersions[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -30,6 +45,31 @@ export default function ModPaketiActions({
   const [saveCount, setSaveCount] = useState(0);
   const [downloadCount, setDownloadCount] = useState(0);
   const [downloadMessage, setDownloadMessage] = useState("");
+
+  const hasRealVersions = versions.length > 0;
+  const [selectedGameVersion, setSelectedGameVersion] = useState(versions[0]?.gameVersion ?? "");
+  const [selectedLoader, setSelectedLoader] = useState<Loader | "">(versions[0]?.loader ?? "");
+  const [bundleOpen, setBundleOpen] = useState(false);
+  const bundleRef = useRef<HTMLDivElement>(null);
+  useOutsideClick(bundleRef, () => setBundleOpen(false), bundleOpen);
+
+  const gameVersionOptions = Array.from(new Set(versions.map((v) => v.gameVersion))).sort().reverse();
+  const loaderOptionsForSelected = Array.from(
+    new Set(versions.filter((v) => v.gameVersion === selectedGameVersion).map((v) => v.loader)),
+  );
+  const matchedVersion = versions.find(
+    (v) => v.gameVersion === selectedGameVersion && v.loader === selectedLoader,
+  );
+
+  const handleGameVersionChange = (gameVersion: string) => {
+    setSelectedGameVersion(gameVersion);
+    setSelectedLoader(versions.find((v) => v.gameVersion === gameVersion)?.loader ?? "");
+  };
+
+  const handleRealDownloadClick = () => {
+    recordDownloadClick(slug).then(setDownloadCount).catch(() => {});
+    setBundleOpen(false);
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -142,26 +182,133 @@ export default function ModPaketiActions({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        {hasDependencies && (
-          <button
-            type="button"
-            onClick={handleDownloadClick}
-            className="rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
-          >
-            Bağımlılıklarla Birlikte İndir
-          </button>
+        {hasRealVersions ? (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={selectedGameVersion}
+                onChange={(e) => handleGameVersionChange(e.target.value)}
+                className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none dark:border-white/10 dark:bg-black"
+              >
+                {gameVersionOptions.map((gv) => (
+                  <option key={gv} value={gv}>
+                    {gv}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedLoader}
+                onChange={(e) => setSelectedLoader(e.target.value as Loader)}
+                className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm outline-none dark:border-white/10 dark:bg-black"
+              >
+                {loaderOptionsForSelected.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {hasDependencies && (
+              <div className="relative" ref={bundleRef}>
+                <button
+                  type="button"
+                  onClick={() => setBundleOpen((v) => !v)}
+                  className="w-full rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
+                >
+                  Bağımlılıklarla Birlikte İndir
+                </button>
+                {bundleOpen && (
+                  <div className="absolute inset-x-0 bottom-full z-20 mb-1.5 flex flex-col gap-0.5 rounded-2xl border border-black/10 bg-white/95 p-1.5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-black/90">
+                    {matchedVersion ? (
+                      <a
+                        href={matchedVersion.downloadUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={handleRealDownloadClick}
+                        className="rounded-xl px-3.5 py-2 text-center text-sm font-medium text-black/70 transition hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+                      >
+                        Bu paket →
+                      </a>
+                    ) : (
+                      <span className="px-3.5 py-2 text-center text-sm text-black/40 dark:text-white/40">
+                        Bu paket — seçili sürümde yok
+                      </span>
+                    )}
+                    {dependencies.map((dep) => {
+                      const depMatch = dep.versions.find(
+                        (v) => v.gameVersion === selectedGameVersion && v.loader === selectedLoader,
+                      );
+                      return depMatch ? (
+                        <a
+                          key={dep.slug}
+                          href={depMatch.downloadUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={handleRealDownloadClick}
+                          className="rounded-xl px-3.5 py-2 text-center text-sm font-medium text-black/70 transition hover:bg-black/5 dark:text-white/70 dark:hover:bg-white/10"
+                        >
+                          {dep.name} →
+                        </a>
+                      ) : (
+                        <span
+                          key={dep.slug}
+                          className="px-3.5 py-2 text-center text-sm text-black/40 dark:text-white/40"
+                        >
+                          {dep.name} — seçili sürümde yok
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <a
+              href={matchedVersion?.downloadUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                if (!matchedVersion) {
+                  e.preventDefault();
+                  return;
+                }
+                handleRealDownloadClick();
+              }}
+              aria-disabled={!matchedVersion}
+              className={`block text-center ${
+                hasDependencies
+                  ? "rounded-full border border-black/15 px-5 py-3 text-sm font-semibold text-black transition hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+                  : "rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
+              } ${!matchedVersion ? "pointer-events-none opacity-50" : ""}`}
+            >
+              {hasDependencies ? "Sadece Bu Paketi İndir" : "İndir"}
+            </a>
+          </>
+        ) : (
+          <>
+            {hasDependencies && (
+              <button
+                type="button"
+                onClick={handleDownloadClick}
+                className="rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
+              >
+                Bağımlılıklarla Birlikte İndir
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleDownloadClick}
+              className={
+                hasDependencies
+                  ? "rounded-full border border-black/15 px-5 py-3 text-sm font-semibold text-black transition hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
+                  : "rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
+              }
+            >
+              {hasDependencies ? "Sadece Bu Paketi İndir" : "İndir"}
+            </button>
+          </>
         )}
-        <button
-          type="button"
-          onClick={handleDownloadClick}
-          className={
-            hasDependencies
-              ? "rounded-full border border-black/15 px-5 py-3 text-sm font-semibold text-black transition hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10"
-              : "rounded-full bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
-          }
-        >
-          {hasDependencies ? "Sadece Bu Paketi İndir" : "İndir"}
-        </button>
         <div className="flex items-center justify-between text-xs text-black/60 dark:text-white/60">
           <span>{downloadCount} indirme</span>
           {downloadMessage && <span>{downloadMessage}</span>}

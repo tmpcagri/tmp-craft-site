@@ -5,6 +5,7 @@ import { getCurrentUser } from "../../lib/auth";
 import { getSiteContent } from "../../lib/content";
 import { LICENSE_URLS } from "../../lib/downloads";
 import { getAllDownloadItems } from "../../lib/downloads-server";
+import { getVersionsForSlugs } from "../../lib/mod-package-versions-server";
 import { getYouTubeEmbedUrl } from "../../lib/youtube";
 import { InlineLogo } from "../../logo";
 import Navbar from "../../navbar";
@@ -45,6 +46,32 @@ export default async function ModPaketiPage({
   const licenseUrl = LICENSE_URLS[item.license];
   const youtubeEmbedUrl = item.youtubeUrl ? getYouTubeEmbedUrl(item.youtubeUrl) : null;
   const hasSchematicDownload = Boolean(item.schematicJavaUrl || item.schematicBedrockUrl);
+
+  const dependencyItems = item.dependsOn
+    .map((depSlug) => downloadItems.find((i) => i.slug === depSlug))
+    .filter((d): d is NonNullable<typeof d> => d !== undefined);
+
+  // Ana paketin VE her bağımlılığın sürüm+loader satırları tek seferde --
+  // "Bağımlılıklarla Birlikte İndir" seçilen kombinasyonda her bağımlılığın
+  // da linki var mı diye buna bakacak (bkz. mod-paketi-actions.tsx).
+  const versionsBySlug = await getVersionsForSlugs([
+    item.slug,
+    ...dependencyItems.map((d) => d.slug),
+  ]);
+  const itemVersions = (versionsBySlug[item.slug] ?? []).map((v) => ({
+    gameVersion: v.game_version,
+    loader: v.loader,
+    downloadUrl: v.download_url,
+  }));
+  const dependencyVersionGroups = dependencyItems.map((d) => ({
+    slug: d.slug,
+    name: d.name,
+    versions: (versionsBySlug[d.slug] ?? []).map((v) => ({
+      gameVersion: v.game_version,
+      loader: v.loader,
+      downloadUrl: v.download_url,
+    })),
+  }));
 
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
@@ -154,24 +181,22 @@ export default async function ModPaketiPage({
                     Bağımlılıklar
                   </p>
                   <div className="mt-2 flex flex-col gap-1.5">
-                    {item.dependsOn.map((depName) => {
-                      const depItem = downloadItems.find(
-                        (i) => i.name === depName,
-                      );
+                    {item.dependsOn.map((depSlug) => {
+                      const depItem = dependencyItems.find((d) => d.slug === depSlug);
                       return depItem ? (
                         <Link
-                          key={depName}
+                          key={depSlug}
                           href={`/mod-paketleri/${depItem.slug}`}
                           className="text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400"
                         >
-                          {depName} →
+                          {depItem.name} →
                         </Link>
                       ) : (
                         <span
-                          key={depName}
+                          key={depSlug}
                           className="text-sm text-black/60 dark:text-white/60"
                         >
-                          {depName}
+                          {depSlug}
                         </span>
                       );
                     })}
@@ -208,6 +233,8 @@ export default async function ModPaketiPage({
               <ModPaketiActions
                 slug={item.slug}
                 hasDependencies={item.dependsOn.length > 0}
+                versions={itemVersions}
+                dependencies={dependencyVersionGroups}
               />
 
               {hasSchematicDownload && (

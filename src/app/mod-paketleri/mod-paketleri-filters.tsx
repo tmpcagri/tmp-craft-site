@@ -33,9 +33,12 @@ export default function ModPaketleriFilters({
 }) {
   const searchParams = useSearchParams();
 
-  const dependableNames = Array.from(
+  // dependsOn artık slug tutuyor (isim değil, bkz. lib/downloads.ts) -- filtre
+  // seçeneklerini yine okunabilir isimle göstermek için slug->isim eşlemesi.
+  const slugToName = new Map(downloadItems.map((i) => [i.slug, i.name]));
+  const dependableSlugs = Array.from(
     new Set(downloadItems.flatMap((i) => i.dependsOn)),
-  ).sort();
+  ).sort((a, b) => (slugToName.get(a) ?? a).localeCompare(slugToName.get(b) ?? b));
   const gameVersionOptions = Array.from(
     new Set(downloadItems.map((i) => i.gameVersion)),
   ).sort().reverse();
@@ -228,9 +231,9 @@ export default function ModPaketleriFilters({
               className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-black dark:text-white"
             >
               <option value="">Farketmez</option>
-              {dependableNames.map((n) => (
-                <option key={n} value={n}>
-                  {n}
+              {dependableSlugs.map((slug) => (
+                <option key={slug} value={slug}>
+                  {slugToName.get(slug) ?? slug}
                 </option>
               ))}
             </select>

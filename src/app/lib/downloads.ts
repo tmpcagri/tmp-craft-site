@@ -61,6 +61,7 @@ export type DownloadItem = {
   loader: Loader;
   environment: Environment;
   license: License;
+  /** Bağımlı olunan diğer öğelerin slug'ı (isim DEĞİL -- biri adını değiştirse link kopmasın diye). */
   dependsOn: string[];
   author: string;
   /** Yalnızca yapımcı TMP Craft'a üye olup içeriği kendisi paylaştığında dolu olur. Boşsa kutucukta kategori renkli placeholder gösterilir. */
@@ -82,7 +83,7 @@ export type DownloadItem = {
 
 const raw: Omit<DownloadItem, "slug">[] = [
   { name: "Terra Forge", category: "Mods", description: "Gelişmiş dünya üretimi ve yapı sistemi ekler.", gradient: "from-emerald-500 to-teal-700", gameVersion: "1.21", loader: "Forge", environment: "Client + Server", license: "MIT", dependsOn: [], author: "TMPCraft" },
-  { name: "Beast Tamer", category: "Mods", description: "Yeni yaratıklar evcilleştirme mekaniği.", gradient: "from-orange-500 to-red-600", gameVersion: "1.20.4", loader: "Fabric", environment: "Client + Server", license: "CC-BY", dependsOn: ["Terra Forge"], author: "modrehberi" },
+  { name: "Beast Tamer", category: "Mods", description: "Yeni yaratıklar evcilleştirme mekaniği.", gradient: "from-orange-500 to-red-600", gameVersion: "1.20.4", loader: "Fabric", environment: "Client + Server", license: "CC-BY", dependsOn: ["terra-forge"], author: "modrehberi" },
   { name: "Auto Farm Pro", category: "Mods", description: "Otomatik tarım ve üretim zincirleri.", gradient: "from-lime-500 to-green-700", gameVersion: "1.21", loader: "NeoForge", environment: "Server", license: "GPL-3.0", dependsOn: [], author: "redstonecu42" },
 
   { name: "Neon Craft", category: "Resource Packs", description: "Parlak, canlı renklerle yeniden tasarlanmış dokular.", gradient: "from-purple-500 to-fuchsia-600", gameVersion: "1.21", loader: "Vanilla", environment: "Client", license: "All Rights Reserved", dependsOn: [], author: "TMPCraft" },
@@ -95,12 +96,12 @@ const raw: Omit<DownloadItem, "slug">[] = [
   { name: "Sunset Vale", category: "Shaders", description: "Sinematik aydınlatma ve gölgeler.", gradient: "from-orange-400 to-pink-600", gameVersion: "1.21", loader: "Fabric", environment: "Client", license: "All Rights Reserved", dependsOn: [], author: "TMPCraft" },
   { name: "Crystal Clear", category: "Shaders", description: "Su ve cam için gerçekçi yansımalar.", gradient: "from-sky-400 to-cyan-600", gameVersion: "1.20", loader: "Fabric", environment: "Client", license: "All Rights Reserved", dependsOn: [], author: "modrehberi" },
 
-  { name: "Emerald Grove", category: "Modpacks", description: "Doğa ve keşif odaklı mod koleksiyonu.", gradient: "from-emerald-500 to-green-700", gameVersion: "1.20.4", loader: "Forge", environment: "Client + Server", license: "CC-BY", dependsOn: ["Terra Forge", "Beast Tamer"], author: "TMPCraft" },
-  { name: "Iron Forge", category: "Modpacks", description: "Endüstriyel üretim ve teknoloji paketi.", gradient: "from-zinc-500 to-neutral-700", gameVersion: "1.21", loader: "NeoForge", environment: "Client + Server", license: "GPL-3.0", dependsOn: ["Auto Farm Pro"], author: "redstonecu42" },
+  { name: "Emerald Grove", category: "Modpacks", description: "Doğa ve keşif odaklı mod koleksiyonu.", gradient: "from-emerald-500 to-green-700", gameVersion: "1.20.4", loader: "Forge", environment: "Client + Server", license: "CC-BY", dependsOn: ["terra-forge", "beast-tamer"], author: "TMPCraft" },
+  { name: "Iron Forge", category: "Modpacks", description: "Endüstriyel üretim ve teknoloji paketi.", gradient: "from-zinc-500 to-neutral-700", gameVersion: "1.21", loader: "NeoForge", environment: "Client + Server", license: "GPL-3.0", dependsOn: ["auto-farm-pro"], author: "redstonecu42" },
   { name: "Coral Reef", category: "Modpacks", description: "Okyanus keşfi temalı mod paketi.", gradient: "from-teal-400 to-cyan-600", gameVersion: "1.20", loader: "Fabric", environment: "Client + Server", license: "CC-BY", dependsOn: [], author: "modrehberi" },
 
   { name: "EssentialsX", category: "Plugins", description: "Sunucu yönetimi için temel komutlar.", gradient: "from-blue-500 to-indigo-700", gameVersion: "1.21", loader: "Vanilla", environment: "Server", license: "GPL-3.0", dependsOn: [], author: "TMPCraft" },
-  { name: "GuardianShield", category: "Plugins", description: "Arazi koruma ve izin sistemi.", gradient: "from-red-500 to-rose-700", gameVersion: "1.20.4", loader: "Vanilla", environment: "Server", license: "MIT", dependsOn: ["EssentialsX"], author: "redstonecu42" },
+  { name: "GuardianShield", category: "Plugins", description: "Arazi koruma ve izin sistemi.", gradient: "from-red-500 to-rose-700", gameVersion: "1.20.4", loader: "Vanilla", environment: "Server", license: "MIT", dependsOn: ["essentialsx"], author: "redstonecu42" },
 
   { name: "TMP Survival", category: "Servers", description: "Klasik hayatta kalma deneyimi, topluluk odaklı.", gradient: "from-green-600 to-emerald-800", gameVersion: "1.21", loader: "Vanilla", environment: "Server", license: "All Rights Reserved", dependsOn: [], author: "TMPCraft" },
   { name: "TMP Creative", category: "Servers", description: "Sınırsız yaratıcılık için inşa sunucusu.", gradient: "from-violet-500 to-purple-700", gameVersion: "1.21", loader: "Vanilla", environment: "Server", license: "All Rights Reserved", dependsOn: [], author: "TMPCraft" },
