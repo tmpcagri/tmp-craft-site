@@ -11,7 +11,7 @@ export default function OnerilenYayincilarSidebar({
   const newcomers = creators.filter((c) => c.tier === "newcomer");
 
   return (
-    <aside className="order-first flex w-full shrink-0 flex-col gap-px overflow-hidden rounded-3xl border border-black/10 bg-white/40 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-black/40 lg:sticky lg:top-36 lg:order-none lg:max-h-[calc(100vh-10rem)] lg:w-80 lg:self-start lg:overflow-y-auto lg:rounded-r-none lg:border-r-0">
+    <aside className="order-first flex w-full shrink-0 flex-col gap-px overflow-hidden rounded-3xl border border-black/10 bg-white/40 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-black/40 lg:sticky lg:top-36 lg:order-none lg:max-h-[calc(100vh-10rem)] lg:w-80 lg:self-start lg:overflow-y-auto">
       {premium.length > 0 && (
         <div>
           <div className="flex items-center gap-1.5 bg-amber-400/10 px-5 py-2">
