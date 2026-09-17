@@ -16,7 +16,7 @@ import {
   feedColumnA,
   feedColumnB,
 } from "./community-feed";
-import ModPaketleriSliderPanel from "./mod-paketleri-slider-panel";
+import ModPaketleriSliderPanel, { type FeaturedModCard } from "./mod-paketleri-slider-panel";
 import Navbar from "./navbar";
 import NewsTicker, { type TickerItem } from "./news-ticker";
 import ServerSpotlight, { type ServerCard } from "./server-spotlight";
@@ -54,11 +54,14 @@ export default async function Home() {
   // -- boşsa panel eski davranışına (ilk 8 mod) düşer, bkz.
   // mod-paketleri-slider-panel.tsx.
   const featuredModItems = content.featuredMods
-    .map((entry) => {
-      const item = allDownloadItems.find((i) => i.slug === entry.slug);
-      return item ? { item, tag: entry.tag } : null;
+    .map((entry): FeaturedModCard | null => {
+      if (entry.mode === "existing") {
+        const item = allDownloadItems.find((i) => i.slug === entry.slug);
+        return item ? { mode: "existing", item, tag: entry.tag } : null;
+      }
+      return entry;
     })
-    .filter((v): v is { item: (typeof allDownloadItems)[number]; tag: typeof content.featuredMods[number]["tag"] } => v !== null);
+    .filter((v): v is FeaturedModCard => v !== null);
 
   // Sunucu adı + anlık oyuncu sayısı -- üstteki karma şeritte ve "Şu an
   // gündemde" bandında kullanılıyor. allServerCards'tan üretiliyor ki

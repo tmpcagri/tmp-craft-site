@@ -46,6 +46,9 @@ export async function POST(request: Request) {
     featuredMods: moderator.permissions.includes("panels")
       ? body.featuredMods
       : current.featuredMods,
+    featuredGuides: moderator.permissions.includes("guides")
+      ? body.featuredGuides
+      : current.featuredGuides,
     toplulukHero: moderator.permissions.includes("topluluk_hero")
       ? body.toplulukHero
       : current.toplulukHero,

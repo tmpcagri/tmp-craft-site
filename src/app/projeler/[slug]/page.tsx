@@ -4,10 +4,13 @@ import Footer from "../../footer";
 import { downloadItems } from "../../lib/downloads";
 import { getCurrentUser } from "../../lib/auth";
 import { getSiteContent } from "../../lib/content";
+import { getGuideDetailsForSlug } from "../../lib/guide-details-server";
 import { guides } from "../../lib/guides";
+import { getYouTubeEmbedUrl } from "../../lib/youtube";
 import Navbar from "../../navbar";
 import QrShareButton from "../../qr-share-button";
 import GuideCard from "../guide-card";
+import SchematicDownloadButton from "../schematic-download-button";
 
 export default async function GuidePage({
   params,
@@ -20,6 +23,18 @@ export default async function GuidePage({
 
   const content = getSiteContent();
   const user = await getCurrentUser();
+  const details = await getGuideDetailsForSlug(slug);
+
+  // Moderatörün guide_details'te girdiği video/görsel/yazı/şematik statik
+  // guide alanlarının ÜSTÜNE biner -- moderatör hiç düzenlemediyse (details
+  // null, ya da tek tek alanları boşsa) eski statik davranışa düşülür.
+  const rawVideoUrl = details?.youtubeUrl || guide.videoUrl;
+  const youtubeEmbedUrl = rawVideoUrl ? getYouTubeEmbedUrl(rawVideoUrl) : null;
+  const extraImageUrl = details?.imageUrl || null;
+  const extraBodyText = details?.bodyText || null;
+  const schematicJavaUrl = details?.schematicJavaUrl || null;
+  const schematicBedrockUrl = details?.schematicBedrockUrl || null;
+  const hasSchematicDownload = Boolean(schematicJavaUrl || schematicBedrockUrl);
 
   const related = guides
     .filter((g) => g.slug !== guide.slug && g.category === guide.category)
@@ -68,15 +83,30 @@ export default async function GuidePage({
                 {guide.description}
               </p>
 
-              {guide.videoUrl && (
+              {youtubeEmbedUrl && (
                 <div className="aspect-video w-full overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
                   <iframe
-                    src={guide.videoUrl}
+                    src={youtubeEmbedUrl}
                     title={guide.title}
                     className="h-full w-full"
                     allowFullScreen
                   />
                 </div>
+              )}
+
+              {extraImageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element -- moderatör tarafından R2'ye yüklenen görsel
+                <img
+                  src={extraImageUrl}
+                  alt=""
+                  className="w-full rounded-2xl border border-black/10 object-cover dark:border-white/10"
+                />
+              )}
+
+              {extraBodyText && (
+                <p className="whitespace-pre-wrap text-base leading-relaxed text-black/70 dark:text-white/70">
+                  {extraBodyText}
+                </p>
               )}
 
               <div>
@@ -132,13 +162,15 @@ export default async function GuidePage({
             </div>
 
             <div className="flex flex-col gap-5 lg:sticky lg:top-36 lg:self-start">
+              {/* Patronun isteği: QR bir popover'ın arkasında gizli
+                  kalmasın, sayfa açılır açılmaz doğrudan taranabilir
+                  olsun -- bkz. identity-panel.tsx'teki aynı yaklaşım. */}
+              <QrShareButton inline />
+
               <div className="rounded-2xl border border-black/10 p-4 dark:border-white/10">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
-                    Bilgi Paneli
-                  </p>
-                  <QrShareButton compact />
-                </div>
+                <p className="text-xs font-semibold uppercase tracking-wide opacity-50">
+                  Bilgi Paneli
+                </p>
                 <dl className="mt-3 flex flex-col gap-2 text-sm">
                   <div className="flex items-center justify-between">
                     <dt className="opacity-50">Zorluk</dt>
@@ -200,14 +232,15 @@ export default async function GuidePage({
                 </dl>
               </div>
 
-              {guide.hasSchematic && (
-                <div className="flex flex-col gap-1.5 rounded-2xl border border-black/10 p-4 text-center dark:border-white/10">
+              {hasSchematicDownload && (
+                <div className="flex flex-col gap-2 rounded-2xl border border-black/10 p-4 text-center dark:border-white/10">
                   <p className="font-sans text-sm font-semibold text-black dark:text-white">
                     Şematik Dosyası
                   </p>
-                  <p className="text-xs text-black/50 dark:text-white/50">
-                    İndirme yakında aktif olacak
-                  </p>
+                  <SchematicDownloadButton
+                    javaUrl={schematicJavaUrl}
+                    bedrockUrl={schematicBedrockUrl}
+                  />
                 </div>
               )}
             </div>

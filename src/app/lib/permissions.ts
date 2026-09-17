@@ -11,7 +11,8 @@ export type ModeratorTab =
   | "ticker"
   | "hero"
   | "panels"
-  | "topluluk_hero";
+  | "topluluk_hero"
+  | "guides";
 
 export type ModeratorSession = {
   username: string;
@@ -35,6 +36,7 @@ const ALL_TABS: ModeratorTab[] = [
   "hero",
   "panels",
   "topluluk_hero",
+  "guides",
 ];
 
 // Reads the logged-in user's moderator session from their `profiles` row.

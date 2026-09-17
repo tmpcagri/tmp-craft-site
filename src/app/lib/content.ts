@@ -108,15 +108,25 @@ export type HeroContent = {
   secondary: HeroSlide[];
 };
 
-// Anasayfadaki "Mod Paketleri" kayan bandında hangi modların, hangi
-// sırada ve hangi rozetle (Popüler/En Çok İndirilen/Yeni) öne
-// çıkarılacağı -- boşsa panel eski davranışına (ilk 8 mod) düşüyor.
+// Anasayfadaki kayan bantlarda (Mod Paketleri, Build ve Farm Rehberi) hangi
+// kartların, hangi sırada ve hangi rozetle öne çıkarılacağı -- boşsa panel
+// eski davranışına (ilk 8 öğe) düşüyor. Moderatör iki modda kart girebilir:
+// "existing" gerçek bir mod/rehber'e slug ile referans verir, "custom" ise
+// hiçbir gerçek öğeye bağlı olmadan tamamen kendi görsel/başlık/linkini
+// girdiği bir kart ekler (ör. bir mod'un henüz sitede yüklü olmayan bir
+// sürümünü ya da dış bir duyuruyu öne çıkarmak için).
 export type FeaturedModTag = "" | "Popüler" | "En Çok İndirilen" | "Yeni";
 
-export type FeaturedModEntry = {
-  slug: string;
-  tag: FeaturedModTag;
-};
+export type CuratedCardEntry =
+  | { mode: "existing"; slug: string; tag: FeaturedModTag }
+  | {
+      mode: "custom";
+      title: string;
+      description: string;
+      imageUrl: string;
+      linkUrl: string;
+      tag: FeaturedModTag;
+    };
 
 // Topluluk sayfasının statik mozaiğindeki 4 kartın başlık/metni --
 // pozisyonları (gradyan/boyut) sabit, sadece yazıları düzenlenebiliyor.
@@ -136,7 +146,8 @@ export type SiteContent = {
   specialOccasion: SpecialOccasion;
   ticker: TickerConfig;
   hero: HeroContent;
-  featuredMods: FeaturedModEntry[];
+  featuredMods: CuratedCardEntry[];
+  featuredGuides: CuratedCardEntry[];
   toplulukHero: ToplulukHeroSlide[];
 };
 

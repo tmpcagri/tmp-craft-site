@@ -11,6 +11,7 @@ export const TAB_LABELS: Record<ModeratorTab, string> = {
   ticker: "Ana Sayfa — CANLI Şeridi",
   hero: "Ana Sayfa — Kayan Kart",
   panels: "Ana Sayfa — Öne Çıkan Modlar",
+  guides: "Ana Sayfa — Build/Farm Kartları",
   mods: "Mod Paketleri — Mod/Shader Yükle",
   servers: "Sunucular — Sunucu Kartları",
   creators: "Topluluk — Önerilen Yayıncılar",

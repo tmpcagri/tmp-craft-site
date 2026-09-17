@@ -11,7 +11,7 @@ export default function ImageUpload({
   value,
   onChange,
 }: {
-  section: "mod-paketleri" | "sunucular" | "ozel-gunler";
+  section: "mod-paketleri" | "sunucular" | "ozel-gunler" | "projeler";
   slug: string;
   value: string | null;
   onChange: (url: string) => void;

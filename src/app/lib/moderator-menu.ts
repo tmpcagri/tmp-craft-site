@@ -37,6 +37,8 @@ export const MODERATOR_MENU: ModeratorMenuGroup[] = [
       { type: "leaf", id: "ticker", label: "CANLI Şeridi", tab: "ticker" },
       { type: "leaf", id: "hero", label: "Kayan Kart", tab: "hero" },
       { type: "leaf", id: "panels", label: "Öne Çıkan Modlar", tab: "panels" },
+      { type: "leaf", id: "featured-guides", label: "Build/Farm Kartları", tab: "guides" },
+      { type: "leaf", id: "guide-details", label: "Rehber Detayları", tab: "guides" },
     ],
   },
   {

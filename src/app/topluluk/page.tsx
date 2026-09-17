@@ -7,7 +7,7 @@ import FeaturedPosts from "./featured-posts";
 import GundemSidebar from "./gundem-sidebar";
 import OnerilenYayincilarSidebar from "./onerilen-yayincilar-sidebar";
 import QuickTopicLinks from "./quick-topic-links";
-import ToplulukHero from "./topluluk-hero";
+import ToplulukAdCard from "./topluluk-ad-card";
 import ToplulukNotifications from "./topluluk-notifications";
 
 export default async function ToplulukPage({
@@ -41,7 +41,7 @@ export default async function ToplulukPage({
         <GundemSidebar />
 
         <main className="flex w-full flex-1 flex-col gap-6 px-6 pb-16 sm:px-10 lg:px-10">
-          <ToplulukHero slides={content.toplulukHero} />
+          <ToplulukAdCard />
         </main>
 
         <OnerilenYayincilarSidebar creators={content.recommendedCreators} />
