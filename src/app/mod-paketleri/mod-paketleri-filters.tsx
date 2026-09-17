@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { CATEGORY_ICONS } from "../category-icons";
+import FilterPill from "../filter-pill";
 import {
   CATEGORY_TR,
   DOWNLOAD_CATEGORIES,
@@ -139,50 +140,46 @@ export default function ModPaketleriFilters({ items: downloadItems }: { items: D
   return (
     <div className="mt-6 flex flex-col gap-6">
       <div className="flex flex-wrap gap-2.5">
-        <button
+        <FilterPill
+          active={!activeCategory}
           onClick={() => setCategories([])}
-          className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
-            !activeCategory
-              ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
-              : "border border-black/10 bg-white/40 text-black backdrop-blur-sm hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-md dark:border-white/10 dark:bg-black/30 dark:text-white dark:hover:bg-black/50"
-          }`}
+          icon={
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={!activeCategory ? "opacity-90" : "opacity-60"}>
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+          }
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={!activeCategory ? "opacity-90" : "opacity-60"}>
-            <rect x="3" y="3" width="7" height="7" rx="1.5" />
-            <rect x="14" y="3" width="7" height="7" rx="1.5" />
-            <rect x="3" y="14" width="7" height="7" rx="1.5" />
-            <rect x="14" y="14" width="7" height="7" rx="1.5" />
-          </svg>
           Tümü
-        </button>
+        </FilterPill>
         {DOWNLOAD_CATEGORIES.map((category) => (
-          <button
+          <FilterPill
             key={category}
+            active={activeCategory === category}
             onClick={() =>
               setCategories(activeCategory === category ? [] : [category])
             }
-            className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
-              activeCategory === category
-                ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
-                : "border border-black/10 bg-white/40 text-black backdrop-blur-sm hover:-translate-y-0.5 hover:bg-white/70 hover:shadow-md dark:border-white/10 dark:bg-black/30 dark:text-white dark:hover:bg-black/50"
-            }`}
+            icon={
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={activeCategory === category ? "opacity-90" : "opacity-60"}
+              >
+                {CATEGORY_ICONS[category]}
+              </svg>
+            }
           >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={activeCategory === category ? "opacity-90" : "opacity-60"}
-            >
-              {CATEGORY_ICONS[category]}
-            </svg>
             {category}{" "}
             <span className="opacity-60">({CATEGORY_TR[category]})</span>
-          </button>
+          </FilterPill>
         ))}
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import FilterPill from "../filter-pill";
 import {
   ALL_GAME_VERSIONS,
   BUILD_CATEGORIES,
@@ -21,6 +22,33 @@ import GuideCard, { type TileSize } from "./guide-card";
 
 type KindFilter = "Tümü" | GuideKind;
 type SortMode = "views" | "difficulty";
+
+// Build/Farm/Tümü sekmeleri Mod Paketleri'ndeki kategori ikonlarıyla aynı
+// çizim diline (stroke=2, yuvarlak uç) sahip -- Build bir yapı/ev, Farm bir
+// filiz/tomurcuk simgesiyle temsil ediliyor.
+const KIND_ICONS: Record<KindFilter, React.ReactNode> = {
+  Tümü: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  Build: (
+    <>
+      <path d="M5 21V8l7-5 7 5v13" />
+      <path d="M9 21v-6h6v6" />
+      <path d="M3 21h18" />
+    </>
+  ),
+  Farm: (
+    <>
+      <path d="M12 21v-8" />
+      <path d="M8 9a4 4 0 0 1 8 0c0 2.5-4 4-4 4s-4-1.5-4-4z" />
+    </>
+  ),
+};
 
 // Asimetrik bento düzeni -- sıradaki öğe listedeki konumuna göre bir
 // boyut alıyor (views'e göre sıralı olduğunda en önemli/popüler öğeler
@@ -147,35 +175,43 @@ export default function ProjelerFilters() {
   return (
     <div className="mt-6 flex flex-col gap-6">
       {/* Build/Farm/Tümü -- ikisini karışık görebilir ya da ayırabilir. */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5">
         {(["Tümü", "Build", "Farm"] as KindFilter[]).map((k) => (
-          <button
+          <FilterPill
             key={k}
+            active={kind === k}
             onClick={() => setKindAndReset(k)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-              kind === k
-                ? "bg-black text-white dark:bg-white dark:text-black"
-                : "border border-black/10 bg-white/40 text-black backdrop-blur-sm hover:bg-white/70 dark:border-white/10 dark:bg-black/30 dark:text-white dark:hover:bg-black/50"
-            }`}
+            icon={
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={kind === k ? "opacity-90" : "opacity-60"}
+              >
+                {KIND_ICONS[k]}
+              </svg>
+            }
           >
             {k}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2">
         {availableCategories.map((category) => (
-          <button
+          <FilterPill
             key={category}
+            active={categories.includes(category)}
             onClick={() => setCategories(toggle(categories, category))}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-              categories.includes(category)
-                ? "bg-emerald-600 text-white"
-                : "border border-black/10 text-black/60 hover:bg-black/5 dark:border-white/10 dark:text-white/60 dark:hover:bg-white/10"
-            }`}
+            size="sm"
           >
             {category}
-          </button>
+          </FilterPill>
         ))}
       </div>
 
