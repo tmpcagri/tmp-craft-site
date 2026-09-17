@@ -22,7 +22,7 @@ export default async function ProjelerPage() {
         user={user}
       />
 
-      <div className="relative flex-1 px-6 pb-24 pt-32 sm:px-10">
+      <div className="relative flex-1 px-6 pb-24 pt-20 sm:px-10">
         <div
           aria-hidden
           className="pointer-events-none absolute -left-24 -top-10 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl"
@@ -41,11 +41,6 @@ export default async function ProjelerPage() {
           <h1 className="mt-4 font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
             Build ve Farm Rehberi
           </h1>
-          <p className="mt-2 max-w-xl text-sm text-black/60 dark:text-white/60 sm:text-base">
-            Coğrafya mühendisliği, yerleşim mantığı ve verim hesabıyla
-            hazırlanmış rehberler. Sadece build, sadece farm ya da ikisi bir
-            arada — sen seç.
-          </p>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs text-black/50 dark:text-white/50">
             <span className="rounded-full bg-black/5 px-3 py-1 dark:bg-white/10">
