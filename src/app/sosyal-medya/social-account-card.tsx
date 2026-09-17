@@ -12,7 +12,7 @@ export type SocialAccount = {
 };
 
 // Gerçek marka logoları kartta iyi durmadığı için (bkz. sayfadaki not)
-// kart sade tutuluyor: marka renginde gradyan + yazı, sağda QR.
+// kart sade tutuluyor: marka renginde yavaşça kayan gradyan + yazı, sağda QR.
 export default function SocialAccountCard({ account }: { account: SocialAccount }) {
   const { label, username, href, gradient, comingSoon } = account;
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,7 +28,7 @@ export default function SocialAccountCard({ account }: { account: SocialAccount 
     }).catch(() => {});
   }, [href, comingSoon]);
 
-  const cardClass = `group relative flex h-20 items-center justify-between gap-3 overflow-hidden rounded-2xl bg-gradient-to-r px-6 shadow-lg transition ${gradient}`;
+  const cardClass = `group relative flex h-20 items-center justify-between gap-3 overflow-hidden rounded-2xl bg-gradient-to-r px-6 shadow-lg transition animate-gradient-flow ${gradient}`;
 
   const inner = (
     <>

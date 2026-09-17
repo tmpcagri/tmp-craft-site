@@ -24,54 +24,55 @@ function AdSlot({ side }: { side: "left" | "right" }) {
 }
 
 // Gerçek marka görselleri kart içinde alakasız/kırpık durduğu için --
-// hepsi renksiz, sade bir kart üstünde direkt isim yazıyor. Henüz gerçek
-// linki olmayanlar (comingSoon) diğerleri gibi tıklanabilir değil, dürüst
-// bir "Yakında" rozetiyle gösteriliyor -- sahte/çalışmayan link yerine.
+// logo yerine her platformun marka renginden bir gradyan + üstünde isim
+// yazıyor. Henüz gerçek linki olmayanlar (comingSoon) diğerleri gibi
+// tıklanabilir değil, dürüst bir "Yakında" rozetiyle gösteriliyor --
+// sahte/çalışmayan link yerine.
 const accounts: SocialAccount[] = [
   {
     label: "TikTok",
     username: "@tmp_cagri",
     href: "https://www.tiktok.com/@tmp_cagri",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-black via-[#25F4EE]/30 to-[#FE2C55]/40",
   },
   {
     label: "YouTube",
     username: "@tmp_cagri",
     href: "https://www.youtube.com/@tmp_cagri",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-red-500 via-red-600 to-red-900",
   },
   {
     label: "Instagram",
     username: "@tmp_cagri46",
     href: "https://www.instagram.com/tmp_cagri46",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-purple-600 via-pink-500 to-orange-400",
   },
   {
     label: "X (Twitter)",
     username: "@tmp_cagri",
     href: "#",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-neutral-900 via-black to-neutral-800",
     comingSoon: true,
   },
   {
     label: "Telegram",
     username: "@tmp_cagri",
     href: "#",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-sky-500 via-sky-600 to-blue-600",
     comingSoon: true,
   },
   {
     label: "WhatsApp",
     username: "@tmp_cagri",
     href: "#",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-green-500 via-emerald-500 to-emerald-600",
     comingSoon: true,
   },
   {
     label: "Facebook",
     username: "Çok yakında burada",
     href: "#",
-    gradient: "from-neutral-800 to-neutral-950",
+    gradient: "from-blue-500 via-blue-600 to-blue-800",
     comingSoon: true,
   },
 ];
