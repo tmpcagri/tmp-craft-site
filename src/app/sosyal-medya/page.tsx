@@ -6,6 +6,23 @@ import { getSiteContent } from "../lib/content";
 import Navbar from "../navbar";
 import SocialAccountCard, { type SocialAccount } from "./social-account-card";
 
+function AdSlot({ side }: { side: "left" | "right" }) {
+  return (
+    <div
+      className={`fixed top-36 hidden h-[560px] w-48 flex-col items-center justify-center rounded-2xl border border-dashed border-black/15 text-center 2xl:flex dark:border-white/15 ${
+        side === "left" ? "left-6" : "right-6"
+      }`}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-wide opacity-40">
+        Reklam Alanı
+      </p>
+      <p className="mt-1 px-3 text-xs opacity-50">
+        Bu alan yakında reklam ortaklarımıza açılacak.
+      </p>
+    </div>
+  );
+}
+
 // Gerçek marka görselleri kart içinde alakasız/kırpık durduğu için --
 // hepsi renksiz, sade bir kart üstünde direkt isim yazıyor. Henüz gerçek
 // linki olmayanlar (comingSoon) diğerleri gibi tıklanabilir değil, dürüst
@@ -71,8 +88,10 @@ export default async function SosyalMedyaPage() {
         navLinks={content.footerLinks}
         user={user}
       />
+      <AdSlot side="left" />
+      <AdSlot side="right" />
 
-      <div className="flex-1 px-6 pb-24 pt-32 sm:px-10">
+      <div className="flex-1 px-6 pb-24 pt-20 sm:px-10">
         <div className="mx-auto max-w-5xl">
           <BackButton />
 
@@ -82,10 +101,6 @@ export default async function SosyalMedyaPage() {
           <h1 className="mt-4 font-sans text-3xl font-bold text-black dark:text-white sm:text-4xl">
             Bizi Sosyal Medyada Takip Et
           </h1>
-          <p className="mt-2 max-w-xl text-sm text-black/60 dark:text-white/60 sm:text-base">
-            Kulis, canlı yayın anları ve yeni içerik duyuruları için
-            hesaplarımıza göz at.
-          </p>
 
           {/* Sosyal medya düğmeleri sayfanın solunda sabit, dar bir
               sütunda duruyor -- masaüstünde içerik vitrini sağda,
