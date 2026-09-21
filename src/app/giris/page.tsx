@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, Suspense, useState } from "react";
 import { signInWithGoogle, signInWithPassword } from "../lib/auth-client";
 import { safeNext } from "../lib/safe-next";
 import { createClient } from "../lib/supabase/client";
@@ -13,7 +13,20 @@ import { GoogleIcon } from "../provider-icons";
 // alta, sitenin geri kalanıyla aynı düz bg-white/dark:bg-black zemin
 // üzerinde. Önceki tasarım (HillsBackground + karartma + cam efektli kart)
 // sitenin geri kalanından kopuk, hep-koyu bir "ada" gibiydi.
+//
+// useSearchParams() (?next= yönlendirmesi için) statik export sırasında
+// bir Suspense sınırı gerektiriyor -- yoksa build "should be wrapped in a
+// suspense boundary" hatasıyla patlıyor (Cloudflare/Vercel gibi build
+// sunucularında fark edildi, dev server'da sessizce çalışıyordu).
 export default function GirisPage() {
+  return (
+    <Suspense fallback={null}>
+      <GirisPageInner />
+    </Suspense>
+  );
+}
+
+function GirisPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeNext(searchParams.get("next"));

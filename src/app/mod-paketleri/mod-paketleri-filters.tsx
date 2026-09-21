@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { CATEGORY_ICONS } from "../category-icons";
 import FilterPill from "../filter-pill";
 import {
@@ -24,7 +24,21 @@ function toggle<T>(list: T[], value: T): T[] {
     : [...list, value];
 }
 
-export default function ModPaketleriFilters({
+// useSearchParams() (?category= başlangıç filtresi için) statik export
+// sırasında bir Suspense sınırı gerektiriyor -- bkz. giris/page.tsx'teki
+// aynı notu.
+export default function ModPaketleriFilters(props: {
+  items: DownloadItem[];
+  categoryOrder?: DownloadCategory[];
+}) {
+  return (
+    <Suspense fallback={null}>
+      <ModPaketleriFiltersInner {...props} />
+    </Suspense>
+  );
+}
+
+function ModPaketleriFiltersInner({
   items: downloadItems,
   categoryOrder = DOWNLOAD_CATEGORIES,
 }: {
