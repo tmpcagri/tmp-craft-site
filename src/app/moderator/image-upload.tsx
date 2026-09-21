@@ -10,6 +10,7 @@ export default function ImageUpload({
   slug,
   value,
   onChange,
+  hint = "Önerilen: 300-500 KB, 800×500 ile 300×200px arası",
 }: {
   section:
     | "mod-paketleri"
@@ -22,6 +23,7 @@ export default function ImageUpload({
   slug: string;
   value: string | null;
   onChange: (url: string) => void;
+  hint?: string;
 }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -102,6 +104,7 @@ export default function ImageUpload({
           e.target.value = "";
         }}
       />
+      {hint && <p className="mt-1.5 text-xs text-black/60 dark:text-white/60">{hint}</p>}
       {error && <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   );

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { HeroContent } from "./lib/content";
 import Logo from "./logo";
+import RetryImage from "./retry-image";
 
 // Önceden burada otomatik dönen tek-mesajlı bir carousel vardı (4 slayt,
 // 4.5sn'de bir geçiş). Carousel'lar üzerine yapılan bağımsız araştırma
@@ -20,14 +21,26 @@ import Logo from "./logo";
 export default function HeroSlider({ content }: { content: HeroContent }) {
   const { featuredSlides, featuredIntervalMs, secondary } = content;
   const [index, setIndex] = useState(0);
+  // Yumuşak geçiş için: önce mevcut slaytı 400ms'de fade-out yapıyoruz,
+  // sonra görseli/yazıyı değiştirip fade-in ediyoruz -- iki görseli aynı
+  // anda üst üste bindirmek yerine (daha karmaşık) tek katmanlı basit bir
+  // "solup yeniden beliren" geçiş.
+  const [visible, setVisible] = useState(true);
+  const fadeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (featuredSlides.length < 2) return;
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % featuredSlides.length),
-      Math.max(1500, featuredIntervalMs),
-    );
-    return () => clearInterval(id);
+    const id = setInterval(() => {
+      setVisible(false);
+      fadeTimeout.current = setTimeout(() => {
+        setIndex((i) => (i + 1) % featuredSlides.length);
+        setVisible(true);
+      }, 250);
+    }, Math.max(1500, featuredIntervalMs));
+    return () => {
+      clearInterval(id);
+      if (fadeTimeout.current) clearTimeout(fadeTimeout.current);
+    };
   }, [featuredSlides.length, featuredIntervalMs]);
 
   const featured = featuredSlides[index % featuredSlides.length] ?? featuredSlides[0];
@@ -39,17 +52,22 @@ export default function HeroSlider({ content }: { content: HeroContent }) {
         href={featured.href}
         className="group relative flex h-56 flex-col items-start justify-end gap-2 overflow-hidden rounded-3xl p-6 shadow-2xl sm:h-full sm:p-10"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
-        <img
+        <RetryImage
+          key={featured.image}
           src={featured.image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          priority
+          className={`absolute inset-0 h-full w-full object-cover transition duration-200 ease-in-out group-hover:scale-105 ${visible ? "opacity-100" : "opacity-0"}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
-        <h1 className="relative font-sans text-3xl font-bold text-white sm:text-5xl">
+        <h1
+          className={`relative font-sans text-3xl font-bold text-white transition-opacity duration-200 ease-in-out sm:text-5xl ${visible ? "opacity-100" : "opacity-0"}`}
+        >
           {featured.title}
         </h1>
-        <p className="relative max-w-md font-sans text-sm text-white/80 sm:text-lg">
+        <p
+          className={`relative max-w-md font-sans text-sm text-white/80 transition-opacity duration-200 ease-in-out sm:text-lg ${visible ? "opacity-100" : "opacity-0"}`}
+        >
           {featured.body}
         </p>
 
@@ -83,8 +101,7 @@ export default function HeroSlider({ content }: { content: HeroContent }) {
           >
             {slide.image ? (
               <>
-                {/* eslint-disable-next-line @next/next/no-img-element -- admin tarafından yönetilen hero görseli */}
-                <img
+                <RetryImage
                   src={slide.image}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"

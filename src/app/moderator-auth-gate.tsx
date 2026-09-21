@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import HillsBackground from "./hills-background";
-import { signInWithGoogle } from "./lib/auth-client";
 import Logo from "./logo";
-import { GoogleIcon } from "./provider-icons";
 
+// Yönetici/moderatör girişi -- kasıtlı olarak Google butonu YOK. Hesap
+// çalınma riskini azaltmak için yetkili girişi sadece e-posta/şifre ile
+// yapılabiliyor (owner kuralı); Google hesabı zaten hiçbir moderatör
+// yetkisi alamıyor (bkz. permissions.ts + migration 0032), ama bu ekranın
+// kendisi de o yola hiç davet etmiyor.
 export default function ModeratorAuthGate({
   message,
   redirectTo,
@@ -21,13 +24,12 @@ export default function ModeratorAuthGate({
           <Logo large />
         </Link>
         <p className="max-w-sm text-black/60 dark:text-white/60">{message}</p>
-        <button
-          onClick={() => signInWithGoogle(redirectTo)}
-          className="flex items-center gap-3 rounded-full border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+        <Link
+          href={`/giris?next=${encodeURIComponent(redirectTo)}`}
+          className="flex items-center gap-3 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80"
         >
-          <GoogleIcon />
-          Google ile Giriş Yap
-        </button>
+          E-posta ile Giriş Yap
+        </Link>
       </div>
     </div>
   );

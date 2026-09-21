@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { signInWithGoogle, signInWithPassword } from "../lib/auth-client";
+import { safeNext } from "../lib/safe-next";
 import { createClient } from "../lib/supabase/client";
 import Logo from "../logo";
 import { GoogleIcon } from "../provider-icons";
@@ -14,6 +15,8 @@ import { GoogleIcon } from "../provider-icons";
 // sitenin geri kalanından kopuk, hep-koyu bir "ada" gibiydi.
 export default function GirisPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = safeNext(searchParams.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -43,13 +46,21 @@ export default function GirisPage() {
       ? await supabase.from("profiles").select("birth_date").eq("id", user.id).single()
       : { data: null };
 
-    router.push(profile && !profile.birth_date ? "/hesap" : "/");
+    router.push(profile && !profile.birth_date ? "/hesap" : next);
     router.refresh();
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-16 dark:bg-black">
-      <div className="flex w-full max-w-sm flex-col items-center gap-1 text-center">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-white px-6 py-16 dark:bg-black">
+      {/* eslint-disable-next-line @next/next/no-img-element -- sabit sayfa arka planı, R2'de barındırılıyor */}
+      <img
+        src="https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-giris.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-white/85 dark:bg-black/85" />
+
+      <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-1 text-center">
         <Link href="/" className="text-black dark:text-white">
           <Logo />
         </Link>
@@ -61,7 +72,7 @@ export default function GirisPage() {
         </p>
       </div>
 
-      <form onSubmit={submit} className="mt-8 flex w-full max-w-sm flex-col gap-3">
+      <form onSubmit={submit} className="relative z-10 mt-8 flex w-full max-w-sm flex-col gap-3">
         <label className="flex flex-col gap-1 text-sm text-black dark:text-white">
           E-posta
           <input
@@ -96,15 +107,15 @@ export default function GirisPage() {
         </button>
       </form>
 
-      <div className="my-5 flex w-full max-w-sm items-center gap-3 text-xs text-black/40 dark:text-white/40">
+      <div className="relative z-10 my-5 flex w-full max-w-sm items-center gap-3 text-xs text-black/40 dark:text-white/40">
         <span className="h-px flex-1 bg-black/10 dark:bg-white/10" />
         veya
         <span className="h-px flex-1 bg-black/10 dark:bg-white/10" />
       </div>
 
       <button
-        onClick={() => signInWithGoogle()}
-        className="flex w-full max-w-sm items-center justify-center gap-3 rounded-full border border-black/10 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-black/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
+        onClick={() => signInWithGoogle(next)}
+        className="relative z-10 flex w-full max-w-sm items-center justify-center gap-3 rounded-full border border-black/10 px-4 py-2.5 text-sm font-medium text-black transition hover:bg-black/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
       >
         <GoogleIcon />
         Google ile Giriş Yap

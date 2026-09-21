@@ -37,10 +37,6 @@
       "href": "/hakkimizda"
     },
     {
-      "label": "Özellikler",
-      "href": "/ozellikler"
-    },
-    {
       "label": "Sosyal Medya",
       "href": "/sosyal-medya"
     },
@@ -73,86 +69,7 @@
       "href": "/telif-hakki"
     }
   ],
-  "recommendedCreators": [
-    {
-      "name": "redstonecu42",
-      "platform": "Twitch",
-      "note": "Canlı redstone atölyeleri",
-      "tier": "premium"
-    },
-    {
-      "name": "TMPCraft",
-      "platform": "YouTube",
-      "note": "Haftalık build rehberleri",
-      "tier": "premium"
-    },
-    {
-      "name": "modrehberi",
-      "platform": "YouTube",
-      "note": "Mod inceleme ve rehberler",
-      "tier": "premium"
-    },
-    {
-      "name": "pixelkral",
-      "platform": "TikTok",
-      "note": "Kısa build ipuçları",
-      "tier": "premium"
-    },
-    {
-      "name": "buildmaster",
-      "platform": "YouTube",
-      "note": "Coğrafya temelli mega yapılar",
-      "tier": "standard"
-    },
-    {
-      "name": "yardımcı_ayse",
-      "platform": "Twitch",
-      "note": "Yeni başlayanlara canlı destek",
-      "tier": "standard"
-    },
-    {
-      "name": "golgeavcisi",
-      "platform": "YouTube",
-      "note": "Gizli tapınak ve define avları",
-      "tier": "standard"
-    },
-    {
-      "name": "envanterci",
-      "platform": "TikTok",
-      "note": "Envanter yönetimi ipuçları",
-      "tier": "standard"
-    },
-    {
-      "name": "kristal_insa",
-      "platform": "YouTube",
-      "note": "Kristal temalı dekoratif build'ler",
-      "tier": "standard"
-    },
-    {
-      "name": "redtasci",
-      "platform": "Twitch",
-      "note": "Redstone bulmacaları çözüyor",
-      "tier": "standard"
-    },
-    {
-      "name": "tasyurek",
-      "platform": "YouTube",
-      "note": "İlk build'ini yeni paylaştı",
-      "tier": "newcomer"
-    },
-    {
-      "name": "sihirlitoz",
-      "platform": "TikTok",
-      "note": "Yeni katıldı, resource pack deniyor",
-      "tier": "newcomer"
-    },
-    {
-      "name": "orman_bekcisi",
-      "platform": "Twitch",
-      "note": "İlk canlı yayınına hazırlanıyor",
-      "tier": "newcomer"
-    }
-  ],
+  "recommendedCreators": [],
   "contact": {
     "whatsapp": "",
     "email": "destek.tmpcraft@gmail.com"
@@ -207,9 +124,21 @@
     "featuredSlides": [
       {
         "title": "TMP Craft'a Hoş Geldin",
-        "body": "Mod, modpack, sunucu ve topluluk — Minecraft dünyanın tek adresi.",
-        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/logo.16.png",
+        "body": "TMP Craft sitesine hoşgeldiniz. Burada bir sürü içerik sizi bekliyor.",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-hosgeldin.jpg",
         "href": "/sosyal-medya"
+      },
+      {
+        "title": "Toplulukla Buluş",
+        "body": "TMP Craft topluluğunda sizde konuları konuşabilir, bilgi sağlayabilirsiniz.",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-topluluk.jpg",
+        "href": "/topluluk"
+      },
+      {
+        "title": "Kendi Dünyanı Kur",
+        "body": "Farm ya da ev yapmak çok daha kolay. İster şematik ile, istersen de YouTube'de Türkçe anlatımla izle, hemen yapmaya başla.",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-build.jpg",
+        "href": "/projeler"
       }
     ],
     "featuredIntervalMs": 5000,
@@ -217,19 +146,19 @@
       {
         "title": "Modlarını Bul",
         "body": "Yüzlerce mod, sürüm ve loader'a göre filtrelenmiş.",
-        "image": "",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-mods.jpg",
         "href": "/mod-paketleri"
       },
       {
         "title": "Toplulukla Buluş",
         "body": "Sorularını sor, projelerini paylaş.",
-        "image": "",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-secondary-topluluk.jpg",
         "href": "/topluluk"
       },
       {
         "title": "Kendi Dünyanı Kur",
         "body": "Build rehberleri ve ilham verici projeler.",
-        "image": "",
+        "image": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/hero-secondary-build.jpg",
         "href": "/projeler"
       }
     ]
@@ -258,20 +187,37 @@
     "topluluk": {
       "title": "Topluluk'ta Neler Oluyor",
       "body": "2.400+ üye, 180+ açık konu — gündemi kaçırma.",
-      "images": ["/topluluk-bg.png"],
+      "images": [
+        "/topluluk-bg.png",
+        "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/topluluk-01.jpg",
+        "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/topluluk-02.jpg",
+        "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/topluluk-03.jpg",
+        "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/topluluk-04.jpg",
+        "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/topluluk-05.jpg"
+      ],
       "intervalMs": 5000,
       "href": "/topluluk"
     },
     "sunucular": {
       "title": "Sunucular",
       "body": "",
-      "images": ["/sunucular-bg.png"],
+      "images": [
+        "/sunucular-bg.png"
+      ],
       "intervalMs": 5000,
       "href": "/sunucular"
     }
   },
   "modPaketleriPage": {
-    "backgroundImageUrl": "",
-    "categoryOrder": ["Mods", "Resource Packs", "Data Packs", "Shaders", "Modpacks", "Plugins", "Servers"]
+    "backgroundImageUrl": "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-mod-paketleri.jpg",
+    "categoryOrder": [
+      "Mods",
+      "Resource Packs",
+      "Data Packs",
+      "Shaders",
+      "Modpacks",
+      "Plugins",
+      "Servers"
+    ]
   }
 }

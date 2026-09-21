@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AtmosphereBackground, AtmosphereSection } from "./atmosphere";
 import BackgroundGallery from "./background-gallery";
 import BackgroundTexture from "./background-texture";
+import ComingSoonWatermark from "./coming-soon-watermark";
 import CommunitySlider from "./community-slider";
 import Footer from "./footer";
 import HeroSlider from "./hero-slider";
@@ -12,45 +13,26 @@ import { getAllDownloadItems } from "./lib/downloads-server";
 import { guides } from "./lib/guides";
 import { getDbServerCards } from "./lib/server-cards-server";
 import { trends } from "./lib/trends";
-import {
-  CommunityFeedColumn,
-  AvatarBubbles,
-  feedColumnA,
-  feedColumnB,
-} from "./community-feed";
-import ModPaketleriSliderPanel, { type FeaturedModCard } from "./mod-paketleri-slider-panel";
+import EgitimlerSliderPanel from "./egitimler-slider-panel";
+import { type FeaturedModCard } from "./mod-paketleri-slider-panel";
 import Navbar from "./navbar";
 import NewsTicker, { type TickerItem } from "./news-ticker";
 import ProjelerSliderPanel, { type FeaturedGuideCard } from "./projeler-slider-panel";
-import ServerSpotlight, { type ServerCard } from "./server-spotlight";
+import ServerSpotlight from "./server-spotlight";
 
 const FALLBACK_ANNOUNCEMENTS: TickerItem[] = [
   { label: "TMP Craft'a hoş geldin — indir, keşfet, paylaş.", href: "/", tag: "Duyuru" },
-  { label: "Topluluk kuralları güncellendi.", href: "/kurallar", tag: "Duyuru" },
-  { label: "Yeni sezon yakında başlıyor.", href: "/topluluk", tag: "Duyuru" },
-];
-
-// Sunucular kartındaki büyük "spotlight" döngüsü için -- sunucular tek
-// tek, reklam panosu gibi sırayla gösteriliyor. Moderatörlerin /admin'den
-// eklediği sunucular (bkz. getDbServerCards) bu sabit listenin ÜSTÜNE
-// ekleniyor, yerine geçmiyor.
-const SERVER_CARDS: ServerCard[] = [
-  { name: "TMP Anaakım", players: "42/100", fill: 42 },
-  { name: "TMP SkyBlock", players: "76/150", fill: 51 },
-  { name: "TMP Faction", players: "33/80", fill: 41 },
-  { name: "TMP Modlu", players: "21/50", fill: 42 },
-  { name: "TMP Creative", players: "18/60", fill: 30 },
-  { name: "TMP Event", players: "54/64", fill: 84 },
-  { name: "TMP KitPvP", players: "29/40", fill: 73 },
-  { name: "TMP Prison", players: "37/70", fill: 53 },
-  { name: "TMP OneBlock", players: "45/80", fill: 56 },
 ];
 
 export default async function Home() {
   const content = getSiteContent();
   const user = await getCurrentUser();
-  const dbServerCards = await getDbServerCards();
-  const allServerCards = [...dbServerCards, ...SERVER_CARDS];
+  // Sunucu listesi sadece moderatörün gerçekten eklediği kayıtlardan
+  // geliyor -- eskiden burada dolgu amaçlı 9 tane sahte statik sunucu
+  // (uydurma isim/oyuncu sayısı) vardı, "sahte içerik" temizliğinde
+  // kaldırıldı. Gerçek sunucu yoksa kart/şerit boş kalır, uydurma veri
+  // göstermez.
+  const allServerCards = await getDbServerCards();
   const allDownloadItems = await getAllDownloadItems();
 
   // Admin'in "Öne Çıkan Modlar" panelinde sırasını/rozetini seçtiği modlar
@@ -127,13 +109,6 @@ export default async function Home() {
   const tickerLabel = content.ticker.badgeLabel.trim() || "CANLI";
   const isTickerPinned = content.ticker.pinned && content.ticker.pinnedMessage.trim().length > 0;
 
-  // Büyük Topluluk kartının içinde akan, o anki olaylar/gündem.
-  const toplulukEvents: TickerItem[] = [
-    { label: "Yeni sezon başladı!", href: "/topluluk", tag: "Duyuru" },
-    { label: "Tasarım yarışması sürüyor", href: "/topluluk", tag: "Etkinlik" },
-    { label: "#YusufTE'nin speedrun taktiği", href: "/topluluk", tag: "Gündem" },
-  ];
-
   // İkinci katman şeridi -- gündem ve sunucu bilgisi tek bir akışta
   // karışık, üstteki "Canlı" şeridiyle aynı ince/az göze batan dille.
   const secondLayerItems: TickerItem[] = trendItems.flatMap((trend, i) =>
@@ -179,7 +154,7 @@ export default async function Home() {
         <HeroSlider content={content.hero} />
       </section>
 
-      <CommunitySlider />
+      <CommunitySlider allItems={allDownloadItems} featuredModItems={featuredModItems} />
 
       {/* İkinci katmanın açılış şeridi -- üstteki "Canlı" şeridiyle aynı
           ince/az göze batan dille, gündem + sunucu tek bir akışta birleşik.
@@ -214,17 +189,6 @@ export default async function Home() {
                 intervalMs={content.homeCards.topluluk.intervalMs}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/25" />
-              <AvatarBubbles className="inset-0" />
-              <CommunityFeedColumn
-                posts={feedColumnA}
-                speed={0.28}
-                className="absolute left-5 top-5 hidden h-40 w-36 sm:block sm:h-48 sm:w-44"
-              />
-              <CommunityFeedColumn
-                posts={feedColumnB}
-                speed={0.35}
-                className="absolute right-5 top-24 hidden h-40 w-36 sm:block sm:h-56 sm:w-48"
-              />
               <span className="relative z-10 w-fit rounded-full bg-fuchsia-500/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-fuchsia-300">
                 Topluluk
               </span>
@@ -234,9 +198,6 @@ export default async function Home() {
               <p className="relative z-10 max-w-md font-sans text-sm text-white/80 sm:text-base">
                 {content.homeCards.topluluk.body}
               </p>
-              <div className="relative z-10 mt-2 w-full border-t border-white/20 pt-2">
-                <NewsTicker items={toplulukEvents} linked={false} />
-              </div>
             </Link>
 
             <Link
@@ -274,11 +235,7 @@ export default async function Home() {
               kaldırıldı (2026-09-17) -- bileşen (icerik-slider-panel.tsx)
               silinmedi, ileride geri eklenecek. */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <ModPaketleriSliderPanel
-              className="h-72"
-              allItems={allDownloadItems}
-              featured={featuredModItems}
-            />
+            <EgitimlerSliderPanel className="h-72" />
             <ProjelerSliderPanel className="h-72" featured={featuredGuideItems} />
           </div>
         </div>

@@ -15,7 +15,14 @@ export async function getAllDownloadItems(): Promise<DownloadItem[]> {
       .order("created_at", { ascending: false });
     if (error || !data) return downloadItems;
     const dbItems = (data as ModPackageRow[]).map(toDownloadItem);
-    return [...dbItems, ...downloadItems];
+    // Aynı slug hem statik seed'de hem DB'de varsa (moderatör mevcut bir
+    // modla aynı isimde paket eklerse) DB kaydı kazanır -- iki tarafta da
+    // aynı slug'ın yaşamasına izin verilirse listelerde/route'larda
+    // belirsiz davranış olur.
+    const bySlug = new Map<string, DownloadItem>();
+    for (const item of dbItems) bySlug.set(item.slug, item);
+    for (const item of downloadItems) if (!bySlug.has(item.slug)) bySlug.set(item.slug, item);
+    return Array.from(bySlug.values());
   } catch {
     return downloadItems;
   }

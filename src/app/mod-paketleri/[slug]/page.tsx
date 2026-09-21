@@ -14,23 +14,6 @@ import ModPaketiActions from "./mod-paketi-actions";
 import ModPaketiComments from "./mod-paketi-comments";
 import ModPaketiQr from "./mod-paketi-qr";
 
-function AdSlot({ side }: { side: "left" | "right" }) {
-  return (
-    <div
-      className={`fixed top-36 hidden h-[560px] w-48 flex-col items-center justify-center rounded-2xl border border-dashed border-black/15 text-center 2xl:flex dark:border-white/15 ${
-        side === "left" ? "left-6" : "right-6"
-      }`}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-wide opacity-40">
-        Reklam Alanı
-      </p>
-      <p className="mt-1 px-3 text-xs opacity-50">
-        Bu alan yakında reklam ortaklarımıza açılacak.
-      </p>
-    </div>
-  );
-}
-
 export default async function ModPaketiPage({
   params,
 }: {
@@ -81,8 +64,6 @@ export default async function ModPaketiPage({
         navLinks={content.footerLinks}
         user={user}
       />
-      <AdSlot side="left" />
-      <AdSlot side="right" />
 
       <div className="flex-1 px-6 pb-24 pt-32 sm:px-10">
         <div className="mx-auto max-w-6xl">

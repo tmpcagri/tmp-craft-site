@@ -314,6 +314,13 @@ export default function YonetimPage() {
                 gereken bir istek açar (aşağıda &quot;bekliyor&quot;) --
                 fiilen hemen verilmez.
               </p>
+              {user.provider !== "email" && (
+                <p className="-mt-1 text-xs font-medium text-red-500">
+                  Google hesabı — moderatör yetkisi verilemez (hesap çalınma
+                  riski). Yetki vermek için bu kişiye e-posta/şifre hesabı
+                  açman gerekiyor.
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
                 {ALL_MODERATOR_TABS.map((tab) => {
                   const active = user.permissions.includes(tab);
@@ -340,6 +347,18 @@ export default function YonetimPage() {
                         className="rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-700 transition dark:text-amber-400"
                       >
                         {TAB_LABELS[tab]} (bekliyor)
+                      </button>
+                    );
+                  }
+                  if (user.provider !== "email") {
+                    return (
+                      <button
+                        key={tab}
+                        disabled
+                        title="Google hesabına yetki verilemez"
+                        className="cursor-not-allowed rounded-full border border-black/10 bg-white/20 px-4 py-1.5 text-xs font-semibold opacity-40 dark:border-white/10 dark:bg-black/20"
+                      >
+                        {TAB_LABELS[tab]}
                       </button>
                     );
                   }

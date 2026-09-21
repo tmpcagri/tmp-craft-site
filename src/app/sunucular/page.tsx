@@ -9,6 +9,7 @@ export default function SunucularPage() {
       intro="En iyisi değil, en dürüstü öne çıkar."
       accent="amber"
       variant="stub"
+      backgroundImageUrl="https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-sunucular.jpg"
     >
       <p>
         Her sunucu tek bir genel puanla değil, <strong>ayrı eksenlerde</strong>{" "}

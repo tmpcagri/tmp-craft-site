@@ -1,5 +1,3 @@
-import { rawGuides } from "./guides-data";
-
 export type GuideKind = "Build" | "Farm";
 
 export type BuildCategory =
@@ -117,19 +115,12 @@ export type Guide = {
   requiresRedstone?: boolean;
 };
 
-export const guides: Guide[] = rawGuides.map((g) => ({
-  ...g,
-  slug: g.title
-    .toLowerCase()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, ""),
-}));
+// Build/Farm rehberleri henüz gerçek (moderatör tarafından girilen) bir
+// özellik değil -- eski sahte/demo veriler kaldırıldı, gerçek içerik
+// gelene kadar bilerek boş. Tip/kategori/yardımcı fonksiyon export'ları
+// diğer dosyaların (filtreler, admin paneli, detay sayfası) kırılmaması
+// için aynen duruyor.
+export const guides: Guide[] = [];
 
 export const ALL_GAME_VERSIONS = Array.from(
   new Set(

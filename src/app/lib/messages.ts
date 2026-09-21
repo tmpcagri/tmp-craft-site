@@ -64,6 +64,28 @@ function mapSearchedUser(row: {
 
 const MESSAGE_COLUMNS = "id, sender_id, receiver_id, content, created_at, read_at";
 
+// Özel mesajlaşma (bu dosya) artık yalnızca moderatörler arasında --
+// bkz. supabase/migrations/0032_restrict_messages_to_moderators.sql.
+// Konu/sayfa bazlı kanallar için mod-chat.ts (moderatör ekibi) ve
+// topluluk.ts (herkese açık konu tartışmaları) kullanılıyor.
+// Aynı "moderatör mi" tanımı account-button.tsx'te de tekrarlanıyor.
+export async function isCurrentUserModerator(): Promise<boolean> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase
+    .from("profiles")
+    .select("is_owner, permissions")
+    .eq("id", user.id)
+    .single();
+  if (!data) return false;
+
+  return data.is_owner || (data.permissions ?? []).length > 0;
+}
+
 // Every conversation the signed-in user is part of, newest last-message
 // first, with the other participant's public profile and unread count.
 export async function listConversations(): Promise<Conversation[]> {
@@ -211,7 +233,10 @@ export async function getPublicProfile(
 }
 
 // Username search against public_profiles, for picking who to message.
-// Excludes the caller's own row.
+// Excludes the caller's own row. DM artık moderatör-moderatör olduğundan
+// (bkz. isCurrentUserModerator ve migration 0032), sonuçlar her zaman
+// moderatörlerle sınırlı -- normal kullanıcı zaten hiç mesaj gönderemez,
+// moderatör de yalnızca başka bir moderatörle konuşabilir.
 export async function searchUsers(query: string): Promise<SearchedUser[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
@@ -224,6 +249,7 @@ export async function searchUsers(query: string): Promise<SearchedUser[]> {
   let request = supabase
     .from("public_profiles")
     .select("id, username, avatar_url")
+    .eq("is_moderator", true)
     .ilike("username", `%${trimmed}%`)
     .limit(20);
   if (user) request = request.neq("id", user.id);

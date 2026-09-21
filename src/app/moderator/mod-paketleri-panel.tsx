@@ -64,10 +64,10 @@ export default function ModPaketleriPanel() {
   // Bağımlılık seçilebilecek her şey: statik seed + şu an yüklenmiş DB
   // paketleri, kendisi hariç -- isim yerine slug'a bağlanıyor ki biri adını
   // değiştirse bile link kopmasın (bkz. mod-paketleri/[slug]/page.tsx).
-  const availableDeps = [
-    ...downloadItems,
-    ...(items ?? []).map(toDownloadItem),
-  ].filter((d) => d.slug !== editingSlug);
+  const depsBySlug = new Map<string, ReturnType<typeof toDownloadItem>>();
+  for (const d of (items ?? []).map(toDownloadItem)) depsBySlug.set(d.slug, d);
+  for (const d of downloadItems) if (!depsBySlug.has(d.slug)) depsBySlug.set(d.slug, d);
+  const availableDeps = Array.from(depsBySlug.values()).filter((d) => d.slug !== editingSlug);
 
   const toggleDependency = (slug: string) =>
     setForm((f) => ({

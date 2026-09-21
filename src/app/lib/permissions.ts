@@ -56,12 +56,23 @@ export async function getCurrentModerator(): Promise<ModeratorSession> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username, is_owner, permissions, birth_date, avatar_url, role_label")
+    .select(
+      "username, is_owner, permissions, birth_date, avatar_url, role_label, provider",
+    )
     .eq("id", user.id)
     .single();
 
   if (!profile) return null;
 
+  // NOT: "Google hesabına yetki verilemez" kuralı burada (runtime'da
+  // is_owner/permissions'ı sıfırlayarak) UYGULANMIYOR -- mevcut owner
+  // hesabı hâlâ Google ile kayıtlı (bkz. IHTIYACLAR.md, 2026-09-19), test
+  // aşamasında bu yüzden owner'ı kilitlemeyelim diye patron onayıyla
+  // gevşetildi. Kural şimdilik sadece YENİ yetki verilirken (/yonetim
+  // UI'daki disabled buton) işletiliyor. Deploy öncesi owner e-posta/şifre
+  // hesabına taşınmalı ve bu kontrol geri eklenmeli (migration 0033 da
+  // o zamana kadar Supabase'de ÇALIŞTIRILMAMALI, aksi halde bu satır
+  // CHECK constraint'e takılır).
   return {
     username: profile.username,
     id: user.id,

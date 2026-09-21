@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import ComingSoonWatermark from "./coming-soon-watermark";
 import type { FeaturedModTag } from "./lib/content";
 import { guides as allGuides, type Guide } from "./lib/guides";
 import { useAutoScroll } from "./lib/use-auto-scroll";
@@ -48,7 +49,13 @@ export default function ProjelerSliderPanel({
     <div
       className={`relative flex flex-col overflow-hidden rounded-3xl shadow-xl ${className}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-950 via-orange-900 to-red-900" />
+      {/* eslint-disable-next-line @next/next/no-img-element -- sabit panel arka planı, R2'de barındırılıyor */}
+      <img
+        src="https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/build-farm-panel.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-amber-950/80 via-orange-900/60 to-red-900/70" />
 
       <Link
         href="/projeler"
@@ -62,58 +69,67 @@ export default function ProjelerSliderPanel({
         </span>
       </Link>
 
-      <div
-        ref={trackRef}
-        className="relative z-10 flex flex-1 gap-4 overflow-x-auto px-6 pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        {...handlers}
-      >
-        {track.map((card, i) => {
-          const key = card.mode === "existing" ? card.item.slug : card.linkUrl || card.title;
-          const href = card.mode === "existing" ? `/projeler/${card.item.slug}` : card.linkUrl || "#";
-          const title = card.mode === "existing" ? card.item.title : card.title;
-          const description = card.mode === "existing" ? card.item.description : card.description;
-          const imageUrl = card.mode === "custom" ? card.imageUrl : undefined;
-          return (
-            <Link
-              key={`${key}-${i}`}
-              href={href}
-              aria-hidden={i >= items.length}
-              tabIndex={i >= items.length ? -1 : undefined}
-              className="relative flex w-56 shrink-0 flex-col justify-end gap-1 overflow-hidden rounded-2xl bg-white/10 p-4 shadow-lg backdrop-blur-sm transition hover:bg-white/15"
-            >
-              {imageUrl && (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded custom card image, arbitrary URL */}
-                  <img
-                    src={imageUrl}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                </>
-              )}
-              {card.tag && (
-                <span
-                  className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TAG_STYLE[card.tag]}`}
-                >
-                  {card.tag}
-                </span>
-              )}
-              {card.mode === "existing" && (
-                <span className="relative z-10 w-fit rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                  {card.item.kind === "Build" ? "Build" : "Farm"} · {card.item.category}
-                </span>
-              )}
-              <h4 className="relative z-10 mt-1.5 font-sans text-sm font-bold text-white">
-                {title}
-              </h4>
-              <p className="relative z-10 mt-1 line-clamp-2 font-sans text-xs text-white/70">
-                {description}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+      {items.length === 0 ? (
+        <div className="relative z-10 flex flex-1 items-center justify-center px-6 pb-6 text-center">
+          <ComingSoonWatermark />
+          <p className="font-sans text-sm text-white/70">
+            Yakında hizmete sunulacaktır.
+          </p>
+        </div>
+      ) : (
+        <div
+          ref={trackRef}
+          className="relative z-10 flex flex-1 gap-4 overflow-x-auto px-6 pb-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          {...handlers}
+        >
+          {track.map((card, i) => {
+            const key = card.mode === "existing" ? card.item.slug : card.linkUrl || card.title;
+            const href = card.mode === "existing" ? `/projeler/${card.item.slug}` : card.linkUrl || "#";
+            const title = card.mode === "existing" ? card.item.title : card.title;
+            const description = card.mode === "existing" ? card.item.description : card.description;
+            const imageUrl = card.mode === "custom" ? card.imageUrl : undefined;
+            return (
+              <Link
+                key={`${key}-${i}`}
+                href={href}
+                aria-hidden={i >= items.length}
+                tabIndex={i >= items.length ? -1 : undefined}
+                className="relative flex w-56 shrink-0 flex-col justify-end gap-1 overflow-hidden rounded-2xl bg-white/10 p-4 shadow-lg backdrop-blur-sm transition hover:bg-white/15"
+              >
+                {imageUrl && (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded custom card image, arbitrary URL */}
+                    <img
+                      src={imageUrl}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  </>
+                )}
+                {card.tag && (
+                  <span
+                    className={`absolute right-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TAG_STYLE[card.tag]}`}
+                  >
+                    {card.tag}
+                  </span>
+                )}
+                {card.mode === "existing" && (
+                  <span className="relative z-10 w-fit rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                    {card.item.kind === "Build" ? "Build" : "Farm"} · {card.item.category}
+                  </span>
+                )}
+                <h4 className="relative z-10 mt-1.5 font-sans text-sm font-bold text-white">
+                  {title}
+                </h4>
+                <p className="relative z-10 mt-1 line-clamp-2 font-sans text-xs text-white/70">
+                  {description}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -4,12 +4,7 @@ export type Trend = {
   count: number;
 };
 
-export const trends: Trend[] = [
-  { category: "Güncellemeler", topic: "1.21.2 hataları", count: 212 },
-  { category: "Güncellemeler", topic: "Yeni minderler", count: 154 },
-  { category: "Güncellemeler", topic: "Meşe yaprakları", count: 98 },
-  { category: "Güncellemeler", topic: "Yeni snapshot", count: 76 },
-  { category: "Gündem", topic: "YusufTE'nin speedrun taktiği", count: 301 },
-  { category: "Gündem", topic: "poyzun hayatta kalma evi mükemmel", count: 189 },
-  { category: "Gündem", topic: "Microsoft yine bildiğini yaptı", count: 445 },
-].sort((a, b) => b.count - a.count);
+// Gerçek gündem/trend verisi henüz yok (topluluk özelliği kilitli, bkz.
+// /topluluk) -- sahte/uydurma "trend" gösterip canlıymış izlenimi
+// vermemek için bilerek boş. Gerçek veri geldiğinde buraya eklenecek.
+export const trends: Trend[] = [];

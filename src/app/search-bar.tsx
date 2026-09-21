@@ -51,7 +51,7 @@ export default function SearchBar({
   };
 
   useEffect(() => {
-    if (query) return;
+    if (query || placeholderWords.length === 0) return;
 
     let wordIndex = 0;
     let charIndex = 0;

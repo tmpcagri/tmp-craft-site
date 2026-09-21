@@ -44,9 +44,16 @@ const accentStyles: Record<
   },
 };
 
+// Kurumsal sayfaların (Hakkımızda, Destek, SSS, vb.) ortak atmosferik arka
+// planı -- egitimler-slider-panel.tsx / projeler-slider-panel.tsx ile aynı
+// desen (sabit R2 görseli + hafif overlay). Sunucular ve Eğitimler gibi
+// "stub" sayfalar kendi görsellerini backgroundImageUrl prop'uyla override
+// edebiliyor.
+const DEFAULT_BACKGROUND_IMAGE_URL =
+  "https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-kurumsal.jpg";
+
 const kurumsalLinks = [
   { label: "Hakkımızda", href: "/hakkimizda" },
-  { label: "Özellikler", href: "/ozellikler" },
   { label: "Sosyal Medya", href: "/sosyal-medya" },
   { label: "İletişim", href: "/iletisim" },
   { label: "Destek ve Yardım", href: "/destek" },
@@ -64,6 +71,7 @@ export default async function ContentPage({
   accent = "emerald",
   variant,
   activePath,
+  backgroundImageUrl = DEFAULT_BACKGROUND_IMAGE_URL,
   children,
 }: {
   eyebrow: string;
@@ -72,6 +80,7 @@ export default async function ContentPage({
   accent?: Accent;
   variant?: "kurumsal" | "stub";
   activePath?: string;
+  backgroundImageUrl?: string;
   children: ReactNode;
 }) {
   const content = getSiteContent();
@@ -87,6 +96,14 @@ export default async function ContentPage({
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white dark:bg-black">
+      {/* eslint-disable-next-line @next/next/no-img-element -- sabit sayfa arka planı, R2'de barındırılıyor */}
+      <img
+        src={backgroundImageUrl}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-white/85 dark:bg-black/85" />
+
       <div
         aria-hidden
         className={`pointer-events-none absolute -left-32 -top-20 h-96 w-96 rounded-full blur-3xl ${styles.blobA}`}

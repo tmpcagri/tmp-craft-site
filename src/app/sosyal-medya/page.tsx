@@ -1,27 +1,9 @@
 import BackButton from "../back-button";
 import Footer from "../footer";
-import IcerikSliderPanel from "../icerik-slider-panel";
 import { getCurrentUser } from "../lib/auth";
 import { getSiteContent } from "../lib/content";
 import Navbar from "../navbar";
 import SocialAccountCard, { type SocialAccount } from "./social-account-card";
-
-function AdSlot({ side }: { side: "left" | "right" }) {
-  return (
-    <div
-      className={`fixed top-36 hidden h-[560px] w-48 flex-col items-center justify-center rounded-2xl border border-dashed border-black/15 text-center 2xl:flex dark:border-white/15 ${
-        side === "left" ? "left-6" : "right-6"
-      }`}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-wide opacity-40">
-        Reklam Alanı
-      </p>
-      <p className="mt-1 px-3 text-xs opacity-50">
-        Bu alan yakında reklam ortaklarımıza açılacak.
-      </p>
-    </div>
-  );
-}
 
 // Gerçek marka görselleri kart içinde alakasız/kırpık durduğu için --
 // logo yerine her platformun marka renginden bir gradyan + üstünde isim
@@ -82,17 +64,23 @@ export default async function SosyalMedyaPage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white dark:bg-black">
+      {/* eslint-disable-next-line @next/next/no-img-element -- sabit sayfa arka planı, R2'de barındırılıyor */}
+      <img
+        src="https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-sosyal-medya.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-white/85 dark:bg-black/85" />
+
       <Navbar
         className="text-black dark:text-white"
         logoText={content.navbar.logoText}
         navLinks={content.footerLinks}
         user={user}
       />
-      <AdSlot side="left" />
-      <AdSlot side="right" />
 
-      <div className="flex-1 px-6 pb-24 pt-16 sm:px-10">
+      <div className="relative flex-1 px-6 pb-24 pt-16 sm:px-10">
         <div className="mx-auto max-w-5xl">
           <BackButton />
 
@@ -105,19 +93,14 @@ export default async function SosyalMedyaPage() {
             </h1>
           </div>
 
-          {/* Sosyal medya düğmeleri sayfanın solunda sabit, dar bir
-              sütunda duruyor -- masaüstünde içerik vitrini sağda,
-              mobilde tam genişlikte üstte. */}
-          <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:items-start">
-            <div className="flex w-full flex-col gap-3 lg:w-[340px] lg:shrink-0">
-              {accounts.map((account) => (
-                <SocialAccountCard key={account.label} account={account} />
-              ))}
-            </div>
-
-            <div className="w-full min-w-0 lg:flex-1">
-              <IcerikSliderPanel className="h-72 lg:h-full lg:min-h-[440px]" />
-            </div>
+          {/* İçerikler paneli sosyal-medya sayfasından patronun isteğiyle
+              kaldırıldı (2026-09-21) -- bileşen (icerik-slider-panel.tsx)
+              silinmedi, ileride geri eklenecek. Panel gidince sosyal medya
+              düğmeleri tek sütuna indirildi, ortalanmış bir alana taşındı. */}
+          <div className="mx-auto mt-10 flex w-full max-w-xl flex-col gap-3">
+            {accounts.map((account) => (
+              <SocialAccountCard key={account.label} account={account} />
+            ))}
           </div>
         </div>
       </div>

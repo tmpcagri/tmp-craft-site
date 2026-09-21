@@ -187,7 +187,7 @@ export default function ModPaketleriFilters({
             }
           >
             {category}{" "}
-            <span className="opacity-60">({CATEGORY_TR[category]})</span>
+            <span className="hidden opacity-60 sm:inline">({CATEGORY_TR[category]})</span>
           </FilterPill>
         ))}
       </div>
@@ -284,7 +284,7 @@ export default function ModPaketleriFilters({
                     ({CATEGORY_TR[category]})
                   </span>
                 </h2>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="flex flex-col gap-3">
                   {items.map((item) => (
                     <ModPackageRow key={item.slug} item={item} />
                   ))}

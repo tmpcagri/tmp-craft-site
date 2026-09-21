@@ -19,7 +19,6 @@ const PAGES: { label: string; href: string }[] = [
   { label: "Sosyal Medya", href: "/sosyal-medya" },
   { label: "Arama", href: "/arama" },
   { label: "Hakkımızda", href: "/hakkimizda" },
-  { label: "Özellikler", href: "/ozellikler" },
   { label: "İletişim", href: "/iletisim" },
   { label: "Destek", href: "/destek" },
   { label: "SSS", href: "/sss" },

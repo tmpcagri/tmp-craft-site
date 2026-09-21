@@ -5,6 +5,7 @@ import { getSiteContent } from "../lib/content";
 import { guides } from "../lib/guides";
 import Navbar from "../navbar";
 import ProjelerFilters from "./projeler-filters";
+import ProjelerInfoToggle from "./projeler-info-toggle";
 
 export default async function ProjelerPage() {
   const content = getSiteContent();
@@ -14,7 +15,15 @@ export default async function ProjelerPage() {
   const farmCount = guides.filter((g) => g.kind === "Farm").length;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-white dark:bg-black">
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-white dark:bg-black">
+      {/* eslint-disable-next-line @next/next/no-img-element -- sabit sayfa arka planı, R2'de barındırılıyor */}
+      <img
+        src="https://pub-5946b15c1992464485b90a8b76df9ab1.r2.dev/homepage/bg-projeler.jpg"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-white/85 dark:bg-black/85" />
+
       <Navbar
         className="text-black dark:text-white"
         logoText={content.navbar.logoText}
@@ -53,6 +62,8 @@ export default async function ProjelerPage() {
               {farmCount} Farm
             </span>
           </div>
+
+          <ProjelerInfoToggle />
         </div>
 
         <ProjelerFilters />
