@@ -82,7 +82,16 @@ const jsonLd = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  const { specialOccasion } = getSiteContent();
+  // GEÇİCİ TEŞHİS: Cloudflare Workers testi için fs.readFileSync çağrısını
+  // try/catch'e aldık -- bu satır kalıcı değil, deploy testi bitince geri
+  // alınacak (bkz. sohbet: 2026-09-22 Cloudflare deploy teşhisi).
+  let specialOccasion;
+  try {
+    specialOccasion = getSiteContent().specialOccasion;
+  } catch (e) {
+    console.error("getSiteContent failed (CF diagnostic):", e);
+    specialOccasion = { manualTheme: "none", autoScheduleEnabled: false, schedule: [], themes: {} } as unknown as ReturnType<typeof getSiteContent>["specialOccasion"];
+  }
   const activeTheme = resolveActiveTheme(specialOccasion);
   const activeThemeSettings = activeTheme === "none" ? null : specialOccasion.themes[activeTheme];
 
